@@ -3,7 +3,7 @@
 The most comprehensive system design plugin for Claude Code.
 Design, evaluate, plan, and build production-grade distributed systems.
 
-**109 files | 42 commands | 19 rules | 10 skills | 4 templates | 16 design references | 8 books**
+**113 files | 42 commands | 19 rules | 14 skills | 4 templates | 16 design references | 8 books**
 
 ## Features
 
@@ -307,7 +307,7 @@ Here's how you'd use the plugin to build a complete system from scratch:
 ### Research & Docs (6)
 | `/research` | `/opensource` | `/docs generate` | `/docs update` | `/knowledge build` | `/knowledge import` |
 
-## 10 Auto-Invoked Skills
+## 14 Auto-Invoked Skills
 
 | Skill | Triggers When |
 |-------|--------------|
@@ -321,6 +321,10 @@ Here's how you'd use the plugin to build a complete system from scratch:
 | **devops** | Setting up CI/CD, Docker |
 | **opensource-research** | Searching for existing solutions |
 | **knowledge-builder** | Building domain knowledge |
+| **web-apps** | Building web apps (SPA, SSR, PWA, framework selection) |
+| **desktop-apps** | Building desktop apps (Electron, Tauri, WPF, Qt, packaging) |
+| **mobile-apps** | Building mobile apps (React Native, Flutter, Swift, Kotlin) |
+| **cross-platform** | Multi-platform targeting or migrating between platforms |
 
 ## 19 Always-Active Rules
 

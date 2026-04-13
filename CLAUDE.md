@@ -149,6 +149,10 @@ Use `/command-name` to invoke any command:
 - **devops** - Triggered when setting up CI/CD, Docker, deployment, cloud infrastructure
 - **opensource-research** - Triggered when researching existing solutions, build vs buy decisions
 - **knowledge-builder** - Triggered when building domain knowledge (robotics, PLC, medical, etc.)
+- **web-apps** - Triggered when building web apps (SPA, SSR, PWA). Framework selection, rendering strategy, deployment
+- **desktop-apps** - Triggered when building desktop apps (Electron, Tauri, WPF, Qt). Packaging, auto-update, code signing
+- **mobile-apps** - Triggered when building mobile apps (React Native, Flutter, Swift, Kotlin). App store, push, offline
+- **cross-platform** - Triggered when targeting multiple platforms or migrating between them. Shared code, BFF pattern
 
 ## Rules (Always Active)
 
