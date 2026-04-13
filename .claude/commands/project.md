@@ -41,6 +41,15 @@ Creates a new project directory at `.claude/projects/<name>/` with:
     research/                   # Research done during discovery
       opensource-options.md     # Open source alternatives found
       tech-comparison.md        # Technology comparisons
+  knowledge/                    # Domain-specific knowledge (built with /knowledge build)
+    <topic>/                    # One folder per topic
+      <topic>.md                # Auto-generated structured knowledge
+      docs/                     # User-provided docs for THIS topic
+        manual.pdf              # PDF manuals, datasheets
+        api-reference.md        # API docs
+        datasheet.pdf           # Hardware datasheets
+        examples/               # Code examples, configs
+      urls.md                   # Bookmarked reference URLs
   plans/                        # Phase 2: Structured planning (after "start planning")
     MASTER-PLAN.md
     01-architecture-plan.md

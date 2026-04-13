@@ -112,6 +112,10 @@ Use `/command-name` to invoke any command:
 - `/gateway <system>` - API gateway and BFF pattern design
 - `/debt <system>` - Technical debt audit and remediation plan
 - `/opensource <system>` - Research open source alternatives, build vs buy vs fork
+- `/knowledge build <topic>` - Build domain knowledge (research + docs + organize)
+- `/knowledge import <file>` - Import PDF/URL into knowledge base
+- `/knowledge list` - Show all knowledge bases
+- `/knowledge show <topic>` - Show specific knowledge
 
 ## Skills (Auto-invoked)
 
@@ -124,6 +128,7 @@ Use `/command-name` to invoke any command:
 - **frontend-design** - Triggered when designing UI (asks style, picks best UI library, enforces a11y)
 - **devops** - Triggered when setting up CI/CD, Docker, deployment, cloud infrastructure
 - **opensource-research** - Triggered when researching existing solutions, build vs buy decisions
+- **knowledge-builder** - Triggered when building domain knowledge (robotics, PLC, medical, etc.)
 
 ## Rules (Always Active)
 

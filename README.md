@@ -3,7 +3,7 @@
 The most comprehensive system design plugin for Claude Code.
 Design, evaluate, plan, and build production-grade distributed systems.
 
-**96 files | 33 commands | 16 rules | 9 skills | 4 templates | 16 design references | 8 books**
+**98 files | 34 commands | 16 rules | 10 skills | 4 templates | 16 design references | 8 books**
 
 Built on deep knowledge from: System Design Interview (Alex Xu), DDIA (Kleppmann),
 Clean Architecture & Clean Code (Martin), Design Patterns (GoF), Refactoring (Fowler),
@@ -102,6 +102,10 @@ You're never forced into the full workflow for simple tasks.
 | `/opensource <system>` | Open source alternatives (build vs buy vs fork) |
 | `/docs generate` | Full documentation suite |
 | `/docs update` | Update docs for recent changes |
+| `/knowledge build <topic>` | Build domain knowledge (research web + organize) |
+| `/knowledge import <file>` | Import PDF, docs, or URL into knowledge |
+| `/knowledge list` | List all knowledge bases |
+| `/knowledge show <topic>` | Show specific knowledge base |
 
 ## 9 Auto-Invoked Skills
 
@@ -118,6 +122,7 @@ Skills activate automatically based on context - no commands needed.
 | **frontend-design** | Designing UI (asks style, picks best library, a11y) |
 | **devops** | Setting up Docker, CI/CD, deployment |
 | **opensource-research** | Searching for existing solutions (build vs buy) |
+| **knowledge-builder** | Building domain knowledge (robotics, PLC, medical, etc.) |
 
 ## 16 Always-Active Rules
 
@@ -172,7 +177,7 @@ Pre-built architecture references from Alex Xu's books:
 | Refactoring | 24 code smells, expand-contract, branch by abstraction |
 | Code Complete | Defensive programming, table-driven methods, performance tuning |
 
-## Plugin Structure (96 files)
+## Plugin Structure (98 files)
 
 ```
 CLAUDE.md                           # Main configuration
@@ -238,18 +243,41 @@ PHASE 3: IMPLEMENTATION (actual code)
 | **Gate 2** | Approve all plans | Plans are locked |
 | **Gate 3** | "start coding" | Implementation begins |
 
-### Project Discovery Folder
+### Project Folder Structure
 ```
-discovery/
-  DISCUSSION.md           # Notes, questions, decisions
-  requirements-draft.md   # Evolving requirements
-  diagrams/               # Mermaid diagrams (rendered on GitHub)
-    architecture.md       # System architecture
-    data-flow.md          # Data flow
-    er-diagram.md         # Entity relationships
-  research/               # Research during discovery
-    opensource-options.md  # Open source alternatives
-    tech-comparison.md    # Technology comparisons
+projects/<project-name>/
+  PROJECT.md                    # Project definition
+  STATUS.md                     # Progress tracking
+  discovery/                    # Phase 1: Free discussion
+    DISCUSSION.md               # Notes, questions, decisions
+    requirements-draft.md       # Evolving requirements
+    diagrams/                   # Mermaid diagrams (rendered on GitHub)
+      architecture.md
+      data-flow.md
+      er-diagram.md
+    research/                   # Research during discovery
+      opensource-options.md
+      tech-comparison.md
+  knowledge/                    # Domain knowledge (built with /knowledge build)
+    kuka-robot/                 # Example: KUKA robot knowledge
+      kuka-robot.md             # Auto-generated structured knowledge
+      docs/                     # YOUR documentation files
+        krl-manual.pdf          # PDF manuals you provide
+        api-reference.md        # API docs
+        examples/               # Code examples, configs
+      urls.md                   # Reference URLs
+    plc-siemens/                # Example: Siemens PLC knowledge
+      plc-siemens.md
+      docs/
+        s7-datasheet.pdf
+  plans/                        # Phase 2: Structured planning
+    MASTER-PLAN.md
+    01-architecture-plan.md ... 10-monitoring-plan.md
+    IMPLEMENTATION-ROADMAP.md
+  design/                       # Design documents
+    DESIGN.md
+    ADR/
+  docs/                         # Phase 3: Auto-generated documentation
 ```
 
 ## Recommended Companion Tools
