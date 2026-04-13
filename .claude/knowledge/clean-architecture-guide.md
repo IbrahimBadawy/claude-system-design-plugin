@@ -144,6 +144,38 @@ The database is a DETAIL. The web is a DETAIL. Business rules are the CENTER.
 | Data Clumps | Introduce Parameter Object, Extract Class |
 | Large Class | Extract Class, Extract Superclass |
 
+## Refactoring Principles (Fowler - Deep Read)
+
+### When NOT to Refactor
+- **Easier to rewrite**: Code so tangled you can't make incremental working changes
+- **Not in your way**: Ugly code behind a clean API that nobody touches - leave it
+- **Close to a deadline**: Productivity gains come later, not now
+
+### Key Mechanics
+- **Extract Function**: Name by WHAT not HOW. Variables only read = parameters. Modified + used after = return it.
+- **Replace Temp with Query**: Only when assigned once + no side effects. Refactor first, cache later.
+- **Change Function Declaration (published API)**: Keep old as delegation to new. Deprecate. Migrate callers. Remove.
+
+### Database Refactoring (Expand-Contract)
+1. Add new column (expand)
+2. Write to both old + new columns
+3. Migrate all readers to new column
+4. Backfill historical data
+5. Remove old column (contract)
+Each phase = separate deployment. Database always works between steps.
+
+### Architecture Relationship
+- YAGNI + Refactoring = flexible architecture (defer decisions because change is cheap)
+- **Branch by Abstraction**: Create abstraction over old code -> migrate callers -> create new impl -> switch -> remove abstraction
+- **Strangler Fig**: Gradually replace legacy while old system runs
+
+### Testing Philosophy
+- Test parts most likely to break, not 100% coverage
+- Test boundaries: 0, 1, many elements. Edge cases. Empty strings.
+- Bug report -> write failing test FIRST -> then fix
+- Don't test implementation details. Test behavior.
+- "Probing": Introduce a bug deliberately. If no test fails, you're missing a test.
+
 ## Kent Beck's Four Rules of Simple Design
 1. Runs all the tests
 2. Contains no duplication
