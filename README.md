@@ -3,7 +3,7 @@
 The most comprehensive system design plugin for Claude Code.
 Design, evaluate, plan, and build production-grade distributed systems.
 
-**89 files | 33 commands | 16 rules | 9 skills | 4 templates | 16 design references | 8 books**
+**96 files | 33 commands | 16 rules | 9 skills | 4 templates | 16 design references | 8 books**
 
 Built on deep knowledge from: System Design Interview (Alex Xu), DDIA (Kleppmann),
 Clean Architecture & Clean Code (Martin), Design Patterns (GoF), Refactoring (Fowler),
@@ -158,7 +158,7 @@ Pre-built architecture references from Alex Xu's books:
 | Refactoring | 24 code smells, expand-contract, branch by abstraction |
 | Code Complete | Defensive programming, table-driven methods, performance tuning |
 
-## Plugin Structure (89 files)
+## Plugin Structure (96 files)
 
 ```
 CLAUDE.md                           # Main configuration

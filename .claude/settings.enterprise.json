@@ -1,0 +1,26 @@
+{
+  "_comment": "Enterprise-safe permissions profile. Copy to settings.json for restricted environments.",
+  "permissions": {
+    "allow": [
+      "Read",
+      "Glob",
+      "Grep",
+      "WebSearch"
+    ],
+    "ask": [
+      "Write",
+      "Edit",
+      "Bash",
+      "WebFetch"
+    ],
+    "deny": [
+      "Bash(rm *)",
+      "Bash(docker *)",
+      "Bash(npm publish*)",
+      "Bash(git push*)",
+      "Bash(git reset --hard*)",
+      "Bash(curl *)",
+      "Bash(wget *)"
+    ]
+  }
+}
