@@ -125,6 +125,12 @@ All rules in `.claude/rules/` are automatically enforced:
 - `08-observability.md` - Monitor from day 1
 - `09-data-model.md` - Data model is king
 - `10-api-standards.md` - API design standards
+- `11-research-before-code.md` - Research docs before using any library
+- `12-auto-documentation.md` - Auto-generate docs with code
+- `13-no-code-without-plan.md` - No code without approved plans
+- `14-domain-modeling.md` - DDD: bounded contexts, aggregates, events
+- `15-accessibility.md` - WCAG 2.2 AA, keyboard nav, screen readers
+- `16-performance-budgets.md` - API p99, Core Web Vitals, bundle limits
 
 ## Estimation Cheat Sheet
 
