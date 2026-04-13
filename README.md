@@ -3,7 +3,7 @@
 The most comprehensive system design plugin for Claude Code.
 Design, evaluate, plan, and build production-grade distributed systems.
 
-**89 files | 33 commands | 16 rules | 9 skills | 16 design references | 4 templates | 8 books**
+**89 files | 33 commands | 16 rules | 9 skills | 4 templates | 16 design references | 8 books**
 
 Built on deep knowledge from: System Design Interview (Alex Xu), DDIA (Kleppmann),
 Clean Architecture & Clean Code (Martin), Design Patterns (GoF), Refactoring (Fowler),
@@ -21,62 +21,73 @@ cp CLAUDE.md /your-project/
 npm i -g uipro-cli && uipro init --ai claude
 /plugin install security-guidance
 
-# 3. Open in Claude Code and start designing
+# 3. Open in Claude Code
 claude /your-project
-/project add my-system
-/design my-system
+/quickstart                       # See getting started guide
 ```
 
-## Available Commands
+## 33 Commands
 
+### Getting Started
 | Command | Description |
 |---------|-------------|
-| `/quickstart` | Getting started guide (top 10 commands, workflow) |
-| `/design <system>` | Full system design using 4-step framework |
-| `/evaluate <system>` | Evaluate an existing system critically |
-| `/improve <system>` | Generate improvement recommendations |
-| `/implement` | Start coding the current design |
-| `/estimate <desc>` | Back-of-envelope capacity calculations |
-| `/tradeoff <A> vs <B>` | Structured trade-off analysis |
-| `/scale <component>` | Design scaling strategy |
+| `/quickstart` | Interactive guide - top 10 commands, workflow, tips |
+
+### Design & Architecture
+| Command | Description |
+|---------|-------------|
+| `/design <system>` | Full system design (4-step framework) |
+| `/domain <system>` | Domain modeling with DDD (bounded contexts, aggregates) |
 | `/schema <entity>` | Database schema design |
 | `/api <resource>` | REST API design |
-| `/failure <scenario>` | Failure analysis and recovery |
-| `/monitor` | Design observability stack |
-| `/security` | Security review |
-| `/checklist` | System design review checklist |
+| `/gateway <system>` | API gateway & BFF pattern |
+| `/tenancy <system>` | Multi-tenancy architecture |
+| `/estimate <desc>` | Back-of-envelope calculations |
+| `/tradeoff <A> vs <B>` | Structured trade-off analysis |
+| `/scale <component>` | Scaling strategy |
 | `/adr <title>` | Architecture Decision Record |
-| `/postmortem <incident>` | Incident postmortem |
-| `/research <topic>` | Research latest technologies |
-| `/project add <name>` | Add a new project |
-| `/project status` | Show all projects |
-| `/project template <name>` | Convert project to reusable template |
-| `/project template use <t> <p>` | Create project from template |
-| `/project deps` | Show project dependency graph |
-| `/project deps set-core <name>` | Mark as core project |
-| `/project deps add <p> --depends-on <c>` | Define dependency |
-| `/project deps check <name>` | Verify dependency alignment |
-| `/cost` | Infrastructure cost estimation |
-| `/frontend design` | Professional frontend design (asks style, picks best UI lib) |
+
+### Evaluation & Quality
+| Command | Description |
+|---------|-------------|
+| `/evaluate <system>` | Evaluate existing system critically |
+| `/improve <system>` | Generate improvement roadmap |
+| `/security` | Security review (OWASP) |
+| `/perf <system>` | Performance audit & optimization |
+| `/debt <system>` | Technical debt management |
+| `/privacy <system>` | GDPR & data privacy compliance |
+| `/checklist` | Full design review checklist |
+| `/failure <scenario>` | Failure analysis & recovery |
+
+### Implementation
+| Command | Description |
+|---------|-------------|
+| `/implement --frontend react --backend nestjs` | Full-stack implementation |
+| `/frontend design` | Professional UI design (asks style, picks best library) |
 | `/frontend libraries <fw>` | Best UI component libraries for a framework |
 | `/backend libs <fw>` | Best backend helper libraries |
-| `/docs generate` | Generate full project documentation |
-| `/docs update` | Update docs for recent changes |
-| `/docs status` | Check documentation freshness |
-| `/domain <system>` | Domain modeling with DDD |
-| `/privacy <system>` | GDPR/data privacy compliance |
-| `/tenancy <system>` | Multi-tenancy architecture |
-| `/perf <system>` | Performance audit & optimization |
 | `/cicd <system>` | CI/CD pipeline design |
-| `/gateway <system>` | API gateway & BFF design |
-| `/debt <system>` | Technical debt management |
-| `/opensource <system>` | Research open source alternatives, build vs buy |
-| `/plan create <project>` | Create master plan + 10 sub-plans |
-| `/plan show [number]` | View master plan or specific sub-plan |
-| `/plan edit <number>` | Edit a specific plan |
-| `/plan approve <number/all>` | Approve plan(s) |
-| `/plan status` | Approval dashboard |
-| `/plan implementation` | Generate implementation roadmap |
+| `/monitor` | Observability stack design |
+| `/cost` | Infrastructure cost estimation |
+| `/postmortem <incident>` | Incident postmortem |
+
+### Planning & Projects
+| Command | Description |
+|---------|-------------|
+| `/plan create <project>` | Master plan + 10 sub-plans |
+| `/plan show / edit / approve` | Review and approve plans |
+| `/plan implementation` | Step-by-step coding roadmap |
+| `/project add <name>` | Create new project |
+| `/project deps` | Project dependency graph |
+| `/project template <name>` | Convert to reusable template |
+
+### Research & Documentation
+| Command | Description |
+|---------|-------------|
+| `/research <topic>` | Research latest technologies |
+| `/opensource <system>` | Open source alternatives (build vs buy vs fork) |
+| `/docs generate` | Full documentation suite |
+| `/docs update` | Update docs for recent changes |
 
 ## 9 Auto-Invoked Skills
 
@@ -94,6 +105,36 @@ Skills activate automatically based on context - no commands needed.
 | **devops** | Setting up Docker, CI/CD, deployment |
 | **opensource-research** | Searching for existing solutions (build vs buy) |
 
+## 16 Always-Active Rules
+
+| # | Rule | What It Enforces |
+|---|------|-----------------|
+| 01 | Requirements First | Never code without understanding the problem |
+| 02 | Design Before Code | API + data model + architecture first |
+| 03 | Justify Decisions | Every choice needs "why" + trade-offs |
+| 04 | Think About Failure | Timeouts, retries, circuit breakers |
+| 05 | Security by Default | Auth, encryption, validation in every layer |
+| 06 | Clean Code | Naming, functions, error handling, SOLID |
+| 07 | Scalability | Design for 10x, build for 1x |
+| 08 | Observability | Metrics, logging, tracing from day 1 |
+| 09 | Data Model is King | Access patterns first, schema second |
+| 10 | API Standards | Versioning, pagination, idempotency |
+| 11 | Research Before Code | Fetch latest docs before using any library |
+| 12 | Auto Documentation | Docs generated alongside code |
+| 13 | No Code Without Plan | All plans approved + explicit user command |
+| 14 | Domain Modeling | DDD: bounded contexts, aggregates, events |
+| 15 | Accessibility | WCAG 2.2 AA, keyboard nav, RTL support |
+| 16 | Performance Budgets | API p99, Core Web Vitals, bundle limits |
+
+## 4 Ready-Made Templates
+
+| Template | Description | Stack |
+|----------|-------------|-------|
+| **SaaS Dashboard** | Multi-tenant admin panel with RBAC, charts, dark mode | React + shadcn + NestJS + PostgreSQL |
+| **REST API Service** | Clean Architecture backend with auth, validation, Swagger | NestJS / FastAPI / Go |
+| **E-Commerce** | Full store: catalog, cart, orders, payments, search | Next.js + NestJS + Stripe + Kafka |
+| **Design Document** | Complete system design template (Alex Xu method) | Framework-agnostic |
+
 ## 16 Design References
 
 Pre-built architecture references from Alex Xu's books:
@@ -105,80 +146,68 @@ Pre-built architecture references from Alex Xu's books:
 | Web Crawler | Proximity Service | Video Platform | File Storage |
 | Payment System | Leaderboard | Monitoring | Stock Exchange |
 
-## Knowledge Sources
+## Knowledge Sources (8 Books - Read Cover to Cover)
 
-- System Design Interview Vol 1 & 2 (Alex Xu / ByteByteGo)
-- Designing Data-Intensive Applications (Martin Kleppmann)
-- Clean Architecture (Robert C. Martin)
-- Clean Code (Robert C. Martin)
-- Design Patterns (Gang of Four)
-- Refactoring (Martin Fowler)
-- Code Complete (Steve McConnell)
+| Book | Key Knowledge Extracted |
+|------|----------------------|
+| System Design Interview Vol 1 & 2 | 4-step framework, 16 system designs, estimation |
+| Designing Data-Intensive Applications | Replication, partitioning, consensus, CDC, streams |
+| Clean Architecture | Dependency Rule, SOLID, component principles, Humble Objects |
+| Clean Code | Naming, functions, concurrency, objects vs data structures |
+| Design Patterns (GoF) | 23 patterns, 8 redesign causes, pattern combinations |
+| Refactoring | 24 code smells, expand-contract, branch by abstraction |
+| Code Complete | Defensive programming, table-driven methods, performance tuning |
 
 ## Plugin Structure (89 files)
 
 ```
-CLAUDE.md                        # Main configuration
+CLAUDE.md                           # Main configuration
 .claude/
-  settings.json                  # Permissions
-  commands/                      # 33 command files
-    design, evaluate, improve, implement, plan,
-    frontend, backend-libs, docs, research, opensource,
-    schema, api, domain, gateway, tenancy,
-    estimate, tradeoff, scale, cost, adr,
-    security, perf, debt, privacy, cicd,
-    failure, monitor, checklist, postmortem,
-    project, project-deps, project-template
-  rules/                         # 16 always-active rules
-    01-requirements-first    09-data-model
-    02-design-before-code    10-api-standards
-    03-justify-decisions     11-research-before-code
-    04-think-about-failure   12-auto-documentation
-    05-security-by-default   13-no-code-without-plan
-    06-clean-code            14-domain-modeling
-    07-scalability           15-accessibility
-    08-observability         16-performance-budgets
-  skills/                        # 9 auto-invoked skills
-    design-system/           # System design (4-step framework)
-    evaluate-system/         # System evaluation & audit
-    implement-system/        # Full-stack implementation
-    research-tech/           # Technology research
-    project-manager/         # Project & plan management
-    documentation/           # Auto-docs (Swagger, Storybook, etc.)
-    frontend-design/         # UI library selection & design
-    devops/                  # Docker, CI/CD, deployment
-    opensource-research/     # Build vs buy vs fork
-  knowledge/                     # Reference knowledge base
-    patterns.md              # 16 architecture patterns
-    technology-guide.md      # 2026 tech stack guide
-    distributed-systems.md   # DDIA concepts (consensus, CDC, streams)
-    clean-architecture-guide.md  # SOLID, GoF, concurrency, Code Complete
-    recommended-tools.md     # 50+ companion tools
-    design-references/       # 16 full system design references
-      01-rate-limiter ... 16-stock-exchange
-  skills/design-system/templates/  # 4 ready-made project templates
-    system-design-document.md    # Design doc template
-    saas-dashboard.md            # SaaS Dashboard template
-    rest-api-service.md          # REST API service template
-    e-commerce.md                # E-Commerce platform template
-  projects/                      # Client project tracking
-  templates/                     # Reusable templates from your projects
+  settings.json                     # Permissions + hooks
+  commands/                         # 33 command files
+    quickstart, design, evaluate, improve, implement,
+    plan, frontend, backend-libs, docs, research,
+    opensource, schema, api, domain, gateway, tenancy,
+    estimate, tradeoff, scale, cost, adr, security,
+    perf, debt, privacy, cicd, failure, monitor,
+    checklist, postmortem, project, project-deps,
+    project-template
+  rules/                            # 16 always-active rules
+    01-requirements-first ... 16-performance-budgets
+  skills/                           # 9 auto-invoked skills
+    design-system/    evaluate-system/   implement-system/
+    research-tech/    project-manager/   documentation/
+    frontend-design/  devops/            opensource-research/
+  knowledge/                        # Reference knowledge base
+    patterns.md                     # 16 architecture patterns
+    technology-guide.md             # 2026 tech stack guide
+    distributed-systems.md          # DDIA (consensus, CDC, streams)
+    clean-architecture-guide.md     # SOLID, GoF, refactoring, Code Complete
+    recommended-tools.md            # 50+ companion tools
+    design-references/              # 16 system design references
+  skills/design-system/templates/   # 4 ready-made templates
+    saas-dashboard.md    rest-api-service.md
+    e-commerce.md        system-design-document.md
+  projects/                         # Client project tracking
+  templates/                        # Your reusable project templates
 ```
 
 ## Project Workflow
 
 ```
+/quickstart                           # 0. See getting started guide
 /project add university-system        # 1. Create project
-/design university-system             # 2. System design (4-step)
-/plan create university-system        # 3. Generate all plans
-/plan show                            # 4. Review plans
-/plan edit 05                         # 5. Edit frontend plan
-/plan approve all                     # 6. Approve when ready
-# User says: "ابدا برمجة"              # 7. ONLY NOW coding begins
-/plan implementation                  # 8. Get step-by-step roadmap
-# Follow roadmap...                   # 9. Build incrementally
-/docs update                          # 10. Keep docs in sync
-/project template university-system   # 11. Save as reusable template
+/opensource university-lms            # 2. Check open source alternatives
+/design university-system             # 3. System design (4-step)
+/plan create university-system        # 4. Generate all plans
+/plan show                            # 5. Review plans
+/plan edit 05                         # 6. Edit frontend plan
+/plan approve all                     # 7. Approve when ready
+# User says: "ابدا برمجة"              # 8. ONLY NOW coding begins
+/plan implementation                  # 9. Get step-by-step roadmap
+# Follow roadmap...                   # 10. Build incrementally
+/docs update                          # 11. Keep docs in sync
+/project template university-system   # 12. Save as reusable template
 ```
 
 **No code is written until you explicitly say to start coding.**
@@ -195,9 +224,10 @@ npm i -g uipro-cli && uipro init --ai claude  # UI/UX design
 
 # Stack-specific
 /plugin install prisma              # Prisma ORM
+/plugin install supabase            # Supabase
 /plugin install vercel              # Vercel deploy
 /plugin install stripe              # Payments
+/plugin install terraform           # Infrastructure as Code
 ```
 
 Full list with 50+ tools: `.claude/knowledge/recommended-tools.md`
-
