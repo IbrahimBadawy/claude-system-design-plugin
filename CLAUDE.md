@@ -171,6 +171,7 @@ All rules in `.claude/rules/` are automatically enforced:
 - `16-performance-budgets.md` - API p99, Core Web Vitals, bundle limits
 - `17-tenant-isolation.md` - Every query tenant-scoped, no data leakage
 - `18-testing-required.md` - Test pyramid enforced, coverage targets
+- `19-suggest-next-commands.md` - After every command, suggest relevant next steps
 
 ## Estimation Cheat Sheet
 

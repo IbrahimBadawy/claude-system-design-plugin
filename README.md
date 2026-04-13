@@ -3,7 +3,7 @@
 The most comprehensive system design plugin for Claude Code.
 Design, evaluate, plan, and build production-grade distributed systems.
 
-**108 files | 42 commands | 18 rules | 10 skills | 4 templates | 16 design references | 8 books**
+**109 files | 42 commands | 19 rules | 10 skills | 4 templates | 16 design references | 8 books**
 
 Built on deep knowledge from: System Design Interview (Alex Xu), DDIA (Kleppmann),
 Clean Architecture & Clean Code (Martin), Design Patterns (GoF), Refactoring (Fowler),
@@ -167,7 +167,7 @@ Skills activate automatically based on context - no commands needed.
 | **opensource-research** | Searching for existing solutions (build vs buy) |
 | **knowledge-builder** | Building domain knowledge (robotics, PLC, medical, etc.) |
 
-## 18 Always-Active Rules
+## 19 Always-Active Rules
 
 | # | Rule | What It Enforces |
 |---|------|-----------------|
@@ -189,6 +189,7 @@ Skills activate automatically based on context - no commands needed.
 | 16 | Performance Budgets | API p99, Core Web Vitals, bundle limits |
 | 17 | Tenant Isolation | Every query tenant-scoped, no data leakage |
 | 18 | Testing Required | Test pyramid enforced, coverage targets |
+| 19 | Suggest Next Commands | After every command, suggest relevant next steps |
 
 ## 4 Ready-Made Templates
 
@@ -257,7 +258,7 @@ Works for any domain: Robotics, Medical (HL7/FHIR), Finance (FIX), IoT (MQTT), M
 | Refactoring | 24 code smells, expand-contract, branch by abstraction |
 | Code Complete | Defensive programming, table-driven methods, performance tuning |
 
-## Plugin Structure (108 files)
+## Plugin Structure (109 files)
 
 ```
 CLAUDE.md                           # Main configuration
@@ -271,7 +272,7 @@ CLAUDE.md                           # Main configuration
     perf, debt, privacy, cicd, failure, monitor,
     checklist, postmortem, project, project-deps,
     project-template
-  rules/                            # 18 always-active rules
+  rules/                            # 19 always-active rules
     01-requirements-first ... 16-performance-budgets
   skills/                           # 9 auto-invoked skills
     design-system/    evaluate-system/   implement-system/
