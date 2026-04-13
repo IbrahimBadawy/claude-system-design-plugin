@@ -10,18 +10,33 @@
       "Bash(node *)",
       "Bash(npx *)",
       "Bash(python *)",
-      "Bash(git status*)",
-      "Bash(git log*)",
-      "Bash(git diff*)",
+      "Bash(pip *)",
+      "Bash(git *)",
       "Bash(ls *)",
       "Bash(mkdir *)",
       "Bash(cat *)",
+      "Bash(docker *)",
+      "Bash(docker-compose *)",
       "WebFetch",
       "WebSearch"
     ],
     "deny": [
       "Bash(rm -rf *)",
       "Bash(git push --force*)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '[DOC CHECK] File written. If this is a source code file, remember to update documentation.'",
+            "timeout": 5
+          }
+        ]
+      }
     ]
   }
 }

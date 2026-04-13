@@ -50,6 +50,7 @@ For ANY system design task, follow these steps IN ORDER:
 
 Use `/command-name` to invoke any command:
 
+- `/quickstart` - Getting started guide for new users (top 10 commands, workflow)
 - `/design <system>` - Full system design from scratch
 - `/evaluate <system>` - Evaluate an existing system critically
 - `/improve <system>` - Generate improvement recommendations

@@ -3,7 +3,7 @@
 The most comprehensive system design plugin for Claude Code.
 Design, evaluate, plan, and build production-grade distributed systems.
 
-**85 files | 32 commands | 16 rules | 9 skills | 16 design references | 8 books**
+**89 files | 33 commands | 16 rules | 9 skills | 16 design references | 4 templates | 8 books**
 
 Built on deep knowledge from: System Design Interview (Alex Xu), DDIA (Kleppmann),
 Clean Architecture & Clean Code (Martin), Design Patterns (GoF), Refactoring (Fowler),
@@ -31,6 +31,7 @@ claude /your-project
 
 | Command | Description |
 |---------|-------------|
+| `/quickstart` | Getting started guide (top 10 commands, workflow) |
 | `/design <system>` | Full system design using 4-step framework |
 | `/evaluate <system>` | Evaluate an existing system critically |
 | `/improve <system>` | Generate improvement recommendations |
@@ -114,13 +115,13 @@ Pre-built architecture references from Alex Xu's books:
 - Refactoring (Martin Fowler)
 - Code Complete (Steve McConnell)
 
-## Plugin Structure (85 files)
+## Plugin Structure (89 files)
 
 ```
 CLAUDE.md                        # Main configuration
 .claude/
   settings.json                  # Permissions
-  commands/                      # 32 command files
+  commands/                      # 33 command files
     design, evaluate, improve, implement, plan,
     frontend, backend-libs, docs, research, opensource,
     schema, api, domain, gateway, tenancy,
@@ -155,8 +156,13 @@ CLAUDE.md                        # Main configuration
     recommended-tools.md     # 50+ companion tools
     design-references/       # 16 full system design references
       01-rate-limiter ... 16-stock-exchange
+  skills/design-system/templates/  # 4 ready-made project templates
+    system-design-document.md    # Design doc template
+    saas-dashboard.md            # SaaS Dashboard template
+    rest-api-service.md          # REST API service template
+    e-commerce.md                # E-Commerce platform template
   projects/                      # Client project tracking
-  templates/                     # Reusable project templates
+  templates/                     # Reusable templates from your projects
 ```
 
 ## Project Workflow
