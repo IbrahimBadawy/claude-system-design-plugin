@@ -74,15 +74,15 @@
         <!-- Stats -->
         <div class="grid grid-cols-2 md:grid-cols-5 gap-4 max-w-4xl mx-auto mb-12">
             <div class="glass rounded-xl p-4 glow">
-                <div class="text-3xl font-bold gradient-text">98</div>
+                <div class="text-3xl font-bold gradient-text">108</div>
                 <div class="text-sm text-dark-400">Total Files</div>
             </div>
             <div class="glass rounded-xl p-4 glow">
-                <div class="text-3xl font-bold gradient-text">34</div>
+                <div class="text-3xl font-bold gradient-text">42</div>
                 <div class="text-sm text-dark-400">Commands</div>
             </div>
             <div class="glass rounded-xl p-4 glow">
-                <div class="text-3xl font-bold gradient-text">16</div>
+                <div class="text-3xl font-bold gradient-text">18</div>
                 <div class="text-sm text-dark-400">Rules</div>
             </div>
             <div class="glass rounded-xl p-4 glow">
@@ -284,7 +284,7 @@
 <!-- Commands -->
 <section id="commands" class="py-24 px-4">
     <div class="max-w-7xl mx-auto">
-        <h2 class="text-4xl font-bold text-center mb-4">34 Commands</h2>
+        <h2 class="text-4xl font-bold text-center mb-4">42 Commands</h2>
         <p class="text-center text-dark-400 mb-16">Every command you need for the full software development lifecycle.</p>
 
         <!-- Getting Started -->
@@ -355,16 +355,46 @@
             </div>
         </div>
 
-        <!-- Research & Docs -->
-        <div>
-            <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><span class="text-cyan-400">&#9670;</span> Research & Documentation</h3>
+        <!-- Testing & Modules -->
+        <div class="mb-12">
+            <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><span class="text-red-400">&#9670;</span> Testing, Modules & Analysis</h3>
             <div class="grid md:grid-cols-2 gap-3">
+                <div class="glass rounded-lg p-4"><code class="text-red-300">/test strategy &lt;project&gt;</code><span class="text-dark-400 ml-3">Design test pyramid</span></div>
+                <div class="glass rounded-lg p-4"><code class="text-red-300">/test chaos &lt;scenario&gt;</code><span class="text-dark-400 ml-3">Chaos engineering experiments</span></div>
+                <div class="glass rounded-lg p-4"><code class="text-red-300">/module create &lt;name&gt;</code><span class="text-dark-400 ml-3">Module with manifest &amp; contracts</span></div>
+                <div class="glass rounded-lg p-4"><code class="text-red-300">/module events map</code><span class="text-dark-400 ml-3">Event flow visualization</span></div>
+                <div class="glass rounded-lg p-4"><code class="text-red-300">/analyze codebase</code><span class="text-dark-400 ml-3">Reverse-engineer architecture</span></div>
+                <div class="glass rounded-lg p-4"><code class="text-red-300">/analyze debt</code><span class="text-dark-400 ml-3">Automated tech debt detection</span></div>
+            </div>
+        </div>
+
+        <!-- Discovery & Operations -->
+        <div class="mb-12">
+            <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><span class="text-teal-400">&#9670;</span> Discovery, Operations & Environment</h3>
+            <div class="grid md:grid-cols-2 gap-3">
+                <div class="glass rounded-lg p-4"><code class="text-teal-300">/discover stakeholders</code><span class="text-dark-400 ml-3">Map stakeholders</span></div>
+                <div class="glass rounded-lg p-4"><code class="text-teal-300">/discover user-journeys</code><span class="text-dark-400 ml-3">Map critical user journeys</span></div>
+                <div class="glass rounded-lg p-4"><code class="text-teal-300">/discover mvp</code><span class="text-dark-400 ml-3">MVP scope (Phase 1 vs later)</span></div>
+                <div class="glass rounded-lg p-4"><code class="text-teal-300">/runbook &lt;scenario&gt;</code><span class="text-dark-400 ml-3">Operational runbook</span></div>
+                <div class="glass rounded-lg p-4"><code class="text-teal-300">/runbook sla &lt;service&gt;</code><span class="text-dark-400 ml-3">SLA/SLO/SLI definitions</span></div>
+                <div class="glass rounded-lg p-4"><code class="text-teal-300">/env design</code><span class="text-dark-400 ml-3">Dev &rarr; Staging &rarr; Prod</span></div>
+                <div class="glass rounded-lg p-4"><code class="text-teal-300">/env feature-flags &lt;feature&gt;</code><span class="text-dark-400 ml-3">Feature flag rollout</span></div>
+                <div class="glass rounded-lg p-4"><code class="text-teal-300">/migration plan &lt;change&gt;</code><span class="text-dark-400 ml-3">Zero-downtime migration</span></div>
+            </div>
+        </div>
+
+        <!-- Export & Research -->
+        <div>
+            <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><span class="text-cyan-400">&#9670;</span> Export, Research & Documentation</h3>
+            <div class="grid md:grid-cols-2 gap-3">
+                <div class="glass rounded-lg p-4"><code class="text-cyan-300">/export openapi</code><span class="text-dark-400 ml-3">Export as OpenAPI/Swagger</span></div>
+                <div class="glass rounded-lg p-4"><code class="text-cyan-300">/export github-issues</code><span class="text-dark-400 ml-3">Create issues from plans</span></div>
+                <div class="glass rounded-lg p-4"><code class="text-cyan-300">/export terraform</code><span class="text-dark-400 ml-3">Export as Terraform IaC</span></div>
                 <div class="glass rounded-lg p-4"><code class="text-cyan-300">/research &lt;topic&gt;</code><span class="text-dark-400 ml-3">Research latest technologies</span></div>
                 <div class="glass rounded-lg p-4"><code class="text-cyan-300">/opensource &lt;system&gt;</code><span class="text-dark-400 ml-3">Open source alternatives</span></div>
                 <div class="glass rounded-lg p-4"><code class="text-cyan-300">/docs generate</code><span class="text-dark-400 ml-3">Full documentation suite</span></div>
-                <div class="glass rounded-lg p-4"><code class="text-cyan-300">/docs update</code><span class="text-dark-400 ml-3">Update docs for changes</span></div>
-                <div class="glass rounded-lg p-4"><code class="text-cyan-300">/knowledge build &lt;topic&gt;</code><span class="text-dark-400 ml-3">Build domain knowledge (web research + docs)</span></div>
-                <div class="glass rounded-lg p-4"><code class="text-cyan-300">/knowledge import &lt;file&gt;</code><span class="text-dark-400 ml-3">Import PDF, manual, or URL into knowledge</span></div>
+                <div class="glass rounded-lg p-4"><code class="text-cyan-300">/knowledge build &lt;topic&gt;</code><span class="text-dark-400 ml-3">Build domain knowledge</span></div>
+                <div class="glass rounded-lg p-4"><code class="text-cyan-300">/knowledge import &lt;file&gt;</code><span class="text-dark-400 ml-3">Import PDF/manual/URL</span></div>
             </div>
         </div>
     </div>
@@ -424,7 +454,7 @@
 <!-- Rules -->
 <section id="rules" class="py-24 px-4">
     <div class="max-w-5xl mx-auto">
-        <h2 class="text-4xl font-bold text-center mb-4">16 Always-Active Rules</h2>
+        <h2 class="text-4xl font-bold text-center mb-4">18 Always-Active Rules</h2>
         <p class="text-center text-dark-400 mb-16">These rules are enforced automatically on every interaction. Non-negotiable quality standards.</p>
 
         <div class="grid md:grid-cols-2 gap-4">
@@ -444,6 +474,8 @@
             <div class="glass rounded-lg p-4 flex items-center gap-4"><span class="text-accent font-mono font-bold w-8">14</span><span>Domain Modeling &mdash; DDD: bounded contexts, aggregates, events</span></div>
             <div class="glass rounded-lg p-4 flex items-center gap-4"><span class="text-accent font-mono font-bold w-8">15</span><span>Accessibility &mdash; WCAG 2.2 AA, keyboard nav, screen readers, RTL</span></div>
             <div class="glass rounded-lg p-4 flex items-center gap-4"><span class="text-accent font-mono font-bold w-8">16</span><span>Performance Budgets &mdash; API p99, Core Web Vitals, bundle size limits</span></div>
+            <div class="glass rounded-lg p-4 flex items-center gap-4"><span class="text-accent font-mono font-bold w-8">17</span><span>Tenant Isolation &mdash; every query tenant-scoped, no cross-tenant data leakage</span></div>
+            <div class="glass rounded-lg p-4 flex items-center gap-4"><span class="text-accent font-mono font-bold w-8">18</span><span>Testing Required &mdash; test pyramid enforced, coverage targets, no merge without tests</span></div>
         </div>
     </div>
 </section>
@@ -761,7 +793,7 @@ claude /your-project
     <div class="max-w-5xl mx-auto text-center">
         <p class="text-dark-400 mb-2">System Design Architect &mdash; A Claude Code Plugin</p>
         <p class="text-dark-500 text-sm">Powered by knowledge from Alex Xu, Martin Kleppmann, Robert C. Martin, Gang of Four, Martin Fowler, and Steve McConnell.</p>
-        <p class="text-dark-500 text-sm mt-4">98 files &bull; 34 commands &bull; 16 rules &bull; 10 skills &bull; 16 design references &bull; 4 templates &bull; 8 books</p>
+        <p class="text-dark-500 text-sm mt-4">108 files &bull; 42 commands &bull; 18 rules &bull; 10 skills &bull; 16 design references &bull; 4 templates &bull; 8 books</p>
     </div>
 </footer>
 

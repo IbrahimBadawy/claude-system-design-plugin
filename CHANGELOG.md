@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-04-13
+
+### Added (8 new commands, 2 new rules)
+- **Testing**: `/test strategy`, `/test contract`, `/test chaos`, `/test data`, `/test coverage`
+- **Modules**: `/module create`, `/module contract`, `/module events map`, `/module deps graph`, `/module version`
+- **Discovery**: `/discover stakeholders`, `/discover user-journeys`, `/discover constraints`, `/discover risks`, `/discover mvp`, `/discover summary`
+- **Export**: `/export openapi`, `/export postman`, `/export terraform`, `/export github-issues`, `/export docker`
+- **Runbooks**: `/runbook <scenario>`, `/runbook oncall`, `/runbook incident`, `/runbook sla`
+- **Environment**: `/env design`, `/env config`, `/env feature-flags`
+- **Migration**: `/migration plan`, `/migration rollback`, `/migration seed`
+- **Analyze**: `/analyze codebase`, `/analyze debt`, `/analyze coverage`, `/analyze dependencies`, `/analyze architecture`
+- **Rule 17**: Tenant Isolation - every query tenant-scoped, no cross-tenant data leakage
+- **Rule 18**: Testing Required - test pyramid enforced, coverage targets
+
+### Changed
+- Total: 108 files, 42 commands, 18 rules, 10 skills
+- Updated all docs: CLAUDE.md, README.md, index.html, CHANGELOG.md
+
 ## [1.2.0] - 2026-04-13
 
 ### Added

@@ -116,6 +116,26 @@ Use `/command-name` to invoke any command:
 - `/knowledge import <file>` - Import PDF/URL into knowledge base
 - `/knowledge list` - Show all knowledge bases
 - `/knowledge show <topic>` - Show specific knowledge
+- `/test strategy <project>` - Design test pyramid and testing plan
+- `/test contract <a> <b>` - Contract testing between modules
+- `/test chaos <scenario>` - Chaos engineering experiments
+- `/module create <name>` - Create module with manifest and contracts
+- `/module events map` - Visualize event flow across modules
+- `/module deps graph` - Module dependency graph
+- `/discover stakeholders` - Map stakeholders during discovery
+- `/discover user-journeys` - Map critical user journeys
+- `/discover risks` - Build risk register
+- `/discover mvp` - Define MVP scope
+- `/export openapi` - Export API as OpenAPI/Swagger
+- `/export github-issues` - Create GitHub issues from plans
+- `/export terraform` - Export infrastructure as Terraform
+- `/runbook <scenario>` - Create operational runbook
+- `/runbook sla <service>` - Define SLA/SLO/SLI
+- `/env design` - Dev -> Staging -> Prod pipeline
+- `/env feature-flags <feature>` - Feature flag strategy
+- `/migration plan <change>` - Zero-downtime migration plan
+- `/analyze codebase` - Reverse-engineer architecture from code
+- `/analyze debt` - Automated tech debt detection
 
 ## Skills (Auto-invoked)
 
@@ -149,6 +169,8 @@ All rules in `.claude/rules/` are automatically enforced:
 - `14-domain-modeling.md` - DDD: bounded contexts, aggregates, events
 - `15-accessibility.md` - WCAG 2.2 AA, keyboard nav, screen readers
 - `16-performance-budgets.md` - API p99, Core Web Vitals, bundle limits
+- `17-tenant-isolation.md` - Every query tenant-scoped, no data leakage
+- `18-testing-required.md` - Test pyramid enforced, coverage targets
 
 ## Estimation Cheat Sheet
 

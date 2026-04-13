@@ -3,7 +3,7 @@
 The most comprehensive system design plugin for Claude Code.
 Design, evaluate, plan, and build production-grade distributed systems.
 
-**98 files | 34 commands | 16 rules | 10 skills | 4 templates | 16 design references | 8 books**
+**108 files | 42 commands | 18 rules | 10 skills | 4 templates | 16 design references | 8 books**
 
 Built on deep knowledge from: System Design Interview (Alex Xu), DDIA (Kleppmann),
 Clean Architecture & Clean Code (Martin), Design Patterns (GoF), Refactoring (Fowler),
@@ -95,6 +95,51 @@ You're never forced into the full workflow for simple tasks.
 | `/project deps` | Project dependency graph |
 | `/project template <name>` | Convert to reusable template |
 
+### Testing & Quality
+| Command | Description |
+|---------|-------------|
+| `/test strategy <project>` | Design test pyramid (unit/integration/e2e) |
+| `/test contract <a> <b>` | Contract testing between modules |
+| `/test chaos <scenario>` | Chaos engineering experiments |
+| `/test data <entity>` | Generate test fixtures & factories |
+| `/analyze codebase` | Reverse-engineer architecture from code |
+| `/analyze debt` | Automated tech debt detection |
+| `/analyze dependencies` | Dependency health check |
+
+### Modules & Services
+| Command | Description |
+|---------|-------------|
+| `/module create <name>` | Create module with manifest & contracts |
+| `/module contract <a> <b>` | Define API/event contract between modules |
+| `/module events map` | Visualize event flow across modules |
+| `/module deps graph` | Module dependency graph |
+
+### Discovery (Structured)
+| Command | Description |
+|---------|-------------|
+| `/discover stakeholders` | Map all stakeholders |
+| `/discover user-journeys` | Map critical user journeys |
+| `/discover constraints` | Technical, legal, budget constraints |
+| `/discover risks` | Build risk register |
+| `/discover mvp` | MVP scope (Phase 1 vs later) |
+
+### Operations & Environment
+| Command | Description |
+|---------|-------------|
+| `/runbook <scenario>` | Create operational runbook |
+| `/runbook sla <service>` | Define SLA/SLO/SLI |
+| `/env design` | Dev -> Staging -> Prod pipeline |
+| `/env feature-flags <feature>` | Feature flag rollout strategy |
+| `/migration plan <change>` | Zero-downtime migration plan |
+
+### Export & Integration
+| Command | Description |
+|---------|-------------|
+| `/export openapi` | Export API as OpenAPI/Swagger |
+| `/export github-issues` | Create GitHub issues from plans |
+| `/export terraform` | Export as Terraform IaC |
+| `/export docker` | Generate docker-compose |
+
 ### Research & Documentation
 | Command | Description |
 |---------|-------------|
@@ -104,8 +149,6 @@ You're never forced into the full workflow for simple tasks.
 | `/docs update` | Update docs for recent changes |
 | `/knowledge build <topic>` | Build domain knowledge (research web + organize) |
 | `/knowledge import <file>` | Import PDF, docs, or URL into knowledge |
-| `/knowledge list` | List all knowledge bases |
-| `/knowledge show <topic>` | Show specific knowledge base |
 
 ## 9 Auto-Invoked Skills
 
@@ -124,7 +167,7 @@ Skills activate automatically based on context - no commands needed.
 | **opensource-research** | Searching for existing solutions (build vs buy) |
 | **knowledge-builder** | Building domain knowledge (robotics, PLC, medical, etc.) |
 
-## 16 Always-Active Rules
+## 18 Always-Active Rules
 
 | # | Rule | What It Enforces |
 |---|------|-----------------|
@@ -144,6 +187,8 @@ Skills activate automatically based on context - no commands needed.
 | 14 | Domain Modeling | DDD: bounded contexts, aggregates, events |
 | 15 | Accessibility | WCAG 2.2 AA, keyboard nav, RTL support |
 | 16 | Performance Budgets | API p99, Core Web Vitals, bundle limits |
+| 17 | Tenant Isolation | Every query tenant-scoped, no data leakage |
+| 18 | Testing Required | Test pyramid enforced, coverage targets |
 
 ## 4 Ready-Made Templates
 
@@ -212,13 +257,13 @@ Works for any domain: Robotics, Medical (HL7/FHIR), Finance (FIX), IoT (MQTT), M
 | Refactoring | 24 code smells, expand-contract, branch by abstraction |
 | Code Complete | Defensive programming, table-driven methods, performance tuning |
 
-## Plugin Structure (98 files)
+## Plugin Structure (108 files)
 
 ```
 CLAUDE.md                           # Main configuration
 .claude/
   settings.json                     # Permissions + hooks
-  commands/                         # 33 command files
+  commands/                         # 42 command files
     quickstart, design, evaluate, improve, implement,
     plan, frontend, backend-libs, docs, research,
     opensource, schema, api, domain, gateway, tenancy,
@@ -226,7 +271,7 @@ CLAUDE.md                           # Main configuration
     perf, debt, privacy, cicd, failure, monitor,
     checklist, postmortem, project, project-deps,
     project-template
-  rules/                            # 16 always-active rules
+  rules/                            # 18 always-active rules
     01-requirements-first ... 16-performance-budgets
   skills/                           # 9 auto-invoked skills
     design-system/    evaluate-system/   implement-system/
