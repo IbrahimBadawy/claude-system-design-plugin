@@ -205,8 +205,16 @@
 <!-- Commands -->
 <section id="commands" class="py-24 px-4">
     <div class="max-w-7xl mx-auto">
-        <h2 class="text-4xl font-bold text-center mb-4">32 Commands</h2>
+        <h2 class="text-4xl font-bold text-center mb-4">33 Commands</h2>
         <p class="text-center text-dark-400 mb-16">Every command you need for the full software development lifecycle.</p>
+
+        <!-- Getting Started -->
+        <div class="mb-12">
+            <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><span class="text-emerald">&#9733;</span> Getting Started</h3>
+            <div class="grid md:grid-cols-2 gap-3">
+                <div class="glass rounded-lg p-4 border border-emerald/30"><code class="text-emerald-light">/quickstart</code><span class="text-dark-400 ml-3">Interactive guide for new users &mdash; top 10 commands &amp; workflow</span></div>
+            </div>
+        </div>
 
         <!-- Design & Architecture -->
         <div class="mb-12">
@@ -407,6 +415,63 @@
     </div>
 </section>
 
+<!-- Ready-Made Templates -->
+<section class="py-24 px-4">
+    <div class="max-w-5xl mx-auto">
+        <h2 class="text-4xl font-bold text-center mb-4">4 Ready-Made Templates</h2>
+        <p class="text-center text-dark-400 mb-16">Pre-built architecture templates for common project types. Customize and start building fast.</p>
+
+        <div class="grid md:grid-cols-2 gap-6">
+            <div class="card glass rounded-2xl p-6">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="text-3xl">&#128202;</span>
+                    <h3 class="font-bold text-lg">SaaS Dashboard</h3>
+                </div>
+                <p class="text-dark-400 text-sm mb-4">Multi-tenant admin panel with auth, RBAC, data tables, charts, and dark mode. Includes tenant isolation, audit logging, and per-tenant configuration.</p>
+                <div class="flex flex-wrap gap-2">
+                    <span class="tag bg-accent/20 text-accent-light">React + shadcn/ui</span>
+                    <span class="tag bg-accent/20 text-accent-light">NestJS + Prisma</span>
+                    <span class="tag bg-accent/20 text-accent-light">PostgreSQL</span>
+                </div>
+            </div>
+            <div class="card glass rounded-2xl p-6">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="text-3xl">&#128268;</span>
+                    <h3 class="font-bold text-lg">REST API Service</h3>
+                </div>
+                <p class="text-dark-400 text-sm mb-4">Backend API with Clean Architecture layers, JWT auth, validation, rate limiting, Swagger docs, and full middleware stack.</p>
+                <div class="flex flex-wrap gap-2">
+                    <span class="tag bg-emerald/20 text-emerald-light">NestJS / FastAPI / Go</span>
+                    <span class="tag bg-emerald/20 text-emerald-light">Prisma / SQLAlchemy</span>
+                </div>
+            </div>
+            <div class="card glass rounded-2xl p-6">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="text-3xl">&#128722;</span>
+                    <h3 class="font-bold text-lg">E-Commerce Platform</h3>
+                </div>
+                <p class="text-dark-400 text-sm mb-4">Full e-commerce with product catalog, cart (Redis), orders (state machine), Stripe payments, search (Meilisearch), and CDN for images.</p>
+                <div class="flex flex-wrap gap-2">
+                    <span class="tag bg-yellow-500/20 text-yellow-300">Next.js + Tailwind</span>
+                    <span class="tag bg-yellow-500/20 text-yellow-300">NestJS + Kafka</span>
+                    <span class="tag bg-yellow-500/20 text-yellow-300">Stripe</span>
+                </div>
+            </div>
+            <div class="card glass rounded-2xl p-6">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="text-3xl">&#128196;</span>
+                    <h3 class="font-bold text-lg">System Design Document</h3>
+                </div>
+                <p class="text-dark-400 text-sm mb-4">Complete design document template: requirements, estimation, API, data model, architecture, deep dive, scaling, reliability, and ADRs.</p>
+                <div class="flex flex-wrap gap-2">
+                    <span class="tag bg-purple-500/20 text-purple-300">4-Step Framework</span>
+                    <span class="tag bg-purple-500/20 text-purple-300">Alex Xu Method</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 <!-- Companion Tools -->
 <section id="tools" class="py-24 px-4">
     <div class="max-w-5xl mx-auto">
@@ -516,7 +581,7 @@ claude /your-project
             <pre class="text-sm text-dark-200 overflow-x-auto leading-relaxed"><code>CLAUDE.md                          <span class="text-dark-400"># Main configuration</span>
 .claude/
   settings.json                    <span class="text-dark-400"># Permissions</span>
-  commands/                        <span class="text-dark-400"># 32 individual command files</span>
+  commands/                        <span class="text-dark-400"># 33 command files (incl. /quickstart)</span>
     design.md, evaluate.md, implement.md, plan.md,
     schema.md, api.md, frontend.md, backend-libs.md,
     docs.md, research.md, opensource.md, project.md,
@@ -534,8 +599,11 @@ claude /your-project
     recommended-tools.md
     design-references/             <span class="text-dark-400"># 16 system design references</span>
       01-rate-limiter.md ... 16-stock-exchange.md
+  skills/design-system/templates/  <span class="text-dark-400"># 4 ready-made templates</span>
+    system-design-document.md, saas-dashboard.md,
+    rest-api-service.md, e-commerce.md
   projects/                        <span class="text-dark-400"># Client project tracking</span>
-  templates/                       <span class="text-dark-400"># Reusable project templates</span></code></pre>
+  templates/                       <span class="text-dark-400"># Your reusable project templates</span></code></pre>
         </div>
     </div>
 </section>
