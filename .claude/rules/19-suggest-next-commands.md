@@ -21,7 +21,10 @@ After EVERY command execution, show a "What's Next?" section with 2-4 relevant c
 ### After Project & Discovery
 | After This | Suggest These |
 |-----------|---------------|
-| `/project add` | `/discover stakeholders`, `/discover user-journeys`, `/opensource <system>` |
+| `/project add` | `/project docs add <file>` (if client sent docs), `/discover stakeholders`, `/opensource <system>` |
+| `/project docs add` | `/project docs read <file>`, `/discover stakeholders`, `/discover constraints` |
+| `/project docs read` | `/discover user-journeys`, `/discover constraints`, `/knowledge build <domain>` |
+| `/project docs` | `/project docs add <file>`, `/project docs read <file>` |
 | `/discover stakeholders` | `/discover user-journeys`, `/discover constraints`, `/discover risks` |
 | `/discover user-journeys` | `/discover constraints`, `/discover mvp`, `/knowledge build <domain>` |
 | `/discover constraints` | `/discover risks`, `/discover mvp` |

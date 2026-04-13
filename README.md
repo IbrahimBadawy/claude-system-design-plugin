@@ -94,6 +94,9 @@ You're never forced into the full workflow for simple tasks.
 | `/project add <name>` | Create new project |
 | `/project deps` | Project dependency graph |
 | `/project template <name>` | Convert to reusable template |
+| `/project docs` | List all documents in the project |
+| `/project docs add <file>` | Add document (auto-categorize + extract info) |
+| `/project docs read <file>` | Read, summarize, and extract requirements |
 
 ### Testing & Quality
 | Command | Description |
@@ -329,6 +332,11 @@ PHASE 3: IMPLEMENTATION (actual code)
 projects/<project-name>/
   PROJECT.md                    # Project definition
   STATUS.md                     # Progress tracking
+  incoming/                     # Client-provided documents
+    requirements/               # Requirements docs, scope
+    contracts/                  # Agreements, SOWs
+    mockups/                    # UI wireframes, designs
+    references/                 # Reference material
   discovery/                    # Phase 1: Free discussion
     DISCUSSION.md               # Notes, questions, decisions
     requirements-draft.md       # Evolving requirements

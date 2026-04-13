@@ -18,7 +18,66 @@ Manage projects within this plugin. Track multiple system design projects.
 /project deps set-core <name> # Mark project as core/shared
 /project deps add <p> --depends-on <core>  # Add dependency
 /project deps check <name>    # Verify dependency alignment
+/project docs                 # List all documents in current project
+/project docs add <file>      # Add a document to the right folder
+/project docs read <file>     # Read and summarize a project document
 ```
+
+## Project Documents
+
+### /project docs
+Lists ALL documents across all project folders:
+```
+## Documents: university-system
+
+### Incoming (from client)
+  requirements/
+    - client-requirements.pdf (2.3 MB, added 2026-04-13)
+    - updated-scope.docx (500 KB, added 2026-04-14)
+  mockups/
+    - dashboard-wireframe.png (1.1 MB)
+  contracts/
+    - service-agreement.pdf (340 KB)
+
+### Knowledge (domain research)
+  kuka-robot/docs/
+    - krl-manual.pdf (5.2 MB)
+  plc-siemens/docs/
+    - s7-datasheet.pdf (2.1 MB)
+
+### Discovery (research outputs)
+  research/
+    - opensource-options.md
+    - tech-comparison.md
+  diagrams/
+    - architecture.md (Mermaid)
+    - data-flow.md (Mermaid)
+
+### Generated Docs (auto-generated with code)
+  docs/
+    - API.md
+    - DATABASE.md
+    - README.md
+```
+
+### /project docs add <file>
+Adds a document to the appropriate folder. ASK where it belongs:
+1. "Is this from the client?" -> `incoming/requirements/` or `incoming/mockups/` etc.
+2. "Is this domain documentation?" -> `knowledge/<topic>/docs/`
+3. "Is this a reference?" -> `incoming/references/`
+
+After adding, READ the file and extract key information:
+- If PDF: Extract text, summarize main points, save summary in DISCUSSION.md
+- If requirements doc: Extract requirements, update requirements-draft.md
+- If mockup: Note the screens/flows shown, update DISCUSSION.md
+- If contract: Note scope, timeline, constraints, update constraints in PROJECT.md
+
+### /project docs read <file>
+Read a document and provide:
+1. Summary of contents
+2. Key points extracted
+3. How it affects the design (requirements, constraints, etc.)
+4. Suggest updating relevant project files with new information
 
 ## Behavior
 
@@ -30,6 +89,11 @@ Creates a new project directory at `.claude/projects/<name>/` with:
 <name>/
   PROJECT.md                    # Project definition
   STATUS.md                     # Current status and progress
+  incoming/                     # Client-provided documents
+    requirements/               # Requirements docs from client
+    contracts/                  # Agreements, SOWs, proposals
+    mockups/                    # UI mockups, wireframes, designs
+    references/                 # Any reference material, standards
   discovery/                    # Phase 1: Discussion & understanding
     DISCUSSION.md               # Notes, questions, answers, decisions
     requirements-draft.md       # Evolving requirements (refined during discussion)
