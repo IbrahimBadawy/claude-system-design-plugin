@@ -183,24 +183,47 @@ Servers = QPS_peak / QPS_per_server
 | 99.99% | 52.6 min |
 | 99.999% | 5.26 min |
 
-## Project Workflow (IMPORTANT)
+## Project Workflow - 3 Gates (IMPORTANT)
 
-The correct workflow for any project is:
+Every project passes through 3 phases with explicit user gates:
 
 ```
-1. /project add <name>           -> Create project
-2. /design <name>                -> System design (4-step framework)
-3. /plan create <name>           -> Master plan + 10 sub-plans
-4. /plan show, /plan edit, etc.  -> Review and refine ALL plans
-5. /plan approve all             -> Approve when satisfied
-6. User says "ابدا برمجة"         -> ONLY NOW code begins
-7. /plan implementation          -> Step-by-step coding roadmap
-8. Follow roadmap                -> Build incrementally
-9. /docs update                  -> Keep docs in sync
+PHASE 1: DISCOVERY (free discussion)
+  /project add <name>           -> Create project
+  Open discussion               -> Ask questions, understand the idea
+  Discuss, debate, refine       -> Explore options, research open source
+  Diagrams saved to             -> discovery/diagrams/ (Mermaid + HTML)
+  Research saved to             -> discovery/research/
+
+  >>> USER says "ابدا plan" or "start planning" <<<
+
+PHASE 2: PLANNING (structured plans)
+  /plan create <name>           -> Master plan + 10 sub-plans
+  /plan show, /plan edit        -> Review and refine ALL plans
+  /plan approve all             -> Approve when satisfied
+
+  >>> USER says "ابدا برمجة" or "start coding" <<<
+
+PHASE 3: IMPLEMENTATION (actual code)
+  /plan implementation          -> Step-by-step coding roadmap
+  Follow roadmap                -> Build incrementally
+  /docs update                  -> Keep docs in sync
 ```
 
-**CRITICAL: NO CODE is written until user explicitly says to start coding.**
-**Even if all plans are approved, wait for the user's command.**
+### The 3 Gates
+| Gate | User Says | What Happens |
+|------|-----------|-------------|
+| **Gate 1** | "ابدا plan" / "start planning" | Discovery ends, planning begins |
+| **Gate 2** | Approve all plans | Plans are locked and approved |
+| **Gate 3** | "ابدا برمجة" / "start coding" | Code writing begins |
+
+### Discovery Phase Rules
+- NO plans, NO code during discovery
+- ASK questions to understand the idea deeply
+- Generate diagrams (Mermaid) saved in discovery/diagrams/
+- Research open source alternatives saved in discovery/research/
+- Build a shared understanding before any formal planning
+- Discovery ends ONLY when user explicitly says to start planning
 
 ## Recommended Companion Tools
 

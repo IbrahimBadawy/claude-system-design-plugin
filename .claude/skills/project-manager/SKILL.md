@@ -25,17 +25,41 @@ Each project lives in `.claude/projects/<project-name>/`:
 
 When `/project add <name>` is invoked:
 
-1. Create the project directory structure
-2. Generate PROJECT.md with template:
-   - Project name, date, status
-   - Overview section (ask user to describe)
-   - Requirements section (functional + non-functional)
-   - Constraints section
-   - Team section
-   - Timeline with milestones
-3. Create empty DESIGN.md with link to /design command
+1. Create the full project directory structure:
+   ```
+   <name>/
+     PROJECT.md
+     STATUS.md
+     discovery/
+       DISCUSSION.md
+       requirements-draft.md
+       diagrams/
+       research/
+     plans/
+     design/
+       DESIGN.md
+       ADR/
+     docs/
+   ```
+2. Generate PROJECT.md with template (Phase: Discovery)
+3. Create empty DISCUSSION.md in discovery/
 4. Create STATUS.md with initial tracking
-5. Create ADR/ directory
+5. **Immediately enter Discovery Phase:**
+   - Ask the user to describe their idea
+   - Ask clarifying questions
+   - Save notes to discovery/DISCUSSION.md
+   - Generate diagrams as understanding develops
+   - Do NOT create plans or code
+
+## The 3-Gate System
+
+| Phase | What Happens | Ends When |
+|-------|-------------|-----------|
+| **Discovery** | Free discussion, questions, diagrams, research | User says "ابدا plan" |
+| **Planning** | Master plan + 10 sub-plans, review, approve | User says "ابدا برمجة" |
+| **Implementation** | Code following roadmap, docs alongside | Project complete |
+
+Track the current phase in STATUS.md and PROJECT.md.
 
 ## Project Status Dashboard
 

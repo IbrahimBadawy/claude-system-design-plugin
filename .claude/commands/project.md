@@ -26,17 +26,43 @@ Manage projects within this plugin. Track multiple system design projects.
 
 Creates a new project directory at `.claude/projects/<name>/` with:
 
-1. **PROJECT.md** - Project definition
+```
+<name>/
+  PROJECT.md                    # Project definition
+  STATUS.md                     # Current status and progress
+  discovery/                    # Phase 1: Discussion & understanding
+    DISCUSSION.md               # Notes, questions, answers, decisions
+    requirements-draft.md       # Evolving requirements (refined during discussion)
+    diagrams/                   # Visual diagrams (Mermaid + HTML)
+      architecture.md           # System architecture (Mermaid)
+      data-flow.md              # Data flow diagram (Mermaid)
+      user-journey.md           # User journey map (Mermaid)
+      er-diagram.md             # Entity relationship (Mermaid)
+    research/                   # Research done during discovery
+      opensource-options.md     # Open source alternatives found
+      tech-comparison.md        # Technology comparisons
+  plans/                        # Phase 2: Structured planning (after "start planning")
+    MASTER-PLAN.md
+    01-architecture-plan.md
+    ... (10 sub-plans)
+    IMPLEMENTATION-ROADMAP.md
+  design/                       # Detailed design documents
+    DESIGN.md                   # Full system design
+    ADR/                        # Architecture Decision Records
+  docs/                         # Phase 3: Documentation (generated with code)
+```
+
+### PROJECT.md Template
 ```markdown
 # Project: [Name]
 **Created**: [date]
-**Status**: Active | In Design | In Development | In Review | Completed | Archived
+**Phase**: Discovery | Planning | Implementation | Review | Completed
 **Client**: [if applicable]
 
 ## Overview
-[Brief description of the project]
+[Brief description]
 
-## Requirements
+## Requirements (evolve during discovery)
 ### Functional Requirements
 - FR1: ...
 
@@ -47,25 +73,26 @@ Creates a new project directory at `.claude/projects/<name>/` with:
 
 ## Constraints
 - [Constraint 1]
-- [Constraint 2]
 
 ## Team
-- [Role 1]: [name]
+- [Role]: [name]
 
 ## Timeline
 | Milestone | Target Date | Status |
 |-----------|------------|--------|
-| Design Complete | [date] | Pending |
+| Discovery Complete | [date] | In Progress |
+| Plans Approved | [date] | Pending |
 | MVP | [date] | Pending |
 | Launch | [date] | Pending |
-
-## Notes
-[Any additional context]
 ```
 
-2. **DESIGN.md** - System design document (use /design to fill this)
-3. **STATUS.md** - Current progress tracking
-4. **ADR/** - Directory for Architecture Decision Records
+### After creating the project, START the Discovery Phase:
+- Ask the user to describe their idea
+- Ask clarifying questions about: users, problems, goals, scale, constraints
+- Save notes in `discovery/DISCUSSION.md`
+- Generate diagrams as understanding develops
+- Research open source when relevant
+- Do NOT create plans or write code yet
 
 ### /project status
 Shows a dashboard of all projects:
@@ -85,17 +112,19 @@ Sets the active project context so all commands reference this project.
 - /evaluate will evaluate this project
 - /implement will implement this project
 
-### Project Workflow
-1. `/project add university-core` - Create core project
-2. `/design university-core` - Design the core system
-3. `/project deps set-core university-core` - Mark as core
-4. `/project add student-portal` - Create dependent project
-5. `/project deps add student-portal --depends-on university-core` - Link them
-6. `/design student-portal` - Design (auto-loads core constraints)
-7. `/implement student-portal` - Start coding
-8. `/project deps check student-portal` - Verify alignment
-9. `/project template university-core` - Convert to reusable template when done
-10. `/project template use university-core new-college` - Reuse for new client
+### Project Workflow (3 Gates)
+```
+1. /project add university-system       # Create project -> starts Discovery
+2. Discuss the idea freely              # Ask questions, understand, research
+3. Diagrams saved to discovery/         # Mermaid architecture, data flow, ERD
+4. Say "ابدا plan" or "start planning"   # >>> Gate 1: Discovery -> Planning
+5. /plan create university-system       # Master plan + 10 sub-plans
+6. /plan show, /plan edit, /plan approve # Review and approve all plans
+7. Say "ابدا برمجة" or "start coding"    # >>> Gate 3: Planning -> Implementation
+8. /plan implementation                 # Step-by-step roadmap
+9. Follow roadmap, build incrementally  # Code + docs generated together
+10. /project template university-system  # Save as reusable template
+```
 
 ## Examples
 ```

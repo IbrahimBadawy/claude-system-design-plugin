@@ -8,11 +8,39 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash, WebFetch, WebSearch, Agent
 
 You are designing a new system. Follow the 4-step framework strictly.
 
+## Discovery Phase (BEFORE any design)
+When a project starts, enter Discovery mode:
+1. Ask the user to describe their idea in their own words
+2. Ask clarifying questions: Who are the users? What problem does it solve? What scale?
+3. Discuss and debate the approach freely
+4. Research open source alternatives (/opensource)
+5. Generate Mermaid diagrams as understanding develops:
+   - Architecture diagrams -> save to `discovery/diagrams/architecture.md`
+   - Data flow diagrams -> save to `discovery/diagrams/data-flow.md`
+   - ER diagrams -> save to `discovery/diagrams/er-diagram.md`
+6. Save discussion notes to `discovery/DISCUSSION.md`
+7. Save draft requirements to `discovery/requirements-draft.md`
+8. Do NOT create plans or write code until user says "start planning"
+
+### Mermaid Diagram Format
+When generating diagrams, use Mermaid syntax in .md files:
+````markdown
+```mermaid
+graph TB
+    Client[Client App] --> LB[Load Balancer]
+    LB --> API[API Server]
+    API --> DB[(PostgreSQL)]
+    API --> Cache[(Redis)]
+    API --> Queue[Message Queue]
+    Queue --> Worker[Background Worker]
+```
+````
+
 ## Pre-Design Checklist
-Before starting:
+Before formal design (after discovery):
 1. Identify if this resembles a known system design pattern (check knowledge base)
-2. Understand the domain and business context
-3. Clarify ambiguous requirements with the user
+2. Understand the domain and business context from discovery notes
+3. Confirm requirements with the user from discovery/requirements-draft.md
 
 ## Step 1: Requirements & Scope
 

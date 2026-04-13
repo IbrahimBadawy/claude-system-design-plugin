@@ -1,48 +1,42 @@
 ---
-description: NEVER write implementation code until all plans are approved AND user explicitly says to start coding
+description: 3-gate workflow - Discovery first, then Planning, then Code. Each phase requires explicit user command to transition.
 globs: "*.{ts,js,py,java,go,rs,tsx,jsx,vue,svelte}"
 ---
 
-# Rule: No Code Without Approved Plan
+# Rule: 3-Gate Workflow
 
-## The Two Gates
+## The Three Gates
 
-### Gate 1: All Plans Must Be Approved
-Before ANY implementation code can be written:
+### Gate 1: Discovery -> Planning
+User must say "ابدا plan" / "start planning" / "خطط" to move from discovery to planning.
+During Discovery:
+- Discuss the idea freely, ask questions, understand deeply
+- Save notes in discovery/DISCUSSION.md
+- Generate diagrams in discovery/diagrams/ (Mermaid)
+- Research open source in discovery/research/
+- Draft requirements in discovery/requirements-draft.md
+- NO plan files, NO code files
+
+### Gate 2: All Plans Approved
+Before moving to implementation:
 - Master Plan must be Approved
 - ALL sub-plans must be Approved
 - User must have reviewed and approved each one
 
-### Gate 2: Explicit User Command
-Even with all plans approved, DO NOT write code until user says one of:
-- "ابدا برمجة" / "يلا نبدا" / "يلا كود"
-- "start coding" / "begin implementation" / "let's code"
-- "implement" / "start building"
-- `/implement` command
+### Gate 3: Planning -> Implementation
+User must say "ابدا برمجة" / "start coding" / "يلا كود" to start writing code.
+Even with all plans approved, DO NOT write code until user says so.
 
-## What IS Allowed Before Approval
-- Writing plan documents (MASTER-PLAN.md, sub-plans)
-- Writing design documents (DESIGN.md)
-- Creating ADRs
-- Editing and updating plans
-- Research and documentation
-- Answering questions about the design
+## What IS Allowed in Each Phase
 
-## What is NOT Allowed Before Approval
-- Creating source code files (.ts, .js, .py, .java, .go, etc.)
-- Running npm init, pip install, or any package installation
-- Creating Dockerfiles or CI configs
-- Creating database migrations
-- ANY file that is part of the actual implementation
-
-## After "Start Coding"
-1. Generate IMPLEMENTATION-ROADMAP.md first
-2. Follow the roadmap step by step
-3. Track progress against the roadmap
-4. Update roadmap as implementation progresses
+| Phase | Allowed | NOT Allowed |
+|-------|---------|-------------|
+| **Discovery** | Discussion, questions, diagrams (Mermaid), research, draft requirements | Plans, design docs, code, package installs |
+| **Planning** | Plan documents, design docs, ADRs, research | Source code, Dockerfiles, CI configs, migrations |
+| **Implementation** | Everything: code, tests, Docker, CI, docs | - |
 
 ## WHY This Rule Exists
-- Prevents wasted effort building the wrong thing
-- Ensures the user has full visibility into what will be built
-- Allows course correction before any code is written
-- Large projects need a clear plan to avoid getting lost
+- Discovery ensures the idea is understood before planning
+- Planning ensures the approach is agreed before coding
+- 3 gates prevent wasted effort and ensure user has full control
+- Each phase has a clear purpose and clear deliverables

@@ -206,25 +206,51 @@ CLAUDE.md                           # Main configuration
   templates/                        # Your reusable project templates
 ```
 
-## Project Workflow
+## 3-Gate Workflow
+
+Every complex project passes through 3 phases with explicit user control:
 
 ```
-/quickstart                           # 0. See getting started guide
-/project add university-system        # 1. Create project
-/opensource university-lms            # 2. Check open source alternatives
-/design university-system             # 3. System design (4-step)
-/plan create university-system        # 4. Generate all plans
-/plan show                            # 5. Review plans
-/plan edit 05                         # 6. Edit frontend plan
-/plan approve all                     # 7. Approve when ready
-# User says: "ابدا برمجة"              # 8. ONLY NOW coding begins
-/plan implementation                  # 9. Get step-by-step roadmap
-# Follow roadmap...                   # 10. Build incrementally
-/docs update                          # 11. Keep docs in sync
-/project template university-system   # 12. Save as reusable template
+PHASE 1: DISCOVERY (free discussion)
+  /project add university-system        # Create project
+  Discuss the idea freely               # Ask questions, understand
+  Diagrams saved to discovery/          # Mermaid architecture, data flow, ERD
+  Research saved to discovery/          # Open source options, tech comparison
+
+  >>> Say "ابدا plan" or "start planning" <<<
+
+PHASE 2: PLANNING (structured plans)
+  /plan create university-system        # Master plan + 10 sub-plans
+  /plan show, /plan edit                # Review and refine
+  /plan approve all                     # Approve when satisfied
+
+  >>> Say "ابدا برمجة" or "start coding" <<<
+
+PHASE 3: IMPLEMENTATION (actual code)
+  /plan implementation                  # Step-by-step roadmap
+  Follow roadmap incrementally          # Code + docs generated together
+  /project template university-system   # Save as reusable template
 ```
 
-**No code is written until you explicitly say to start coding.**
+| Gate | You Say | What Happens Next |
+|------|---------|------------------|
+| **Gate 1** | "start planning" | Discovery ends, formal planning begins |
+| **Gate 2** | Approve all plans | Plans are locked |
+| **Gate 3** | "start coding" | Implementation begins |
+
+### Project Discovery Folder
+```
+discovery/
+  DISCUSSION.md           # Notes, questions, decisions
+  requirements-draft.md   # Evolving requirements
+  diagrams/               # Mermaid diagrams (rendered on GitHub)
+    architecture.md       # System architecture
+    data-flow.md          # Data flow
+    er-diagram.md         # Entity relationships
+  research/               # Research during discovery
+    opensource-options.md  # Open source alternatives
+    tech-comparison.md    # Technology comparisons
+```
 
 ## Recommended Companion Tools
 

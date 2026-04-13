@@ -19,18 +19,22 @@ Comprehensive planning system with master plan and detailed sub-plans. NO CODE i
 ## CRITICAL RULE: NO CODE UNTIL EXPLICITLY TOLD
 
 ```
-PLANNING PHASE:
-  /design -> generates design document
-  /plan create -> generates master plan + sub-plans
-  User reviews, edits, approves plans
-  ALL plans must be approved
+PHASE 1 - DISCOVERY (free discussion):
+  /project add <name>     -> Creates project, starts discovery
+  Discuss, ask, research  -> Understand the idea deeply
+  Diagrams, notes         -> Saved in discovery/ folder
 
-TRANSITION (user must say one of these):
-  "ابدا برمجة" / "يلا نبدا" / "start coding" / "begin implementation" / "implement" / "let's code"
+  >>> USER says "ابدا plan" / "start planning" / "خطط" <<<
 
-IMPLEMENTATION PHASE:
-  /plan implementation -> generates implementation roadmap
-  Then actual coding begins following the roadmap
+PHASE 2 - PLANNING (structured plans):
+  /plan create <name>     -> Master plan + 10 sub-plans
+  Review, edit, approve   -> All plans must be approved
+
+  >>> USER says "ابدا برمجة" / "start coding" / "يلا كود" <<<
+
+PHASE 3 - IMPLEMENTATION (actual code):
+  /plan implementation    -> Step-by-step roadmap
+  Follow roadmap          -> Build incrementally
 ```
 
 **Even if ALL plans are approved, DO NOT write any code.**
