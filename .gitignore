@@ -1,0 +1,22 @@
+# Books (copyrighted PDFs - do not upload)
+docs/
+
+# Zip files
+*.zip
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Project-specific data (user projects)
+.claude/projects/*/
+
+# Templates created from user projects
+.claude/templates/*/
+
+# Node modules (if any)
+node_modules/
+
+# Environment
+.env
+.env.*

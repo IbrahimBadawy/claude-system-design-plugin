@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Design Architect - Claude Code Plugin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dark: { 50:'#f8fafc',100:'#e2e8f0',200:'#cbd5e1',300:'#94a3b8',400:'#64748b',500:'#475569',600:'#334155',700:'#1e293b',800:'#0f172a',900:'#020617' },
+                        accent: { DEFAULT:'#6366f1',light:'#818cf8',dark:'#4f46e5' },
+                        emerald: { DEFAULT:'#10b981',light:'#34d399' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background: #020617; color: #e2e8f0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+        .glass { background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(100, 116, 139, 0.2); }
+        .glow { box-shadow: 0 0 30px rgba(99, 102, 241, 0.15); }
+        .gradient-text { background: linear-gradient(135deg, #818cf8, #34d399); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(99, 102, 241, 0.15); }
+        .card { transition: all 0.3s ease; }
+        .tag { display: inline-block; padding: 2px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
+        .fade-in { opacity: 0; transform: translateY(20px); transition: all 0.6s ease; }
+        .fade-in.visible { opacity: 1; transform: translateY(0); }
+        nav a:hover { color: #818cf8; }
+        .nav-active { color: #818cf8; border-bottom: 2px solid #818cf8; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    </style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="fixed top-0 w-full z-50 glass">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+            <span class="text-2xl">&#9670;</span>
+            <span class="font-bold text-lg">System Design Architect</span>
+        </div>
+        <div class="hidden md:flex items-center gap-6 text-sm text-dark-300">
+            <a href="#features">Features</a>
+            <a href="#workflow">Workflow</a>
+            <a href="#commands">Commands</a>
+            <a href="#skills">Skills</a>
+            <a href="#rules">Rules</a>
+            <a href="#knowledge">Knowledge</a>
+            <a href="#tools">Tools</a>
+            <a href="#install">Install</a>
+        </div>
+    </div>
+</nav>
+
+<!-- Hero -->
+<section class="min-h-screen flex items-center justify-center px-4 pt-20">
+    <div class="max-w-5xl mx-auto text-center">
+        <div class="inline-block mb-6">
+            <span class="tag bg-accent/20 text-accent-light">Claude Code Plugin</span>
+        </div>
+        <h1 class="text-5xl md:text-7xl font-bold mb-6">
+            <span class="gradient-text">System Design</span><br>Architect
+        </h1>
+        <p class="text-xl md:text-2xl text-dark-300 mb-8 max-w-3xl mx-auto">
+            The most comprehensive system design plugin for Claude Code. Design, evaluate, plan, and build production-grade distributed systems &mdash; powered by 8 foundational books and modern best practices.
+        </p>
+
+        <!-- Stats -->
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-4 max-w-4xl mx-auto mb-12">
+            <div class="glass rounded-xl p-4 glow">
+                <div class="text-3xl font-bold gradient-text">83</div>
+                <div class="text-sm text-dark-400">Total Files</div>
+            </div>
+            <div class="glass rounded-xl p-4 glow">
+                <div class="text-3xl font-bold gradient-text">32</div>
+                <div class="text-sm text-dark-400">Commands</div>
+            </div>
+            <div class="glass rounded-xl p-4 glow">
+                <div class="text-3xl font-bold gradient-text">16</div>
+                <div class="text-sm text-dark-400">Rules</div>
+            </div>
+            <div class="glass rounded-xl p-4 glow">
+                <div class="text-3xl font-bold gradient-text">9</div>
+                <div class="text-sm text-dark-400">Skills</div>
+            </div>
+            <div class="glass rounded-xl p-4 glow col-span-2 md:col-span-1">
+                <div class="text-3xl font-bold gradient-text">16</div>
+                <div class="text-sm text-dark-400">Design References</div>
+            </div>
+        </div>
+
+        <div class="flex flex-wrap justify-center gap-4">
+            <a href="#install" class="bg-accent hover:bg-accent-dark text-white px-8 py-3 rounded-lg font-semibold transition">Get Started</a>
+            <a href="#commands" class="glass px-8 py-3 rounded-lg font-semibold hover:bg-dark-700 transition">View Commands</a>
+        </div>
+    </div>
+</section>
+
+<!-- Features -->
+<section id="features" class="py-24 px-4">
+    <div class="max-w-7xl mx-auto">
+        <h2 class="text-4xl font-bold text-center mb-4">Everything You Need</h2>
+        <p class="text-center text-dark-400 mb-16 max-w-2xl mx-auto">From initial design to production deployment, this plugin covers the entire software development lifecycle.</p>
+
+        <div class="grid md:grid-cols-3 gap-6">
+            <div class="card glass rounded-2xl p-8">
+                <div class="text-4xl mb-4">&#9881;</div>
+                <h3 class="text-xl font-bold mb-3">System Design</h3>
+                <p class="text-dark-400">Alex Xu's 4-step framework with 16 pre-built reference architectures. Rate limiters, chat systems, payment systems, and more.</p>
+            </div>
+            <div class="card glass rounded-2xl p-8">
+                <div class="text-4xl mb-4">&#128269;</div>
+                <h3 class="text-xl font-bold mb-3">Evaluate & Improve</h3>
+                <p class="text-dark-400">Multi-dimensional evaluation against 10 quality dimensions. Score cards, prioritized findings, and actionable improvement roadmaps.</p>
+            </div>
+            <div class="card glass rounded-2xl p-8">
+                <div class="text-4xl mb-4">&#128187;</div>
+                <h3 class="text-xl font-bold mb-3">Full-Stack Implementation</h3>
+                <p class="text-dark-400">Writes real production code with Clean Architecture. Supports React, Vue, NestJS, FastAPI, Spring Boot, Go, and more.</p>
+            </div>
+            <div class="card glass rounded-2xl p-8">
+                <div class="text-4xl mb-4">&#128221;</div>
+                <h3 class="text-xl font-bold mb-3">Planning System</h3>
+                <p class="text-dark-400">Master plan + 10 detailed sub-plans. Review, edit, approve each plan. No code until you say "start coding".</p>
+            </div>
+            <div class="card glass rounded-2xl p-8">
+                <div class="text-4xl mb-4">&#128218;</div>
+                <h3 class="text-xl font-bold mb-3">Auto Documentation</h3>
+                <p class="text-dark-400">Documentation generated alongside code. API docs, database docs, architecture docs, component catalog. Auto-update on changes.</p>
+            </div>
+            <div class="card glass rounded-2xl p-8">
+                <div class="text-4xl mb-4">&#127760;</div>
+                <h3 class="text-xl font-bold mb-3">Smart Research</h3>
+                <p class="text-dark-400">Searches the internet for latest docs before coding. Finds open source alternatives. Compares build vs buy vs fork.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Workflow -->
+<section id="workflow" class="py-24 px-4 bg-dark-800/50">
+    <div class="max-w-5xl mx-auto">
+        <h2 class="text-4xl font-bold text-center mb-4">How It Works</h2>
+        <p class="text-center text-dark-400 mb-16">A structured workflow ensures nothing is missed and nothing is built without approval.</p>
+
+        <div class="space-y-6">
+            <div class="flex items-start gap-6">
+                <div class="flex-shrink-0 w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center text-accent font-bold">1</div>
+                <div class="glass rounded-xl p-6 flex-1">
+                    <h3 class="font-bold text-lg mb-1">Create Project</h3>
+                    <code class="text-emerald-light text-sm">/project add university-system</code>
+                    <p class="text-dark-400 text-sm mt-2">Create a tracked project with requirements, timeline, and team info.</p>
+                </div>
+            </div>
+            <div class="flex items-start gap-6">
+                <div class="flex-shrink-0 w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center text-accent font-bold">2</div>
+                <div class="glass rounded-xl p-6 flex-1">
+                    <h3 class="font-bold text-lg mb-1">Research Open Source</h3>
+                    <code class="text-emerald-light text-sm">/opensource university-lms</code>
+                    <p class="text-dark-400 text-sm mt-2">Search for existing solutions. Compare build vs buy vs fork with license analysis.</p>
+                </div>
+            </div>
+            <div class="flex items-start gap-6">
+                <div class="flex-shrink-0 w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center text-accent font-bold">3</div>
+                <div class="glass rounded-xl p-6 flex-1">
+                    <h3 class="font-bold text-lg mb-1">Design System</h3>
+                    <code class="text-emerald-light text-sm">/design university-system</code>
+                    <p class="text-dark-400 text-sm mt-2">Full 4-step design: Requirements, High-Level Architecture, Deep Dive, Production Readiness.</p>
+                </div>
+            </div>
+            <div class="flex items-start gap-6">
+                <div class="flex-shrink-0 w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center text-accent font-bold">4</div>
+                <div class="glass rounded-xl p-6 flex-1">
+                    <h3 class="font-bold text-lg mb-1">Create & Approve Plans</h3>
+                    <code class="text-emerald-light text-sm">/plan create &rarr; /plan show &rarr; /plan approve all</code>
+                    <p class="text-dark-400 text-sm mt-2">Master plan + 10 sub-plans. Review each one. Edit if needed. Approve when satisfied.</p>
+                </div>
+            </div>
+            <div class="flex items-start gap-6">
+                <div class="flex-shrink-0 w-12 h-12 rounded-full bg-emerald/20 flex items-center justify-center text-emerald font-bold">5</div>
+                <div class="glass rounded-xl p-6 flex-1 border-emerald/30">
+                    <h3 class="font-bold text-lg mb-1 text-emerald-light">Start Coding</h3>
+                    <code class="text-emerald-light text-sm">"Start coding" &rarr; /plan implementation &rarr; Follow roadmap</code>
+                    <p class="text-dark-400 text-sm mt-2">Only NOW does code get written. Step-by-step implementation roadmap with progress tracking.</p>
+                </div>
+            </div>
+            <div class="flex items-start gap-6">
+                <div class="flex-shrink-0 w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center text-accent font-bold">6</div>
+                <div class="glass rounded-xl p-6 flex-1">
+                    <h3 class="font-bold text-lg mb-1">Document & Ship</h3>
+                    <code class="text-emerald-light text-sm">/docs generate &rarr; /project template university-system</code>
+                    <p class="text-dark-400 text-sm mt-2">Auto-generated docs. Convert to reusable template for future projects.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Commands -->
+<section id="commands" class="py-24 px-4">
+    <div class="max-w-7xl mx-auto">
+        <h2 class="text-4xl font-bold text-center mb-4">32 Commands</h2>
+        <p class="text-center text-dark-400 mb-16">Every command you need for the full software development lifecycle.</p>
+
+        <!-- Design & Architecture -->
+        <div class="mb-12">
+            <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><span class="text-accent">&#9670;</span> Design & Architecture</h3>
+            <div class="grid md:grid-cols-2 gap-3">
+                <div class="glass rounded-lg p-4"><code class="text-accent-light">/design &lt;system&gt;</code><span class="text-dark-400 ml-3">Full system design (4-step framework)</span></div>
+                <div class="glass rounded-lg p-4"><code class="text-accent-light">/domain &lt;system&gt;</code><span class="text-dark-400 ml-3">Domain modeling with DDD</span></div>
+                <div class="glass rounded-lg p-4"><code class="text-accent-light">/schema &lt;entity&gt;</code><span class="text-dark-400 ml-3">Database schema design</span></div>
+                <div class="glass rounded-lg p-4"><code class="text-accent-light">/api &lt;resource&gt;</code><span class="text-dark-400 ml-3">REST API design</span></div>
+                <div class="glass rounded-lg p-4"><code class="text-accent-light">/gateway &lt;system&gt;</code><span class="text-dark-400 ml-3">API gateway &amp; BFF pattern</span></div>
+                <div class="glass rounded-lg p-4"><code class="text-accent-light">/tenancy &lt;system&gt;</code><span class="text-dark-400 ml-3">Multi-tenancy architecture</span></div>
+                <div class="glass rounded-lg p-4"><code class="text-accent-light">/estimate &lt;desc&gt;</code><span class="text-dark-400 ml-3">Back-of-envelope calculations</span></div>
+                <div class="glass rounded-lg p-4"><code class="text-accent-light">/tradeoff &lt;A&gt; vs &lt;B&gt;</code><span class="text-dark-400 ml-3">Structured trade-off analysis</span></div>
+                <div class="glass rounded-lg p-4"><code class="text-accent-light">/scale &lt;component&gt;</code><span class="text-dark-400 ml-3">Scaling strategy</span></div>
+                <div class="glass rounded-lg p-4"><code class="text-accent-light">/adr &lt;title&gt;</code><span class="text-dark-400 ml-3">Architecture Decision Record</span></div>
+            </div>
+        </div>
+
+        <!-- Evaluation & Quality -->
+        <div class="mb-12">
+            <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><span class="text-emerald">&#9670;</span> Evaluation & Quality</h3>
+            <div class="grid md:grid-cols-2 gap-3">
+                <div class="glass rounded-lg p-4"><code class="text-emerald-light">/evaluate &lt;system&gt;</code><span class="text-dark-400 ml-3">Evaluate existing system critically</span></div>
+                <div class="glass rounded-lg p-4"><code class="text-emerald-light">/improve &lt;system&gt;</code><span class="text-dark-400 ml-3">Generate improvement roadmap</span></div>
+                <div class="glass rounded-lg p-4"><code class="text-emerald-light">/security</code><span class="text-dark-400 ml-3">Security review (OWASP)</span></div>
+                <div class="glass rounded-lg p-4"><code class="text-emerald-light">/perf &lt;system&gt;</code><span class="text-dark-400 ml-3">Performance audit &amp; optimization</span></div>
+                <div class="glass rounded-lg p-4"><code class="text-emerald-light">/debt &lt;system&gt;</code><span class="text-dark-400 ml-3">Technical debt management</span></div>
+                <div class="glass rounded-lg p-4"><code class="text-emerald-light">/privacy &lt;system&gt;</code><span class="text-dark-400 ml-3">GDPR &amp; data privacy compliance</span></div>
+                <div class="glass rounded-lg p-4"><code class="text-emerald-light">/checklist</code><span class="text-dark-400 ml-3">Full design review checklist</span></div>
+                <div class="glass rounded-lg p-4"><code class="text-emerald-light">/failure &lt;scenario&gt;</code><span class="text-dark-400 ml-3">Failure analysis &amp; recovery</span></div>
+            </div>
+        </div>
+
+        <!-- Implementation -->
+        <div class="mb-12">
+            <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><span class="text-yellow-400">&#9670;</span> Implementation</h3>
+            <div class="grid md:grid-cols-2 gap-3">
+                <div class="glass rounded-lg p-4"><code class="text-yellow-300">/implement --frontend react --backend nestjs</code><span class="text-dark-400 ml-3">Full-stack implementation</span></div>
+                <div class="glass rounded-lg p-4"><code class="text-yellow-300">/frontend design</code><span class="text-dark-400 ml-3">Professional UI design</span></div>
+                <div class="glass rounded-lg p-4"><code class="text-yellow-300">/frontend libraries &lt;fw&gt;</code><span class="text-dark-400 ml-3">Best UI libraries for framework</span></div>
+                <div class="glass rounded-lg p-4"><code class="text-yellow-300">/backend libs &lt;fw&gt;</code><span class="text-dark-400 ml-3">Best backend libraries</span></div>
+                <div class="glass rounded-lg p-4"><code class="text-yellow-300">/cicd &lt;system&gt;</code><span class="text-dark-400 ml-3">CI/CD pipeline design</span></div>
+                <div class="glass rounded-lg p-4"><code class="text-yellow-300">/monitor</code><span class="text-dark-400 ml-3">Observability stack design</span></div>
+                <div class="glass rounded-lg p-4"><code class="text-yellow-300">/cost</code><span class="text-dark-400 ml-3">Infrastructure cost estimation</span></div>
+                <div class="glass rounded-lg p-4"><code class="text-yellow-300">/postmortem &lt;incident&gt;</code><span class="text-dark-400 ml-3">Incident postmortem</span></div>
+            </div>
+        </div>
+
+        <!-- Planning & Projects -->
+        <div class="mb-12">
+            <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><span class="text-purple-400">&#9670;</span> Planning & Projects</h3>
+            <div class="grid md:grid-cols-2 gap-3">
+                <div class="glass rounded-lg p-4"><code class="text-purple-300">/plan create &lt;project&gt;</code><span class="text-dark-400 ml-3">Master plan + 10 sub-plans</span></div>
+                <div class="glass rounded-lg p-4"><code class="text-purple-300">/plan show / edit / approve</code><span class="text-dark-400 ml-3">Review and approve plans</span></div>
+                <div class="glass rounded-lg p-4"><code class="text-purple-300">/plan implementation</code><span class="text-dark-400 ml-3">Step-by-step roadmap</span></div>
+                <div class="glass rounded-lg p-4"><code class="text-purple-300">/project add &lt;name&gt;</code><span class="text-dark-400 ml-3">Create new project</span></div>
+                <div class="glass rounded-lg p-4"><code class="text-purple-300">/project deps</code><span class="text-dark-400 ml-3">Project dependency graph</span></div>
+                <div class="glass rounded-lg p-4"><code class="text-purple-300">/project template &lt;name&gt;</code><span class="text-dark-400 ml-3">Convert to reusable template</span></div>
+            </div>
+        </div>
+
+        <!-- Research & Docs -->
+        <div>
+            <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><span class="text-cyan-400">&#9670;</span> Research & Documentation</h3>
+            <div class="grid md:grid-cols-2 gap-3">
+                <div class="glass rounded-lg p-4"><code class="text-cyan-300">/research &lt;topic&gt;</code><span class="text-dark-400 ml-3">Research latest technologies</span></div>
+                <div class="glass rounded-lg p-4"><code class="text-cyan-300">/opensource &lt;system&gt;</code><span class="text-dark-400 ml-3">Open source alternatives</span></div>
+                <div class="glass rounded-lg p-4"><code class="text-cyan-300">/docs generate</code><span class="text-dark-400 ml-3">Full documentation suite</span></div>
+                <div class="glass rounded-lg p-4"><code class="text-cyan-300">/docs update</code><span class="text-dark-400 ml-3">Update docs for changes</span></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Skills -->
+<section id="skills" class="py-24 px-4 bg-dark-800/50">
+    <div class="max-w-7xl mx-auto">
+        <h2 class="text-4xl font-bold text-center mb-4">9 Auto-Invoked Skills</h2>
+        <p class="text-center text-dark-400 mb-16">Skills activate automatically based on context. No commands needed.</p>
+
+        <div class="grid md:grid-cols-3 gap-6">
+            <div class="card glass rounded-2xl p-6">
+                <div class="tag bg-accent/20 text-accent-light mb-4">design-system</div>
+                <p class="text-dark-300 text-sm">Triggers when designing new systems. Uses 4-step framework, references 16 design patterns, searches for open source alternatives.</p>
+            </div>
+            <div class="card glass rounded-2xl p-6">
+                <div class="tag bg-emerald/20 text-emerald-light mb-4">evaluate-system</div>
+                <p class="text-dark-300 text-sm">Triggers when reviewing systems. Multi-dimensional evaluation using criteria from all 8 books. Score card with prioritized findings.</p>
+            </div>
+            <div class="card glass rounded-2xl p-6">
+                <div class="tag bg-yellow-500/20 text-yellow-300 mb-4">implement-system</div>
+                <p class="text-dark-300 text-sm">Triggers when coding. Writes real production code. Researches docs before using any library. Follows Clean Architecture.</p>
+            </div>
+            <div class="card glass rounded-2xl p-6">
+                <div class="tag bg-cyan-500/20 text-cyan-300 mb-4">research-tech</div>
+                <p class="text-dark-300 text-sm">Triggers when comparing technologies. Searches the web, reads official docs, synthesizes findings into comparison matrices.</p>
+            </div>
+            <div class="card glass rounded-2xl p-6">
+                <div class="tag bg-purple-500/20 text-purple-300 mb-4">project-manager</div>
+                <p class="text-dark-300 text-sm">Triggers for project management. Tracks multiple projects, manages plans, templates, and dependencies between projects.</p>
+            </div>
+            <div class="card glass rounded-2xl p-6">
+                <div class="tag bg-blue-500/20 text-blue-300 mb-4">documentation</div>
+                <p class="text-dark-300 text-sm">Triggers when generating docs. Recommends Swagger, Storybook, TypeDoc, Docusaurus based on stack. Auto-detects undocumented code.</p>
+            </div>
+            <div class="card glass rounded-2xl p-6">
+                <div class="tag bg-pink-500/20 text-pink-300 mb-4">frontend-design</div>
+                <p class="text-dark-300 text-sm">Triggers for UI work. Asks about style preferences, picks best component library (shadcn, PrimeVue, MUI, etc.), enforces accessibility.</p>
+            </div>
+            <div class="card glass rounded-2xl p-6">
+                <div class="tag bg-orange-500/20 text-orange-300 mb-4">devops</div>
+                <p class="text-dark-300 text-sm">Triggers for infrastructure. Generates Docker, CI/CD, deployment configs. Supports GitHub Actions, AWS, Kubernetes, Terraform.</p>
+            </div>
+            <div class="card glass rounded-2xl p-6">
+                <div class="tag bg-teal-500/20 text-teal-300 mb-4">opensource-research</div>
+                <p class="text-dark-300 text-sm">Triggers when looking for existing solutions. Compares open source systems, analyzes licenses (MIT/GPL/AGPL), recommends build vs buy.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Rules -->
+<section id="rules" class="py-24 px-4">
+    <div class="max-w-5xl mx-auto">
+        <h2 class="text-4xl font-bold text-center mb-4">16 Always-Active Rules</h2>
+        <p class="text-center text-dark-400 mb-16">These rules are enforced automatically on every interaction. Non-negotiable quality standards.</p>
+
+        <div class="grid md:grid-cols-2 gap-4">
+            <div class="glass rounded-lg p-4 flex items-center gap-4"><span class="text-accent font-mono font-bold w-8">01</span><span>Requirements First &mdash; never code without understanding the problem</span></div>
+            <div class="glass rounded-lg p-4 flex items-center gap-4"><span class="text-accent font-mono font-bold w-8">02</span><span>Design Before Code &mdash; API + data model + architecture first</span></div>
+            <div class="glass rounded-lg p-4 flex items-center gap-4"><span class="text-accent font-mono font-bold w-8">03</span><span>Justify Decisions &mdash; every choice needs a "why" with trade-offs</span></div>
+            <div class="glass rounded-lg p-4 flex items-center gap-4"><span class="text-accent font-mono font-bold w-8">04</span><span>Think About Failure &mdash; timeouts, retries, circuit breakers, degradation</span></div>
+            <div class="glass rounded-lg p-4 flex items-center gap-4"><span class="text-accent font-mono font-bold w-8">05</span><span>Security by Default &mdash; auth, encryption, validation in every layer</span></div>
+            <div class="glass rounded-lg p-4 flex items-center gap-4"><span class="text-accent font-mono font-bold w-8">06</span><span>Clean Code &mdash; naming, functions, error handling, DRY, SOLID</span></div>
+            <div class="glass rounded-lg p-4 flex items-center gap-4"><span class="text-accent font-mono font-bold w-8">07</span><span>Scalability &mdash; design for 10x, build for 1x, don't over-engineer</span></div>
+            <div class="glass rounded-lg p-4 flex items-center gap-4"><span class="text-accent font-mono font-bold w-8">08</span><span>Observability &mdash; metrics (RED), logging (JSON), tracing, alerting</span></div>
+            <div class="glass rounded-lg p-4 flex items-center gap-4"><span class="text-accent font-mono font-bold w-8">09</span><span>Data Model is King &mdash; access patterns first, schema second</span></div>
+            <div class="glass rounded-lg p-4 flex items-center gap-4"><span class="text-accent font-mono font-bold w-8">10</span><span>API Standards &mdash; versioning, pagination, idempotency, validation</span></div>
+            <div class="glass rounded-lg p-4 flex items-center gap-4"><span class="text-accent font-mono font-bold w-8">11</span><span>Research Before Code &mdash; fetch latest docs before using any library</span></div>
+            <div class="glass rounded-lg p-4 flex items-center gap-4"><span class="text-accent font-mono font-bold w-8">12</span><span>Auto Documentation &mdash; docs generated with code, auto-update triggers</span></div>
+            <div class="glass rounded-lg p-4 flex items-center gap-4"><span class="text-accent font-mono font-bold w-8">13</span><span>No Code Without Plan &mdash; all plans approved + explicit user command</span></div>
+            <div class="glass rounded-lg p-4 flex items-center gap-4"><span class="text-accent font-mono font-bold w-8">14</span><span>Domain Modeling &mdash; DDD: bounded contexts, aggregates, events</span></div>
+            <div class="glass rounded-lg p-4 flex items-center gap-4"><span class="text-accent font-mono font-bold w-8">15</span><span>Accessibility &mdash; WCAG 2.2 AA, keyboard nav, screen readers, RTL</span></div>
+            <div class="glass rounded-lg p-4 flex items-center gap-4"><span class="text-accent font-mono font-bold w-8">16</span><span>Performance Budgets &mdash; API p99, Core Web Vitals, bundle size limits</span></div>
+        </div>
+    </div>
+</section>
+
+<!-- Knowledge / Design References -->
+<section id="knowledge" class="py-24 px-4 bg-dark-800/50">
+    <div class="max-w-7xl mx-auto">
+        <h2 class="text-4xl font-bold text-center mb-4">Knowledge Base</h2>
+        <p class="text-center text-dark-400 mb-16">16 pre-built design references from Alex Xu's books, plus 5 comprehensive guides.</p>
+
+        <div class="mb-12">
+            <h3 class="text-xl font-bold mb-6">Design References (from System Design Interview)</h3>
+            <div class="grid md:grid-cols-4 gap-3">
+                <div class="glass rounded-lg p-4 text-center card"><div class="text-2xl mb-2">&#9201;</div><div class="font-semibold text-sm">Rate Limiter</div><div class="text-xs text-dark-400">Token Bucket, Redis</div></div>
+                <div class="glass rounded-lg p-4 text-center card"><div class="text-2xl mb-2">&#128279;</div><div class="font-semibold text-sm">URL Shortener</div><div class="text-xs text-dark-400">Base62, Caching</div></div>
+                <div class="glass rounded-lg p-4 text-center card"><div class="text-2xl mb-2">&#128273;</div><div class="font-semibold text-sm">Unique ID Gen</div><div class="text-xs text-dark-400">Snowflake, UUID</div></div>
+                <div class="glass rounded-lg p-4 text-center card"><div class="text-2xl mb-2">&#128451;</div><div class="font-semibold text-sm">Key-Value Store</div><div class="text-xs text-dark-400">Dynamo, Quorum</div></div>
+                <div class="glass rounded-lg p-4 text-center card"><div class="text-2xl mb-2">&#128172;</div><div class="font-semibold text-sm">Chat System</div><div class="text-xs text-dark-400">WebSocket, Presence</div></div>
+                <div class="glass rounded-lg p-4 text-center card"><div class="text-2xl mb-2">&#128240;</div><div class="font-semibold text-sm">News Feed</div><div class="text-xs text-dark-400">Fan-out, Hybrid</div></div>
+                <div class="glass rounded-lg p-4 text-center card"><div class="text-2xl mb-2">&#128276;</div><div class="font-semibold text-sm">Notifications</div><div class="text-xs text-dark-400">Multi-channel</div></div>
+                <div class="glass rounded-lg p-4 text-center card"><div class="text-2xl mb-2">&#128270;</div><div class="font-semibold text-sm">Autocomplete</div><div class="text-xs text-dark-400">Trie, Top-K</div></div>
+                <div class="glass rounded-lg p-4 text-center card"><div class="text-2xl mb-2">&#128375;</div><div class="font-semibold text-sm">Web Crawler</div><div class="text-xs text-dark-400">BFS, Bloom Filter</div></div>
+                <div class="glass rounded-lg p-4 text-center card"><div class="text-2xl mb-2">&#128205;</div><div class="font-semibold text-sm">Proximity Service</div><div class="text-xs text-dark-400">Geohash, Quadtree</div></div>
+                <div class="glass rounded-lg p-4 text-center card"><div class="text-2xl mb-2">&#127909;</div><div class="font-semibold text-sm">Video Platform</div><div class="text-xs text-dark-400">DAG, Adaptive</div></div>
+                <div class="glass rounded-lg p-4 text-center card"><div class="text-2xl mb-2">&#128193;</div><div class="font-semibold text-sm">File Storage</div><div class="text-xs text-dark-400">Block Sync, Delta</div></div>
+                <div class="glass rounded-lg p-4 text-center card"><div class="text-2xl mb-2">&#128179;</div><div class="font-semibold text-sm">Payment System</div><div class="text-xs text-dark-400">Idempotency, Ledger</div></div>
+                <div class="glass rounded-lg p-4 text-center card"><div class="text-2xl mb-2">&#127942;</div><div class="font-semibold text-sm">Leaderboard</div><div class="text-xs text-dark-400">Redis Sorted Sets</div></div>
+                <div class="glass rounded-lg p-4 text-center card"><div class="text-2xl mb-2">&#128200;</div><div class="font-semibold text-sm">Monitoring</div><div class="text-xs text-dark-400">Prometheus, Grafana</div></div>
+                <div class="glass rounded-lg p-4 text-center card"><div class="text-2xl mb-2">&#128184;</div><div class="font-semibold text-sm">Stock Exchange</div><div class="text-xs text-dark-400">Ultra-low Latency</div></div>
+            </div>
+        </div>
+
+        <div>
+            <h3 class="text-xl font-bold mb-6">Knowledge Guides</h3>
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="glass rounded-xl p-6 card">
+                    <h4 class="font-bold mb-2">Architecture Patterns</h4>
+                    <p class="text-sm text-dark-400">16 system design patterns with full architecture, data models, and scaling strategies.</p>
+                </div>
+                <div class="glass rounded-xl p-6 card">
+                    <h4 class="font-bold mb-2">Technology Guide 2026</h4>
+                    <p class="text-sm text-dark-400">Database selection, message queues, caching, observability stack, API styles, and more.</p>
+                </div>
+                <div class="glass rounded-xl p-6 card">
+                    <h4 class="font-bold mb-2">Distributed Systems</h4>
+                    <p class="text-sm text-dark-400">CAP theorem, consistency models, replication, partitioning, transactions, consensus.</p>
+                </div>
+                <div class="glass rounded-xl p-6 card">
+                    <h4 class="font-bold mb-2">Clean Architecture</h4>
+                    <p class="text-sm text-dark-400">SOLID, GoF patterns, code smells, refactoring catalog, Kent Beck's 4 rules.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Companion Tools -->
+<section id="tools" class="py-24 px-4">
+    <div class="max-w-5xl mx-auto">
+        <h2 class="text-4xl font-bold text-center mb-4">Recommended Companion Tools</h2>
+        <p class="text-center text-dark-400 mb-16">Install these alongside the plugin for a complete development environment.</p>
+
+        <div class="space-y-4">
+            <div class="glass rounded-xl p-6 flex flex-col md:flex-row md:items-center gap-4">
+                <div class="flex-1">
+                    <h3 class="font-bold text-lg">context7</h3>
+                    <p class="text-dark-400 text-sm">Fetches the latest docs for any library. Prevents outdated API usage.</p>
+                </div>
+                <code class="text-emerald-light text-sm bg-dark-800 px-4 py-2 rounded">/plugin install context7</code>
+            </div>
+            <div class="glass rounded-xl p-6 flex flex-col md:flex-row md:items-center gap-4">
+                <div class="flex-1">
+                    <h3 class="font-bold text-lg">uipro-cli</h3>
+                    <p class="text-dark-400 text-sm">67 UI styles, 161 color palettes, 57 font pairings, 99 UX guidelines.</p>
+                </div>
+                <code class="text-emerald-light text-sm bg-dark-800 px-4 py-2 rounded">npm i -g uipro-cli && uipro init --ai claude</code>
+            </div>
+            <div class="glass rounded-xl p-6 flex flex-col md:flex-row md:items-center gap-4">
+                <div class="flex-1">
+                    <h3 class="font-bold text-lg">security-guidance</h3>
+                    <p class="text-dark-400 text-sm">Blocks security vulnerabilities in real-time (XSS, SQL injection, etc.).</p>
+                </div>
+                <code class="text-emerald-light text-sm bg-dark-800 px-4 py-2 rounded">/plugin install security-guidance</code>
+            </div>
+            <div class="glass rounded-xl p-6 flex flex-col md:flex-row md:items-center gap-4">
+                <div class="flex-1">
+                    <h3 class="font-bold text-lg">code-review</h3>
+                    <p class="text-dark-400 text-sm">Automated code review with 5 parallel agents.</p>
+                </div>
+                <code class="text-emerald-light text-sm bg-dark-800 px-4 py-2 rounded">/plugin install code-review</code>
+            </div>
+            <div class="glass rounded-xl p-6 flex flex-col md:flex-row md:items-center gap-4">
+                <div class="flex-1">
+                    <h3 class="font-bold text-lg">playwright</h3>
+                    <p class="text-dark-400 text-sm">Browser E2E testing. Claude controls a real Chrome window.</p>
+                </div>
+                <code class="text-emerald-light text-sm bg-dark-800 px-4 py-2 rounded">/plugin install playwright</code>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Books -->
+<section class="py-24 px-4 bg-dark-800/50">
+    <div class="max-w-5xl mx-auto">
+        <h2 class="text-4xl font-bold text-center mb-4">Powered by 8 Books</h2>
+        <p class="text-center text-dark-400 mb-16">All knowledge is grounded in these foundational software engineering texts.</p>
+
+        <div class="grid md:grid-cols-2 gap-4">
+            <div class="glass rounded-lg p-5 flex items-center gap-4"><span class="text-3xl">&#128214;</span><div><div class="font-bold">System Design Interview Vol 1 & 2</div><div class="text-sm text-dark-400">Alex Xu &mdash; 4-step framework, 12+ system designs</div></div></div>
+            <div class="glass rounded-lg p-5 flex items-center gap-4"><span class="text-3xl">&#128214;</span><div><div class="font-bold">Designing Data-Intensive Applications</div><div class="text-sm text-dark-400">Martin Kleppmann &mdash; Data systems foundations</div></div></div>
+            <div class="glass rounded-lg p-5 flex items-center gap-4"><span class="text-3xl">&#128214;</span><div><div class="font-bold">Clean Architecture</div><div class="text-sm text-dark-400">Robert C. Martin &mdash; SOLID, dependency rule</div></div></div>
+            <div class="glass rounded-lg p-5 flex items-center gap-4"><span class="text-3xl">&#128214;</span><div><div class="font-bold">Clean Code</div><div class="text-sm text-dark-400">Robert C. Martin &mdash; Code quality standards</div></div></div>
+            <div class="glass rounded-lg p-5 flex items-center gap-4"><span class="text-3xl">&#128214;</span><div><div class="font-bold">Design Patterns (GoF)</div><div class="text-sm text-dark-400">Gang of Four &mdash; 23 classic patterns</div></div></div>
+            <div class="glass rounded-lg p-5 flex items-center gap-4"><span class="text-3xl">&#128214;</span><div><div class="font-bold">Refactoring</div><div class="text-sm text-dark-400">Martin Fowler &mdash; Code smells & refactoring catalog</div></div></div>
+            <div class="glass rounded-lg p-5 flex items-center gap-4"><span class="text-3xl">&#128214;</span><div><div class="font-bold">Code Complete</div><div class="text-sm text-dark-400">Steve McConnell &mdash; Software construction</div></div></div>
+        </div>
+    </div>
+</section>
+
+<!-- Installation -->
+<section id="install" class="py-24 px-4">
+    <div class="max-w-3xl mx-auto">
+        <h2 class="text-4xl font-bold text-center mb-4">Get Started</h2>
+        <p class="text-center text-dark-400 mb-12">Set up the plugin in minutes.</p>
+
+        <div class="space-y-6">
+            <div class="glass rounded-xl p-6">
+                <h3 class="font-bold text-lg mb-3">Step 1: Clone or copy the plugin</h3>
+                <pre class="bg-dark-900 rounded-lg p-4 text-sm overflow-x-auto"><code class="text-emerald-light"># Copy the entire directory to your project
+cp -r system-design-plugin/.claude /your-project/
+cp system-design-plugin/CLAUDE.md /your-project/</code></pre>
+            </div>
+
+            <div class="glass rounded-xl p-6">
+                <h3 class="font-bold text-lg mb-3">Step 2: Install companion tools</h3>
+                <pre class="bg-dark-900 rounded-lg p-4 text-sm overflow-x-auto"><code class="text-emerald-light"># Essential companions
+/plugin install context7
+npm i -g uipro-cli && uipro init --ai claude
+/plugin install security-guidance
+/plugin install code-review
+/plugin install playwright</code></pre>
+            </div>
+
+            <div class="glass rounded-xl p-6">
+                <h3 class="font-bold text-lg mb-3">Step 3: Open in Claude Code</h3>
+                <pre class="bg-dark-900 rounded-lg p-4 text-sm overflow-x-auto"><code class="text-emerald-light"># Open your project directory
+claude /your-project
+
+# Start designing!
+/project add my-system
+/design my-system</code></pre>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Plugin Structure -->
+<section class="py-24 px-4 bg-dark-800/50">
+    <div class="max-w-3xl mx-auto">
+        <h2 class="text-4xl font-bold text-center mb-12">Plugin Structure</h2>
+        <div class="glass rounded-xl p-6">
+            <pre class="text-sm text-dark-200 overflow-x-auto leading-relaxed"><code>CLAUDE.md                          <span class="text-dark-400"># Main configuration</span>
+.claude/
+  settings.json                    <span class="text-dark-400"># Permissions</span>
+  commands/                        <span class="text-dark-400"># 32 individual command files</span>
+    design.md, evaluate.md, implement.md, plan.md,
+    schema.md, api.md, frontend.md, backend-libs.md,
+    docs.md, research.md, opensource.md, project.md,
+    domain.md, privacy.md, tenancy.md, perf.md,
+    cicd.md, gateway.md, debt.md, ...
+  rules/                           <span class="text-dark-400"># 16 always-active rules</span>
+    01-requirements-first.md ... 16-performance-budgets.md
+  skills/                          <span class="text-dark-400"># 9 auto-invoked skills</span>
+    design-system/, evaluate-system/, implement-system/,
+    research-tech/, project-manager/, documentation/,
+    frontend-design/, devops/, opensource-research/
+  knowledge/                       <span class="text-dark-400"># Reference knowledge base</span>
+    patterns.md, technology-guide.md,
+    distributed-systems.md, clean-architecture-guide.md,
+    recommended-tools.md
+    design-references/             <span class="text-dark-400"># 16 system design references</span>
+      01-rate-limiter.md ... 16-stock-exchange.md
+  projects/                        <span class="text-dark-400"># Client project tracking</span>
+  templates/                       <span class="text-dark-400"># Reusable project templates</span></code></pre>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="py-12 px-4 border-t border-dark-700">
+    <div class="max-w-5xl mx-auto text-center">
+        <p class="text-dark-400 mb-2">System Design Architect &mdash; A Claude Code Plugin</p>
+        <p class="text-dark-500 text-sm">Powered by knowledge from Alex Xu, Martin Kleppmann, Robert C. Martin, Gang of Four, Martin Fowler, and Steve McConnell.</p>
+        <p class="text-dark-500 text-sm mt-4">83 files &bull; 32 commands &bull; 16 rules &bull; 9 skills &bull; 16 design references &bull; 8 books</p>
+    </div>
+</footer>
+
+<!-- Scroll Animation -->
+<script>
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.card, .glass').forEach(el => {
+        el.classList.add('fade-in');
+        observer.observe(el);
+    });
+</script>
+</body>
+</html>
