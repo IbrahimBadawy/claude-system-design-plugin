@@ -554,6 +554,69 @@
                 </div>
             </div>
         </div>
+
+        <!-- Domain Knowledge Builder -->
+        <div class="mt-16">
+            <h3 class="text-xl font-bold mb-4">Build Your Own Domain Knowledge</h3>
+            <p class="text-dark-400 mb-8">Working with robotics, PLCs, medical devices, or any unfamiliar domain? Build a knowledge base FIRST, then design with confidence.</p>
+
+            <div class="glass rounded-2xl p-8 mb-6">
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h4 class="font-bold text-lg mb-4 gradient-text">How It Works</h4>
+                        <div class="space-y-3 text-sm">
+                            <div class="flex items-start gap-3">
+                                <span class="text-accent font-bold">1.</span>
+                                <span class="text-dark-300"><code class="text-rose-300">/knowledge build kuka-robot</code> &mdash; Researches the web deeply, reads official docs</span>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <span class="text-accent font-bold">2.</span>
+                                <span class="text-dark-300"><code class="text-rose-300">/knowledge import manual.pdf</code> &mdash; Import your own PDFs, datasheets, manuals</span>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <span class="text-accent font-bold">3.</span>
+                                <span class="text-dark-300">Knowledge saved in organized folders: concepts, APIs, protocols, examples</span>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <span class="text-accent font-bold">4.</span>
+                                <span class="text-dark-300">Automatically used during <code class="text-accent-light">/design</code> and <code class="text-accent-light">/implement</code></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-lg mb-4 gradient-text">Example: Industrial Automation ERP</h4>
+                        <pre class="bg-dark-900 rounded-lg p-4 text-xs overflow-x-auto"><code class="text-emerald-light">/knowledge build kuka-robot
+/knowledge build siemens-plc
+/knowledge build opc-ua
+/knowledge import krl-manual.pdf
+
+# Now Claude understands the domain
+/design automation-erp</code></pre>
+                        <div class="mt-4 text-xs text-dark-500">
+                            Works for any domain: medical (HL7/FHIR), finance (FIX protocol), IoT (MQTT), manufacturing (SCADA), and more.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-4">
+                <div class="glass rounded-lg p-4 text-center card">
+                    <div class="text-2xl mb-2">&#129302;</div>
+                    <div class="font-semibold text-sm">Robotics & Automation</div>
+                    <div class="text-xs text-dark-400">KUKA, ABB, Fanuc, PLC, SCADA</div>
+                </div>
+                <div class="glass rounded-lg p-4 text-center card">
+                    <div class="text-2xl mb-2">&#127973;</div>
+                    <div class="font-semibold text-sm">Healthcare & Medical</div>
+                    <div class="text-xs text-dark-400">HL7 FHIR, DICOM, HIPAA</div>
+                </div>
+                <div class="glass rounded-lg p-4 text-center card">
+                    <div class="text-2xl mb-2">&#128184;</div>
+                    <div class="font-semibold text-sm">Finance & Trading</div>
+                    <div class="text-xs text-dark-400">FIX, Market Data, Regulations</div>
+                </div>
+            </div>
+        </div>
     </div>
 </section>
 

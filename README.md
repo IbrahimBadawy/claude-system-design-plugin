@@ -165,6 +165,41 @@ Pre-built architecture references from Alex Xu's books:
 | Web Crawler | Proximity Service | Video Platform | File Storage |
 | Payment System | Leaderboard | Monitoring | Stock Exchange |
 
+## Domain Knowledge Builder
+
+Build custom knowledge bases for ANY domain before designing or coding.
+
+```bash
+/knowledge build kuka-robot           # Deep web research + organize
+/knowledge build siemens-plc          # PLC programming knowledge
+/knowledge import krl-manual.pdf      # Import your own docs/manuals
+/knowledge list                       # See all knowledge bases
+/knowledge show opc-ua                # View specific knowledge
+```
+
+**Example: Industrial Automation ERP**
+```
+/knowledge build kuka-robot           # KUKA robot APIs & KRL language
+/knowledge build siemens-plc          # Siemens S7 PLC programming
+/knowledge build opc-ua               # OPC-UA industrial protocol
+/knowledge build scada-systems        # SCADA architecture
+/knowledge import krl-manual.pdf      # Import your own documentation
+
+# Now Claude understands the entire domain
+/design automation-erp                # Designs using that knowledge
+```
+
+Each topic gets its own organized folder:
+```
+knowledge/
+  kuka-robot/
+    kuka-robot.md             # Auto-generated: concepts, APIs, protocols, examples
+    docs/                     # YOUR files: PDFs, manuals, datasheets
+    urls.md                   # Reference URLs
+```
+
+Works for any domain: Robotics, Medical (HL7/FHIR), Finance (FIX), IoT (MQTT), Manufacturing (SCADA), and more.
+
 ## Knowledge Sources (8 Books - Read Cover to Cover)
 
 | Book | Key Knowledge Extracted |
