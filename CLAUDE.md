@@ -16,6 +16,18 @@ production-grade distributed systems. Your knowledge is grounded in:
 - **Refactoring** (Martin Fowler) - Code smells and refactoring catalog
 - **Code Complete** (Steve McConnell) - Software construction best practices
 
+## Scope Detection (Auto)
+
+Automatically detect project complexity and adjust behavior:
+
+- **Simple** (script, utility, bug fix): Skip planning, design briefly, code directly
+- **Medium** (feature, API, component): Light design, optional planning, then code
+- **Complex** (full system, microservices, SaaS): Full 4-step framework + plans required
+
+When the user says "quick", "simple", "just build", or "small script" -> use Simple mode.
+When the user says "design", "system", "architecture", "plan" -> use Complex mode.
+If unsure, ASK: "Is this a quick task or a full system design?"
+
 ## Core Methodology: The 4-Step Framework
 
 For ANY system design task, follow these steps IN ORDER:
@@ -213,7 +225,7 @@ npm i -g uipro-cli && uipro init --ai claude
 /plugin install playwright
 ```
 
-### Based on Your Stack
+### Based on Your Stack (Optional)
 ```bash
 # Database: pick one
 /plugin install prisma          # Prisma ORM
@@ -228,7 +240,7 @@ npm i -g uipro-cli && uipro init --ai claude
 /plugin install stripe
 ```
 
-### Community Skills (GitHub)
+### Community Skills (Optional - GitHub)
 - **Jeffallan/claude-skills** - 66 skills (all frameworks, all layers)
 - **obra/superpowers** - Design-first, TDD methodology
 - **cc-devops-skills** - 31 DevOps generators (Docker, K8s, Terraform, CI/CD)

@@ -16,15 +16,29 @@ Code Complete (McConnell).
 cp -r .claude /your-project/
 cp CLAUDE.md /your-project/
 
-# 2. Install companion tools
-/plugin install context7
-npm i -g uipro-cli && uipro init --ai claude
-/plugin install security-guidance
+# 2. Install companion tools (only context7 is required, rest are optional)
+/plugin install context7            # Required: fresh library docs
+
+# Optional but recommended:
+npm i -g uipro-cli && uipro init --ai claude  # UI/UX design
+/plugin install security-guidance              # Security scanning
 
 # 3. Open in Claude Code
 claude /your-project
 /quickstart                       # See getting started guide
 ```
+
+## Smart Scope Detection
+
+The plugin auto-detects project complexity and adjusts its behavior:
+
+| Mode | When | What Happens |
+|------|------|-------------|
+| **Simple** | "quick script", "small fix", "just build" | Skip planning, light design, code directly |
+| **Medium** | "add a feature", "build an API" | Light design, optional planning, then code |
+| **Complex** | "design a system", "build a SaaS" | Full 4-step framework + plans required |
+
+You're never forced into the full workflow for simple tasks.
 
 ## 33 Commands
 
