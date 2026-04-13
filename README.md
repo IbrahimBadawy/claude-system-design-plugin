@@ -1,11 +1,31 @@
-# System Design Architect - Claude Plugin
+# System Design Architect - Claude Code Plugin
 
-A comprehensive Claude Code plugin for professional system design work.
-Built on knowledge from 8 foundational software engineering books and modern best practices.
+The most comprehensive system design plugin for Claude Code.
+Design, evaluate, plan, and build production-grade distributed systems.
+
+**85 files | 32 commands | 16 rules | 9 skills | 16 design references | 8 books**
+
+Built on deep knowledge from: System Design Interview (Alex Xu), DDIA (Kleppmann),
+Clean Architecture & Clean Code (Martin), Design Patterns (GoF), Refactoring (Fowler),
+Code Complete (McConnell).
 
 ## Quick Start
 
-Open this directory in Claude Code. The plugin loads automatically.
+```bash
+# 1. Copy to your project
+cp -r .claude /your-project/
+cp CLAUDE.md /your-project/
+
+# 2. Install companion tools
+/plugin install context7
+npm i -g uipro-cli && uipro init --ai claude
+/plugin install security-guidance
+
+# 3. Open in Claude Code and start designing
+claude /your-project
+/project add my-system
+/design my-system
+```
 
 ## Available Commands
 
@@ -57,6 +77,33 @@ Open this directory in Claude Code. The plugin loads automatically.
 | `/plan status` | Approval dashboard |
 | `/plan implementation` | Generate implementation roadmap |
 
+## 9 Auto-Invoked Skills
+
+Skills activate automatically based on context - no commands needed.
+
+| Skill | Triggers When |
+|-------|--------------|
+| **design-system** | Designing new systems (4-step framework) |
+| **evaluate-system** | Reviewing/auditing existing systems |
+| **implement-system** | Writing code (researches docs first) |
+| **research-tech** | Comparing technologies |
+| **project-manager** | Managing projects, plans, templates |
+| **documentation** | Generating/updating docs (Swagger, Storybook, Docusaurus) |
+| **frontend-design** | Designing UI (asks style, picks best library, a11y) |
+| **devops** | Setting up Docker, CI/CD, deployment |
+| **opensource-research** | Searching for existing solutions (build vs buy) |
+
+## 16 Design References
+
+Pre-built architecture references from Alex Xu's books:
+
+| | | | |
+|---|---|---|---|
+| Rate Limiter | URL Shortener | Unique ID Gen | Key-Value Store |
+| Chat System | News Feed | Notifications | Autocomplete |
+| Web Crawler | Proximity Service | Video Platform | File Storage |
+| Payment System | Leaderboard | Monitoring | Stock Exchange |
+
 ## Knowledge Sources
 
 - System Design Interview Vol 1 & 2 (Alex Xu / ByteByteGo)
@@ -67,17 +114,49 @@ Open this directory in Claude Code. The plugin loads automatically.
 - Refactoring (Martin Fowler)
 - Code Complete (Steve McConnell)
 
-## Plugin Structure
+## Plugin Structure (85 files)
 
 ```
-CLAUDE.md              # Main configuration
+CLAUDE.md                        # Main configuration
 .claude/
-  commands/            # 18 individual command files
-  rules/               # 10 always-active rules
-  skills/              # 5 auto-invoked skills
-  knowledge/           # Reference knowledge base
-  projects/            # Client project tracking
-  settings.json        # Permissions
+  settings.json                  # Permissions
+  commands/                      # 32 command files
+    design, evaluate, improve, implement, plan,
+    frontend, backend-libs, docs, research, opensource,
+    schema, api, domain, gateway, tenancy,
+    estimate, tradeoff, scale, cost, adr,
+    security, perf, debt, privacy, cicd,
+    failure, monitor, checklist, postmortem,
+    project, project-deps, project-template
+  rules/                         # 16 always-active rules
+    01-requirements-first    09-data-model
+    02-design-before-code    10-api-standards
+    03-justify-decisions     11-research-before-code
+    04-think-about-failure   12-auto-documentation
+    05-security-by-default   13-no-code-without-plan
+    06-clean-code            14-domain-modeling
+    07-scalability           15-accessibility
+    08-observability         16-performance-budgets
+  skills/                        # 9 auto-invoked skills
+    design-system/           # System design (4-step framework)
+    evaluate-system/         # System evaluation & audit
+    implement-system/        # Full-stack implementation
+    research-tech/           # Technology research
+    project-manager/         # Project & plan management
+    documentation/           # Auto-docs (Swagger, Storybook, etc.)
+    frontend-design/         # UI library selection & design
+    devops/                  # Docker, CI/CD, deployment
+    opensource-research/     # Build vs buy vs fork
+  knowledge/                     # Reference knowledge base
+    patterns.md              # 16 architecture patterns
+    technology-guide.md      # 2026 tech stack guide
+    distributed-systems.md   # DDIA concepts (consensus, CDC, streams)
+    clean-architecture-guide.md  # SOLID, GoF, concurrency, Code Complete
+    recommended-tools.md     # 50+ companion tools
+    design-references/       # 16 full system design references
+      01-rate-limiter ... 16-stock-exchange
+  projects/                      # Client project tracking
+  templates/                     # Reusable project templates
 ```
 
 ## Project Workflow
