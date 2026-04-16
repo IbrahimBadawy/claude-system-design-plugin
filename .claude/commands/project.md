@@ -26,10 +26,12 @@ Manage projects within this plugin. Track multiple system design projects.
 /project docs read <file>     # Read and summarize a project document
 ```
 
-## Complexity Level (NEW)
+## Onboarding Questions (ALWAYS ask in this order)
 
-When creating a project, ASK the user to pick a complexity level. This sets the depth
-of design, planning, and scaffolding:
+When creating a project, ALWAYS ask these questions in order **before** any
+further design or code. Save answers in `PROJECT.md`.
+
+### Question 1: Complexity Level
 
 | Level | Use When | What You Get |
 |-------|---------|-------------|
@@ -37,10 +39,9 @@ of design, planning, and scaffolding:
 | **Medium** | Feature-rich app, moderate scale | Front + Back + Auth + DB + Basic CI + Tests |
 | **Complex** | Production SaaS, distributed system, multi-tenant | Full 3-gate workflow, all 10 plans, infra, monitoring, security |
 
-**How to pick (ASK the user):**
-
+Ask:
 ```
-Before I create the project, pick a complexity level:
+Question 1/2: What's the complexity level of this project?
 
   1. Simple   - Just frontend + backend. Fast build. Minimal planning.
   2. Medium   - Full-stack app with auth, DB, tests, basic CI/CD.
@@ -49,8 +50,126 @@ Before I create the project, pick a complexity level:
 Which one?
 ```
 
-Save the choice in `PROJECT.md` under `Complexity`. All subsequent commands
-(`/design`, `/plan create`, `/implement`) adapt their output based on this level.
+### Question 2: User Skill Level (NEW)
+
+This controls HOW MANY questions are asked and HOW MANY decisions Claude makes automatically.
+
+| Level | Behavior |
+|-------|---------|
+| **Non-Programmer** | Claude picks almost everything. Asks only high-level product questions (what should the app do, who are users). Never asks about frameworks, libraries, DBs — picks sensible defaults. |
+| **Beginner** | Claude picks most technical choices. Explains them as it goes. Asks only about the product and one or two clear preferences. |
+| **Intermediate** | **Claude MUST ASK the user** for: frontend framework, backend framework, database, deployment OS (Windows/Linux), UI library preference, visual style. User has full control. |
+| **Professional** | Full technical dialogue. Asks about specifics like ORM choice, caching strategy, message queue, auth flow, infra stack. Shows trade-offs and expects opinions. |
+
+Ask:
+```
+Question 2/2: What's your programming skill level?
+
+  1. Non-Programmer  - I'll pick almost everything for you. You describe what you want.
+  2. Beginner         - I'll pick most tech choices and explain them.
+  3. Intermediate     - I'll ask you: frontend, backend, DB, OS (Win/Linux), UI style, library preferences.
+  4. Professional     - Full technical dialogue; I'll present trade-offs and expect opinions.
+
+Which one?
+```
+
+Save BOTH answers in `PROJECT.md`:
+
+```markdown
+**Complexity**: Simple | Medium | Complex
+**User Skill**: Non-Programmer | Beginner | Intermediate | Professional
+```
+
+All downstream commands read BOTH fields. See Rule 21 (complexity) and Rule 22 (skill-level).
+
+### Stack Questions (for Intermediate + Professional only)
+
+After the 2 onboarding questions, if User Skill is **Intermediate** or **Professional**,
+ASK these additional questions BEFORE any design or code. Claude picks for Non-Programmer
+and Beginner users automatically.
+
+```
+Since you picked Intermediate/Professional, I need a few more choices so I can prep
+everything correctly:
+
+Q3: Frontend framework?
+  1. React (with Vite)         - Most popular, large ecosystem
+  2. Next.js                    - React + SSR + file routing
+  3. Vue.js (with Vite)        - Clean syntax, simpler learning curve
+  4. Nuxt                       - Vue + SSR
+  5. Angular                    - Enterprise, batteries included
+  6. Svelte / SvelteKit         - Lean, compile-time
+  7. None (API only / headless)
+
+Q4: Backend framework?
+  1. Node.js + NestJS          - Opinionated, TypeScript-first, DI
+  2. Node.js + Express/Fastify - Minimal, flexible
+  3. Python + FastAPI          - Type hints, auto docs, async
+  4. Python + Django           - Batteries included, ORM, admin
+  5. Java + Spring Boot        - Enterprise, mature
+  6. Go + Gin/Fiber            - Performance, simple
+  7. C# + .NET                 - Enterprise, Windows-friendly
+  8. Rust + Axum               - Performance + safety
+
+Q5: Database?
+  1. PostgreSQL                - Default for most cases
+  2. MySQL / MariaDB           - Wide hosting support
+  3. MongoDB                   - Schema-flexible documents
+  4. SQLite                    - Dev / small / embedded
+  5. Supabase (Postgres + BaaS)
+  6. Firebase                  - Mobile-first, realtime
+
+Q6: Deployment target OS?
+  1. Linux                     - Standard cloud (AWS, GCP, Azure, Docker)
+  2. Windows Server            - IIS, Windows-specific tooling
+  3. Both / containerized      - Docker images, runs anywhere
+  4. Serverless / PaaS only    - Vercel / Netlify / Render / Railway
+
+Q7: UI style?
+  1. Modern & Minimal          - Clean, lots of whitespace (SaaS-style)
+  2. Corporate & Professional  - Structured, formal
+  3. Playful & Colorful        - Rounded, gradients
+  4. Dark & Sleek              - Dark-first, glassmorphism
+  5. Data-Dense                - Bloomberg-like, information-heavy
+  6. Material Design           - Google style
+  7. Apple-like                - Clean, premium
+
+Q8: UI library preference?
+  Based on your frontend:
+  - React    →  shadcn/ui  |  Ant Design  |  MUI  |  Chakra  |  Mantine  |  NextUI
+  - Vue      →  PrimeVue   |  Vuetify     |  Element Plus   |  Naive UI  |  Quasar
+  - Angular  →  Angular Material  |  PrimeNG  |  NG-ZORRO
+  - Svelte   →  Skeleton   |  Carbon       |  Flowbite
+  - No preference → I'll pick the best fit
+
+Please pick Q3-Q8 now (or say "you decide" for any of them).
+```
+
+For **Non-Programmer** and **Beginner**, SKIP the stack questions and pick sensible
+defaults, then list them briefly so the user knows what they're getting:
+
+```
+Based on your skill level, I've picked defaults:
+- Frontend: Next.js + shadcn/ui (modern, fast, easy)
+- Backend: Node.js + NestJS
+- Database: PostgreSQL
+- Deploy: Linux (Docker) — works anywhere
+- Style: Modern & Minimal
+
+Want to change anything? (otherwise I'll continue)
+```
+
+Save all answers in `PROJECT.md`:
+
+```markdown
+## Stack
+- Frontend: <answer>
+- Backend: <answer>
+- Database: <answer>
+- Deploy OS: Linux | Windows | Both
+- UI Library: <answer>
+- Visual Style: <answer>
+```
 
 ## Project Documents
 
@@ -196,11 +315,20 @@ projects/<name>/
 # Project: [Name]
 **Created**: [date]
 **Complexity**: Simple | Medium | Complex
+**User Skill**: Non-Programmer | Beginner | Intermediate | Professional
 **Phase**: Discovery | Planning | Implementation | Review | Completed
 **Client**: [if applicable]
 
 ## Overview
 [Brief description]
+
+## Stack (filled from onboarding questions)
+- Frontend: [framework]
+- Backend: [framework]
+- Database: [DB]
+- Deploy OS: Linux | Windows | Both
+- UI Library: [library]
+- Visual Style: [style]
 
 ## Requirements (evolve during discovery)
 ### Functional Requirements
@@ -217,13 +345,13 @@ projects/<name>/
 ## Team
 - [Role]: [name]
 
-## Timeline
-| Milestone | Target Date | Status |
-|-----------|------------|--------|
-| Discovery Complete | [date] | In Progress |
-| Plans Approved | [date] | Pending |
-| MVP | [date] | Pending |
-| Launch | [date] | Pending |
+## Milestones
+| # | Milestone | Target Date | Status | Validation |
+|---|-----------|------------|--------|-----------|
+| M1 | Discovery Complete | [date] | In Progress | - |
+| M2 | Plans Approved | [date] | Pending | - |
+| M3 | MVP | [date] | Pending | - |
+| M4 | Launch | [date] | Pending | - |
 ```
 
 ### After creating the project, START the Discovery Phase:

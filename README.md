@@ -3,11 +3,25 @@
 The most comprehensive system design plugin for Claude Code.
 Design, evaluate, plan, and build production-grade distributed systems — from quick MVPs to multi-tenant SaaS.
 
-**116+ files | 44 commands | 21 rules | 14 skills | 4 templates | 16 design references | 8 books**
+**116+ files | 44 commands | 23 rules | 14 skills | 4 templates | 16 design references | 8 books**
 
 ---
 
-## What's New in v1.4.0 (April 2026)
+## What's New in v1.5.0 (April 2026)
+
+- **User Skill Level onboarding** — every new project asks your programming skill
+  (Non-Programmer / Beginner / Intermediate / Professional). Low skill = Claude picks
+  everything. High skill = full technical dialogue with trade-offs.
+- **Stack questions for Intermediate+** — Claude ASKS frontend, backend, database,
+  deployment OS (Windows/Linux), UI visual style, and UI library preference
+  (e.g. PrimeVue, shadcn/ui, Angular Material) upfront.
+- **Milestone Validation (Rule 23)** — after every implementation milestone, Claude
+  stops, runs all checks (lint/tests/build), installs anything missing, asks for any
+  missing info (secrets, credentials), and waits for your OK before the next milestone.
+- **Rule 22: Skill-Level-Aware** — Non-Programmers get plain English; Professionals
+  get ADRs and trade-off tables.
+
+## What Landed in v1.4.0
 
 - **Projects moved outside `.claude/`** — your work now lives at `projects/` at the workspace root (private, git-ignored). The plugin stays portable.
 - **Complexity levels** — every project picks **Simple / Medium / Complex** upfront. Scope adapts automatically.
@@ -48,9 +62,25 @@ workspace/
 
 ---
 
+## Onboarding in 2 Questions (+ 6 stack questions for experienced users)
+
+When you run `/project add <name>`, Claude asks:
+
+**Q1 — Complexity:** Simple / Medium / Complex
+**Q2 — Your Skill Level:** Non-Programmer / Beginner / Intermediate / Professional
+
+Then, **only if you picked Intermediate or Professional**:
+
+**Q3** Frontend framework · **Q4** Backend framework · **Q5** Database
+**Q6** Deployment OS (Linux / Windows / Both / Serverless)
+**Q7** Visual style · **Q8** UI library (e.g. PrimeVue, shadcn/ui, Angular Material)
+
+Non-Programmers and Beginners get sensible defaults — Claude picks everything and
+explains each choice briefly. Professionals get full trade-off tables and ADRs.
+
 ## Core Features
 
-### 1. Complexity-Driven Workflow (NEW)
+### 1. Complexity-Driven Workflow
 
 Every project has a complexity level that drives how much ceremony to use:
 
@@ -61,6 +91,30 @@ Every project has a complexity level that drives how much ceremony to use:
 | **Complex** | Production SaaS, distributed system | All 10 plans, infra, monitoring, security |
 
 `/complexity` — view, change, or let Claude suggest the right level.
+
+### 1b. Skill-Level-Aware Interaction (NEW)
+
+How verbose and technical Claude is depends on your skill:
+
+| Skill | Behavior |
+|-------|---------|
+| **Non-Programmer** | Plain English, no jargon, picks everything for you |
+| **Beginner** | Explains each tech choice in 1-2 sentences |
+| **Intermediate** | Asks you for stack choices, respects your opinions |
+| **Professional** | Full trade-off dialogue, ADRs, deep technical questions |
+
+### 1c. Milestone Validation (NEW)
+
+During `/implement`, work is broken into milestones. After EACH milestone, Claude:
+
+1. Runs all checks (lint, types, tests, build, migrations, security audit)
+2. Verifies acceptance criteria vs IMPLEMENTATION-ROADMAP.md
+3. Installs anything still missing (packages, env vars, migrations, docs)
+4. Asks you for any missing info (secrets, credentials, design decisions)
+5. Updates PROJECT.md milestone table
+6. Summarizes what was built and waits for "proceed" before next milestone
+
+Count adapts to complexity: Simple = 2-3 · Medium = 4-6 · Complex = 7-10.
 
 ### 2. Two Knowledge Scopes (NEW)
 
@@ -367,7 +421,7 @@ After EVERY command, suggests 2-4 relevant next commands.
 
 ---
 
-## 21 Always-Active Rules
+## 23 Always-Active Rules
 
 | # | Rule |
 |---|------|
@@ -390,8 +444,10 @@ After EVERY command, suggests 2-4 relevant next commands.
 | 17 | Tenant Isolation |
 | 18 | Testing Required |
 | 19 | Suggest Next Commands |
-| 20 | **Chat Visibility** — diagrams & code inline, not hidden |
-| 21 | **Complexity-Aware** — scale effort to project size |
+| 20 | Chat Visibility — diagrams & code inline, not hidden |
+| 21 | Complexity-Aware — scale effort to project size |
+| 22 | **Skill-Level-Aware** — adapt question depth to user skill (NEW) |
+| 23 | **Milestone Validation** — validate + install + ask + wait after every milestone (NEW) |
 
 ---
 

@@ -47,9 +47,12 @@ The `.claude/` directory is the plugin itself and should stay portable.
 
 ---
 
-## Complexity Levels (ASK THE USER)
+## Onboarding: Two Questions on Every New Project
 
-Every project has ONE of three complexity levels. **Always ask when creating a project.**
+When `/project add <name>` is invoked, ASK these questions IN ORDER before any
+design or code:
+
+### Q1 — Complexity (Rule 21)
 
 | Level | Use When | Scope |
 |-------|---------|-------|
@@ -57,10 +60,43 @@ Every project has ONE of three complexity levels. **Always ask when creating a p
 | **Medium** | Feature-rich app, moderate scale | Frontend + Backend + Auth + DB + basic CI + tests. 5 core plans. |
 | **Complex** | Production SaaS, distributed system, multi-tenant, regulated domain | Full 3-gate workflow. 10 plans. Infra + monitoring + security. |
 
-Store the choice in `PROJECT.md` → `**Complexity**:`. All downstream commands
-(`/design`, `/plan`, `/implement`, `/evaluate`) read this and adapt.
+### Q2 — User Skill Level (Rule 22)
 
-### Auto-detection hints (fallback if user is unsure)
+| Level | Behavior |
+|-------|---------|
+| **Non-Programmer** | Claude picks everything. Asks only high-level product questions. |
+| **Beginner** | Claude picks most tech choices and explains them briefly. |
+| **Intermediate** | **Claude MUST ASK** frontend, backend, DB, deploy OS (Windows/Linux), UI style, UI library. |
+| **Professional** | Full technical dialogue. Trade-off tables. Asks about ORM, caching, queue, observability stack. |
+
+### Q3-Q8 — Stack (ONLY if User Skill ≥ Intermediate)
+
+For Intermediate and Professional users, ASK:
+- **Q3**: Frontend framework (React, Next.js, Vue, Nuxt, Angular, Svelte, Flutter...)
+- **Q4**: Backend framework (NestJS, Express, FastAPI, Django, Spring, Gin, .NET...)
+- **Q5**: Database (PostgreSQL, MySQL, MongoDB, SQLite, Supabase, Firebase...)
+- **Q6**: Deployment OS — **Linux / Windows Server / Both (Docker) / Serverless**
+- **Q7**: UI visual style (Modern & Minimal, Corporate, Playful, Dark & Sleek, Data-Dense, Material, Apple-like)
+- **Q8**: UI library preference (e.g. **PrimeVue** for Vue, shadcn/ui or MUI for React, Angular Material, Skeleton for Svelte, or "you decide")
+
+For Non-Programmer and Beginner: Claude picks sensible defaults (Next.js + shadcn/ui +
+NestJS + PostgreSQL + Linux/Docker + Modern & Minimal) and lists them briefly for review.
+
+Store everything in `PROJECT.md`:
+```markdown
+**Complexity**: Simple | Medium | Complex
+**User Skill**: Non-Programmer | Beginner | Intermediate | Professional
+
+## Stack
+- Frontend: <answer>
+- Backend: <answer>
+- Database: <answer>
+- Deploy OS: Linux | Windows | Both | Serverless
+- UI Library: <answer>
+- Visual Style: <answer>
+```
+
+### Auto-detection hints (fallback if user is unsure about complexity)
 
 - "Quick", "simple", "just build", "small script", "MVP", "prototype" → **Simple**
 - "Build an API", "add feature", "dashboard for X" → **Medium**
@@ -288,6 +324,8 @@ All rules in `.claude/rules/` are automatically enforced:
 - `19-suggest-next-commands.md` - After every command, suggest relevant next steps
 - `20-chat-visibility.md` - Diagrams & code appear inline in chat, not just in files
 - `21-complexity-aware.md` - Scale effort to project complexity; ask before assuming
+- `22-skill-level-aware.md` - Adapt question depth to user's programming skill level
+- `23-milestone-validation.md` - After every milestone: validate, install, ask for missing info, then wait
 
 ## Estimation Cheat Sheet
 
@@ -326,6 +364,28 @@ Servers = QPS_peak / QPS_per_server
 | 99.9% | 8.77 hours |
 | 99.99% | 52.6 min |
 | 99.999% | 5.26 min |
+
+## Milestone Validation (Rule 23)
+
+During `/implement`, work is broken into milestones. After EACH milestone, run the
+validation loop BEFORE the next milestone starts:
+
+1. **Automated checks** — lint, typecheck, format, unit + integration tests, build, migrations, security audit
+2. **Acceptance criteria** — compare with `IMPLEMENTATION-ROADMAP.md`
+3. **Install anything missing** — packages, env vars, migrations, docs
+4. **Ask for missing info** — secrets, credentials, design decisions that surfaced
+5. **Update `PROJECT.md`** milestone table (status, date, validation notes)
+6. **Summarize** — style adapts to user skill level; wait for "proceed" before next
+
+```
+| # | Milestone | Status | Validated | Notes |
+|---|-----------|--------|-----------|-------|
+| M1 | Scaffold | ✓ Done | 2026-04-16 | lint ✓ build ✓ |
+| M2 | DB schema | ✓ Done | 2026-04-16 | 12 tables, migrations applied |
+| M3 | Auth | Blocked | - | waiting: OAuth credentials |
+```
+
+Milestone count adapts to complexity: Simple = 2-3 · Medium = 4-6 · Complex = 7-10.
 
 ## Project Workflow by Complexity
 

@@ -119,17 +119,41 @@ projects/<name>/
 
 ## Creating a New Project
 
-When `/project add <name>` is invoked:
+When `/project add <name>` is invoked, ask the onboarding questions IN ORDER:
 
-1. **ASK for complexity level** (Simple | Medium | Complex)
-2. **Create the full project directory** based on complexity (see above)
-3. **Generate PROJECT.md** with the complexity choice recorded
-4. **Create STATUS.md** with initial tracking
-5. **Enter Discovery Phase**:
+### Step 1: Complexity (Rule 21)
+```
+Question 1/2: What's the complexity level of this project?
+  1. Simple   - Just frontend + backend. Fast build.
+  2. Medium   - Full-stack with auth, DB, tests, CI/CD.
+  3. Complex  - Production system, 10 plans, monitoring, security.
+```
+
+### Step 2: User Skill (Rule 22)
+```
+Question 2/2: What's your programming skill level?
+  1. Non-Programmer  - I'll pick almost everything for you.
+  2. Beginner         - I'll pick most tech choices and explain them.
+  3. Intermediate     - I'll ask you about frontend, backend, DB, OS, UI style.
+  4. Professional     - Full technical dialogue with trade-offs.
+```
+
+### Step 3: Stack Questions (ONLY if skill ≥ Intermediate)
+Ask the 6 stack questions (frontend / backend / DB / OS / style / UI-lib) —
+see the `/project` command for full templates. For Non-Programmer and Beginner,
+pick defaults and list them briefly for review.
+
+### Step 4: Create structure
+1. **Create the full project directory** based on complexity (see "Project Structure" section)
+2. **Generate PROJECT.md** with complexity, user skill, and stack recorded
+3. **Create STATUS.md** with initial tracking and milestone table
+4. **Enter Discovery Phase**:
    - Ask the user to describe their idea
-   - Ask clarifying questions (tailored to complexity — fewer for Simple)
+   - Tailor clarifying questions to BOTH complexity AND user skill:
+     - Non-Programmer / Beginner → plain-English product questions only
+     - Intermediate / Professional → technical questions welcome
    - Save notes to `discovery/DISCUSSION.md`
-   - Generate Mermaid diagrams — render them inline in chat AND save to files
+   - Generate Mermaid diagrams — render inline in chat AND save to files
    - For Simple: generate ONE quick architecture sketch
    - For Medium: architecture + data flow
    - For Complex: architecture + data flow + user journey + ER diagram

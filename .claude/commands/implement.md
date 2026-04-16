@@ -259,6 +259,135 @@ Dockerfile                  # Production container
 - Run tests: `npm test` / `pytest`
 - Fix any issues before moving on
 
+## Milestone Validation (MANDATORY — Rule 23)
+
+Break implementation into **milestones**. After each milestone finishes, STOP and run
+the validation loop BEFORE starting the next milestone.
+
+### What a Milestone Is
+
+A milestone is a meaningful, shippable slice of work. Examples:
+- `M1` — Project scaffold + dev environment running
+- `M2` — Database schema + migrations applied
+- `M3` — Auth flow working end-to-end
+- `M4` — Core feature X implemented + tested
+- `M5` — Frontend wired to backend for feature X
+- `M6` — CI pipeline green
+- `M7` — Deployed to staging
+
+### The Validation Loop (run after EVERY milestone)
+
+```
+┌─────────────────────────────────────────────┐
+│  Milestone Mn finished                      │
+└───────────────────┬─────────────────────────┘
+                    ↓
+┌─────────────────────────────────────────────┐
+│  1. Run automated checks                    │
+│     - lint, typecheck, format               │
+│     - unit + integration tests              │
+│     - build succeeds                        │
+│     - migrations apply cleanly              │
+└───────────────────┬─────────────────────────┘
+                    ↓
+┌─────────────────────────────────────────────┐
+│  2. Check acceptance criteria for Mn        │
+│     (from IMPLEMENTATION-ROADMAP.md)        │
+└───────────────────┬─────────────────────────┘
+                    ↓
+┌─────────────────────────────────────────────┐
+│  3. Install anything still missing           │
+│     - missing packages → npm/pip install    │
+│     - missing env vars → add to .env.example│
+│     - missing migrations → generate + apply │
+│     - missing docs → generate (Rule 12)     │
+└───────────────────┬─────────────────────────┘
+                    ↓
+┌─────────────────────────────────────────────┐
+│  4. Ask user for any info still needed      │
+│     - secrets (API keys, credentials)       │
+│     - domain decisions that came up         │
+│     - design gaps discovered during coding  │
+└───────────────────┬─────────────────────────┘
+                    ↓
+┌─────────────────────────────────────────────┐
+│  5. Update PROJECT.md milestone table       │
+│     Mark Mn: Done ✓  +  record validations  │
+└───────────────────┬─────────────────────────┘
+                    ↓
+┌─────────────────────────────────────────────┐
+│  6. Summarize milestone for user            │
+│     - what was built                        │
+│     - checks that passed / issues fixed     │
+│     - info you needed from them             │
+│     - "ready to start Mn+1?" (wait yes)     │
+└─────────────────────────────────────────────┘
+```
+
+### Automated Checks Per Milestone
+
+| Check | Node.js | Python | Go | Action if failing |
+|-------|---------|--------|----|----|
+| Lint | `npm run lint` | `ruff check` | `golangci-lint run` | Fix before proceeding |
+| Types | `tsc --noEmit` | `mypy .` | `go vet` | Fix before proceeding |
+| Format | `npm run format` | `ruff format` | `gofmt` | Auto-fix |
+| Unit tests | `npm test` | `pytest` | `go test ./...` | Fix before proceeding |
+| Build | `npm run build` | `python -m build` | `go build` | Fix before proceeding |
+| Security audit | `npm audit` | `pip-audit` | `govulncheck` | Flag critical/high |
+| Migrations | Prisma/Drizzle/Alembic apply | - | - | Must apply cleanly |
+
+### Missing Info Prompt Template
+
+When Claude needs information from the user at a milestone boundary, ask clearly:
+
+```
+## Milestone M3: Auth flow — needs your input before I continue
+
+I've scaffolded the auth module and it compiles. Before I wire it to a real provider,
+I need these from you:
+
+1. Which auth provider? (Google / GitHub / email-password / custom)
+2. OAuth client ID + secret (if using a provider)
+3. Password reset email address (from: noreply@<yourdomain>)
+4. Session duration preference (default: 7 days)
+
+Once you provide these, I'll:
+- Finish the auth wiring
+- Add a seed user for local dev
+- Write the integration tests
+
+(Say "use defaults for everything" if you prefer.)
+```
+
+### Validation Record in PROJECT.md
+
+After each milestone, append a validation block:
+
+```markdown
+## Milestones
+
+| # | Milestone | Status | Validated | Notes |
+|---|-----------|--------|-----------|-------|
+| M1 | Scaffold + dev env | ✓ Done | 2026-04-16 | lint ✓ build ✓ smoke ✓ |
+| M2 | DB schema + migrations | ✓ Done | 2026-04-16 | 12 tables, 8 indexes, migration green |
+| M3 | Auth flow | In Progress | - | waiting for OAuth credentials |
+```
+
+### Complexity-Driven Milestone Rigor
+
+Same as the rest of the plugin:
+- **Simple**: 2-3 milestones, lightweight checks (just build + run).
+- **Medium**: 4-6 milestones, lint + tests + build.
+- **Complex**: 7-10 milestones, full pipeline (lint + types + unit + integration + build + audit).
+
+### Blocked Milestones
+
+If a milestone cannot finish without user input that hasn't arrived yet:
+1. Mark status as `Blocked — waiting for user input`
+2. List exactly what's needed
+3. Do NOT proceed to the next milestone
+4. Offer safe partial work (e.g. "I can finish the UI skeleton while we wait")
+
 ## Research Triggers
 
 **ALWAYS fetch docs when:**

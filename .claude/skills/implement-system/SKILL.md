@@ -1,6 +1,6 @@
 ---
 name: implement-system
-description: Implementation skill - triggered when coding, building, or implementing system designs. Writes REAL production code. Researches latest docs from the internet before using any framework or library. Supports full-stack implementation with user-chosen technologies.
+description: Implementation skill - triggered when coding, building, or implementing system designs. Writes REAL production code. Researches latest docs from the internet before using any framework or library. Supports full-stack implementation with user-chosen technologies. Uses milestone-based validation after each shippable slice.
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash, WebFetch, WebSearch, Agent
 ---
 
@@ -9,9 +9,21 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash, WebFetch, WebSearch, Agent
 You are implementing a system design. Write REAL, PRODUCTION-QUALITY code.
 You MUST actually create files, run commands, install packages, and build working software.
 
-## PRE-CONDITION: Plans Must Be Approved
+## PRE-CONDITION: Read Project Context
 
-**BEFORE writing any code, check:**
+**BEFORE writing any code:**
+
+1. Read `projects/<active>/PROJECT.md` for:
+   - **Complexity** (Simple / Medium / Complex) — controls how much infra/testing/docs
+   - **User Skill** (Non-Programmer / Beginner / Intermediate / Professional) — controls how verbose and technical your explanations are
+   - **Stack** section (Frontend, Backend, Database, Deploy OS, UI Library, Style)
+2. If stack isn't populated (Non-Programmer / Beginner flow), pick safe defaults and
+   state them before coding.
+3. For Complex projects: also verify plan approval — see below.
+
+## PRE-CONDITION: Plans Must Be Approved (Complex only)
+
+For Complex projects, **BEFORE writing any code, check:**
 1. Does the project have approved plans? Check `plans/MASTER-PLAN.md` status.
 2. Are ALL sub-plans approved? Check each plan's status field.
 3. Did the user explicitly say to start coding?
@@ -24,9 +36,56 @@ You MUST actually create files, run commands, install packages, and build workin
 **If all plans are approved:**
 1. Check if `IMPLEMENTATION-ROADMAP.md` exists
 2. If not, generate it first using `/plan implementation`
-3. Follow the roadmap step by step
-4. Mark each step as complete as you go
+3. Follow the roadmap milestone by milestone (see Milestone Validation below)
+4. Mark each milestone as complete after validation
 5. Update the progress tracker in the roadmap
+
+For **Simple** and **Medium** projects: gates are flexible. A brief design sketch is enough
+to start coding, but still use milestone validation between slices.
+
+## Milestone-Based Execution (Rule 23)
+
+Instead of coding the whole project in one shot, break it into **milestones**
+(shippable slices). After EACH milestone, STOP and run the validation loop:
+
+```
+Milestone finished
+      ↓
+1. Automated checks (lint, types, tests, build, migrations)
+2. Acceptance criteria (from IMPLEMENTATION-ROADMAP.md)
+3. Install anything still missing (packages, env vars, migrations, docs)
+4. Ask user for missing info (secrets, credentials, design decisions)
+5. Update PROJECT.md milestone table with validation date + results
+6. Summarize for user, wait for "proceed" before next milestone
+```
+
+### Milestone Count by Complexity
+
+- **Simple**: 2-3 milestones
+- **Medium**: 4-6 milestones
+- **Complex**: 7-10 milestones
+
+### Validation Checks by Complexity
+
+| Check | Simple | Medium | Complex |
+|-------|--------|--------|---------|
+| Lint | optional | ✓ | ✓ |
+| Typecheck | optional | ✓ | ✓ |
+| Unit tests | smoke | ✓ | ✓ |
+| Integration tests | - | ✓ | ✓ |
+| Build | ✓ | ✓ | ✓ |
+| Security audit | - | optional | ✓ |
+| Migrations apply | ✓ | ✓ | ✓ |
+
+### Skill-Level Adjusted Summaries
+
+After each milestone:
+
+- **Non-Programmer / Beginner** → plain English: "Finished M2. Your database is set up
+  with 12 tables. Everything checked out: 14 tests passed, no errors. Ready for M3?"
+- **Intermediate / Professional** → technical: show the commands you ran, results,
+  and any warnings. "M2: migrations applied (12 tables, 8 indexes). `npm test` 14/14
+  green. `npm audit` reports 1 low-severity warning in dev dep (safe to ignore). Ready for M3?"
 
 ## GOLDEN RULE: Research Before Code
 
@@ -371,15 +430,47 @@ When implementing backend:
 3. **Fetch docs** for each library before using it
 4. Prefer battle-tested libraries over hand-rolled solutions
 
-## Quality Checks After Implementation
+## Quality Checks After Each Milestone (MANDATORY)
 
-After each major component:
+Run ALL applicable checks at the end of every milestone (see Rule 23):
+
 - [ ] Code compiles/runs without errors
-- [ ] Linter passes
-- [ ] Tests pass
-- [ ] API endpoints respond correctly (test with curl)
+- [ ] Linter passes (all severity: error)
+- [ ] Typecheck passes (strict mode)
+- [ ] Unit tests pass
+- [ ] Integration tests pass (Medium+)
+- [ ] API endpoints respond correctly (test with curl/HTTPie)
 - [ ] Frontend renders and navigates correctly
 - [ ] Error handling works (test with invalid input)
 - [ ] Auth flow works end-to-end
 - [ ] Database migrations run cleanly
+- [ ] Build succeeds (production build)
 - [ ] Documentation is up-to-date for what was just built
+- [ ] Security audit clean (Complex)
+- [ ] No secrets committed
+
+After ALL checks pass:
+1. Update `PROJECT.md` → `## Milestones` table (mark Done, add date, note)
+2. Summarize for user (style varies by User Skill)
+3. List any missing info still needed
+4. Wait for "proceed" before starting the next milestone
+
+## Missing Info Request Template
+
+If you need info from the user at a milestone boundary, format it clearly:
+
+```
+## Milestone Mn — needs your input
+
+I've [summary of what you built]. Before I continue, I need:
+
+1. [question]
+2. [question]
+3. [question]
+
+Once you provide these, I'll:
+- [next steps]
+- [next steps]
+
+(Say "use defaults for everything" to accept my suggestions.)
+```

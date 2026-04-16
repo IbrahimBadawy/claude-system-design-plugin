@@ -4,6 +4,55 @@ All notable changes to this project will be documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2026-04-16
+
+### Added — User Skill Level + Milestone Validation
+
+- **User Skill onboarding question** asked immediately after Complexity:
+  Non-Programmer / Beginner / Intermediate / Professional.
+  Controls how many technical questions Claude asks vs. how many decisions
+  it makes automatically.
+
+- **Stack questions (Q3-Q8) for Intermediate + Professional only**:
+  - Q3 Frontend framework
+  - Q4 Backend framework
+  - Q5 Database
+  - Q6 Deployment OS (Linux / Windows Server / Both / Serverless)
+  - Q7 UI visual style (7 options)
+  - Q8 UI library preference (e.g. PrimeVue, shadcn/ui, Angular Material, ...)
+
+  Non-Programmer and Beginner skip these — Claude picks sensible defaults
+  (Next.js + shadcn/ui + NestJS + PostgreSQL + Linux/Docker + Modern & Minimal)
+  and lists them briefly for user review.
+
+- **Rule 22: Skill-Level-Aware** — adapts question depth to user skill. Low-skill
+  users get smart defaults; high-skill users get full technical dialogue with
+  trade-offs.
+
+- **Rule 23: Milestone Validation** — after EVERY implementation milestone,
+  Claude STOPS and runs a 6-step validation loop:
+  1. Automated checks (lint, types, tests, build, migrations, security audit)
+  2. Acceptance criteria check vs IMPLEMENTATION-ROADMAP.md
+  3. Install anything still missing (packages, env vars, migrations, docs)
+  4. Ask user for missing info (secrets, credentials, design gaps)
+  5. Update PROJECT.md milestone table with validation date + results
+  6. Summarize for user (plain English for Beginners, technical for Pros) and wait
+
+  Milestone count adapts to complexity: Simple=2-3, Medium=4-6, Complex=7-10.
+
+### Updated
+
+- `/project` command — now asks the 2 onboarding questions + 6 stack questions
+- `/implement` command — full Milestone Validation section added
+- `PROJECT.md` template — includes User Skill field + Stack block + Milestone table
+- `project-manager` skill — walks through the onboarding flow
+- `implement-system` skill — milestone-driven, skill-aware summaries
+- `CLAUDE.md`, `README.md`, `index.html` — updated with new rules and flow
+
+### Totals
+
+**116+ files · 44 commands · 23 rules · 14 skills**
+
 ## [1.4.0] - 2026-04-16
 
 ### Changed — Major workspace restructure
