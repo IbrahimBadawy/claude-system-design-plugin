@@ -171,6 +171,54 @@ Save all answers in `PROJECT.md`:
 - Visual Style: <answer>
 ```
 
+### Question 9: App Scope (ALL skill levels — determines page inventory)
+
+After the stack, always ask:
+
+```
+Question 9: What does your app include? (check all that apply)
+
+  [ ] User accounts (login/register/profile)
+  [ ] Admin panel (manage users, roles, audit logs)
+  [ ] Main dashboard with KPIs & charts
+  [ ] Core entities to manage: _______  (e.g. Products, Orders, Customers, Projects)
+  [ ] Billing / subscriptions
+  [ ] API for third parties
+  [ ] Notifications (email, push, in-app)
+  [ ] Search (global Cmd-K)
+  [ ] File uploads / attachments
+  [ ] Comments / discussions
+  [ ] Audit log (who did what)
+  [ ] Multi-tenancy (organizations/workspaces)
+  [ ] Internationalization (multiple languages)
+  [ ] Dark mode
+  [ ] RTL (Arabic/Hebrew)
+  [ ] Public marketing pages
+```
+
+### Question 10: UX / Dashboard Feel
+
+```
+Question 10: UX preferences (pick one for each)
+
+Data density: Compact  |  Normal  |  Spacious
+Default theme: Light  |  Dark  |  System preference
+Dashboard style: Cards & charts  |  Table-heavy  |  Visual / illustrative
+Empty-state feel: Friendly illustrations  |  Minimal text  |  Step-by-step onboarding
+```
+
+This drives `/pages`, `/rbac`, `/ux-kit`, `/frontend design`.
+
+### What Happens Next
+
+After onboarding (Q1-Q10 answered), Claude automatically runs:
+1. `/pages` — builds PAGES.md with every page the app needs
+2. `/rbac` — if user accounts picked, builds RBAC.md + schema
+3. `/ux-kit` — builds UX-KIT.md with states, components, a11y rules
+4. `/frontend design` — asks about visual style, picks UI library
+
+These produce a complete spec before any code is written.
+
 ## Project Documents
 
 ### /project docs

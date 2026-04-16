@@ -112,14 +112,42 @@ ACTION:
 
 ## Implementation Flow
 
-### Phase 0: Pre-Flight
+### Phase 0: Pre-Flight & Completeness Check
 1. **Read project complexity** from `projects/<active>/PROJECT.md` — this determines
    how much scaffolding to generate.
-2. Verify system design exists (check DESIGN.md or current conversation)
-3. Confirm technology stack with user
-4. **Research the chosen stack** - fetch latest docs for key technologies
-5. Create implementation plan (list of files to create, in order)
-6. Generated code lives in `projects/<active>/src/` (NOT in `.claude/`)
+2. **Read user skill** from PROJECT.md — controls explanation verbosity.
+3. Verify completeness artifacts exist (if user-facing app):
+   - `design/PAGES.md` — run `/pages` if missing
+   - `design/RBAC.md` — run `/rbac` if missing (and app has users)
+   - `design/UX-KIT.md` — run `/ux-kit` if missing
+4. Verify system design exists (check DESIGN.md or current conversation)
+5. Confirm technology stack with user (or use Stack section of PROJECT.md)
+6. **Research the chosen stack** - fetch latest docs for key technologies
+7. Create implementation plan (list of files to create, in order)
+8. Generated code lives in `projects/<active>/src/` (NOT in `.claude/`)
+
+### What Gets Auto-Generated (every run)
+
+For any user-facing app, `/implement` automatically scaffolds:
+
+**Auth pages (always):** login, register, forgot password, reset password, email verify,
+  2FA (if enabled), invite accept (if multi-user)
+**User account:** profile, settings, security, notifications, billing (if paid), API keys,
+  danger zone
+**Admin panel (if multi-user):** dashboard, users list, user detail, roles, permissions
+  matrix, audit log, system settings
+**Main dashboard:** greeting + KPIs + charts + recent activity + quick actions
+**Per entity (CRUD + extras):** list (with search/sort/filter/pagination/bulk/export),
+  detail, create, edit, archive/trash
+**System pages:** 404, 403, 500, maintenance, rate-limited, offline (PWA)
+**Legal:** Terms of Service, Privacy Policy, Cookie settings
+**UX kit components:** Toast, ConfirmDialog, EmptyState, LoadingSkeleton, ErrorBoundary,
+  ErrorState, Breadcrumbs, CommandPalette (Cmd-K), KeyboardShortcuts modal, ThemeToggle,
+  A11ySkipLink, DataTable, BulkActionBar, FilterPanel, FileUpload
+**RBAC infrastructure (if users):** schema + seed + middleware + `<Can>` component +
+  ProtectedRoute + audit log writer
+
+All of the above respects the PAGES.md / RBAC.md / UX-KIT.md artifacts.
 
 ### Complexity-Driven Output
 

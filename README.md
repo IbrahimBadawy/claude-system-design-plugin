@@ -3,11 +3,23 @@
 The most comprehensive system design plugin for Claude Code.
 Design, evaluate, plan, and build production-grade distributed systems — from quick MVPs to multi-tenant SaaS.
 
-**116+ files | 44 commands | 23 rules | 14 skills | 4 templates | 16 design references | 8 books**
+**119+ files | 47 commands | 25 rules | 14 skills | 4 templates | 16 design references | 8 books**
 
 ---
 
-## What's New in v1.5.0 (April 2026)
+## What's New in v1.6.0 (April 2026)
+
+The "complete app" release. No more happy-path skeletons.
+
+- **`/pages`** — generates a FULL page inventory: auth, user account, admin panel, main dashboard, per-entity CRUD, system pages (404/403/500), legal. Nothing forgotten.
+- **`/rbac`** — generates a FULL Role-Based Access Control system: roles × permissions × scopes, default roles (Super Admin → Guest), audit log, admin UI with permission matrix. No more `is_admin` boolean.
+- **`/ux-kit`** — scaffolds complete UX kit: empty/loading/error/success states, toasts, confirmation dialogs, command palette (Cmd-K), keyboard shortcuts, dark mode, RTL, accessibility. Every page feels finished.
+- **Rule 24: UX Completeness** — every page has 5 states, feedback on every action, WCAG 2.2 AA. "It works" is not done.
+- **Rule 25: RBAC by Default** — any app with users gets the full permission model from day 1.
+
+`/implement` now auto-generates ALL of this by default. Open the app and every page you expect is there — and every button, form, and permission check actually works.
+
+## What Landed in v1.5.0 (previous release)
 
 - **User Skill Level onboarding** — every new project asks your programming skill
   (Non-Programmer / Beginner / Intermediate / Professional). Low skill = Claude picks
@@ -421,7 +433,7 @@ After EVERY command, suggests 2-4 relevant next commands.
 
 ---
 
-## 23 Always-Active Rules
+## 25 Always-Active Rules
 
 | # | Rule |
 |---|------|
@@ -446,8 +458,10 @@ After EVERY command, suggests 2-4 relevant next commands.
 | 19 | Suggest Next Commands |
 | 20 | Chat Visibility — diagrams & code inline, not hidden |
 | 21 | Complexity-Aware — scale effort to project size |
-| 22 | **Skill-Level-Aware** — adapt question depth to user skill (NEW) |
-| 23 | **Milestone Validation** — validate + install + ask + wait after every milestone (NEW) |
+| 22 | Skill-Level-Aware — adapt question depth to user skill |
+| 23 | Milestone Validation — validate + install + ask + wait after every milestone |
+| 24 | **UX Completeness** — every page has 5 states + feedback + keyboard + a11y (NEW) |
+| 25 | **RBAC by Default** — any app with users gets roles × permissions × audit (NEW) |
 
 ---
 

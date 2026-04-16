@@ -75,15 +75,15 @@
         <!-- Stats -->
         <div class="grid grid-cols-2 md:grid-cols-5 gap-4 max-w-4xl mx-auto mb-12">
             <div class="glass rounded-xl p-4 glow">
-                <div class="text-3xl font-bold gradient-text">116+</div>
+                <div class="text-3xl font-bold gradient-text">119+</div>
                 <div class="text-sm text-dark-400">Total Files</div>
             </div>
             <div class="glass rounded-xl p-4 glow">
-                <div class="text-3xl font-bold gradient-text">44</div>
+                <div class="text-3xl font-bold gradient-text">47</div>
                 <div class="text-sm text-dark-400">Commands</div>
             </div>
             <div class="glass rounded-xl p-4 glow">
-                <div class="text-3xl font-bold gradient-text">23</div>
+                <div class="text-3xl font-bold gradient-text">25</div>
                 <div class="text-sm text-dark-400">Rules</div>
             </div>
             <div class="glass rounded-xl p-4 glow">
@@ -96,11 +96,11 @@
             </div>
         </div>
 
-        <!-- v1.5.0 banner -->
+        <!-- v1.6.0 banner -->
         <div class="max-w-4xl mx-auto mb-8">
             <div class="glass rounded-xl p-4 border border-emerald/30 glow text-center">
-                <span class="tag bg-emerald/20 text-emerald-light mr-2">NEW v1.5.0</span>
-                <span class="text-dark-200 text-sm">User skill levels &middot; Stack onboarding questions &middot; Milestone validation loop &middot; 23 always-active rules</span>
+                <span class="tag bg-emerald/20 text-emerald-light mr-2">NEW v1.6.0</span>
+                <span class="text-dark-200 text-sm"><code class="text-emerald-light">/pages</code> &middot; <code class="text-emerald-light">/rbac</code> &middot; <code class="text-emerald-light">/ux-kit</code> &mdash; complete apps, not skeletons. 25 rules now active.</span>
             </div>
         </div>
 
@@ -165,6 +165,90 @@
             <div class="mt-6 text-center">
                 <code class="text-sm text-emerald-light bg-dark-900 px-3 py-1 rounded">/complexity</code>
                 <span class="text-dark-400 text-sm ml-2">view, change, or let Claude suggest the right level</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Complete App Section -->
+<section class="py-16 px-4">
+    <div class="max-w-6xl mx-auto">
+        <div class="glass rounded-2xl p-8 glow border border-emerald/30">
+            <div class="text-center mb-8">
+                <span class="tag bg-emerald/20 text-emerald-light mb-2">NEW v1.6.0</span>
+                <h2 class="text-3xl font-bold mt-3 mb-2">Complete Apps, Not Skeletons</h2>
+                <p class="text-dark-300 max-w-3xl mx-auto">The plugin used to build solid structure. Now it also builds <strong class="text-emerald-light">every page you'd expect</strong>, <strong class="text-emerald-light">full permissions</strong>, and <strong class="text-emerald-light">polished UX</strong> &mdash; out of the box.</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-dark-900/50 rounded-xl p-6 border border-accent/20">
+                    <div class="flex items-center gap-3 mb-3">
+                        <span class="text-3xl">&#128196;</span>
+                        <code class="text-accent-light font-bold">/pages</code>
+                    </div>
+                    <h3 class="font-bold mb-2">Full page inventory</h3>
+                    <ul class="text-xs text-dark-400 space-y-1 list-disc list-inside">
+                        <li>Login, register, forgot/reset password, 2FA</li>
+                        <li>Profile, settings, security, billing, API keys</li>
+                        <li>Admin: users, roles, permission matrix, audit log</li>
+                        <li>Dashboard with KPIs + charts + activity</li>
+                        <li>Per-entity CRUD + list/detail/create/edit/archive</li>
+                        <li>404, 403, 500, maintenance, rate-limited, offline</li>
+                        <li>Terms, privacy, cookie consent</li>
+                    </ul>
+                    <div class="mt-3 text-xs text-emerald-light">
+                        Simple: 8-15 &middot; Medium: 20-35 &middot; Complex: 40-80+ pages
+                    </div>
+                </div>
+
+                <div class="bg-dark-900/50 rounded-xl p-6 border border-emerald/20">
+                    <div class="flex items-center gap-3 mb-3">
+                        <span class="text-3xl">&#128272;</span>
+                        <code class="text-emerald-light font-bold">/rbac</code>
+                    </div>
+                    <h3 class="font-bold mb-2">Full permission system</h3>
+                    <ul class="text-xs text-dark-400 space-y-1 list-disc list-inside">
+                        <li>Roles &times; Permissions &times; Scopes (not <code>is_admin</code>)</li>
+                        <li>Default roles: Super Admin &rarr; Guest</li>
+                        <li>Naming: <code>&lt;resource&gt;:&lt;action&gt;:&lt;scope&gt;</code></li>
+                        <li>Backend middleware on every endpoint</li>
+                        <li>Frontend <code>&lt;Can&gt;</code> component + <code>ProtectedRoute</code></li>
+                        <li>Audit log with before/after snapshots</li>
+                        <li>Admin UI: role matrix, audit trail, export</li>
+                    </ul>
+                    <div class="mt-3 text-xs text-emerald-light">
+                        Every button / endpoint / page permission-guarded
+                    </div>
+                </div>
+
+                <div class="bg-dark-900/50 rounded-xl p-6 border border-yellow-500/20">
+                    <div class="flex items-center gap-3 mb-3">
+                        <span class="text-3xl">&#10024;</span>
+                        <code class="text-yellow-300 font-bold">/ux-kit</code>
+                    </div>
+                    <h3 class="font-bold mb-2">UX quality kit</h3>
+                    <ul class="text-xs text-dark-400 space-y-1 list-disc list-inside">
+                        <li>5 states/page: empty, loading, error, partial, success</li>
+                        <li>Toast, confirm dialog, command palette (Cmd-K)</li>
+                        <li>Destructive: confirm + type-to-confirm + undo</li>
+                        <li>Tables: search + sort + filter + bulk + export</li>
+                        <li>Forms: autosave + inline validation + keyboard</li>
+                        <li>Dark mode + RTL + reduced motion + responsive</li>
+                        <li>WCAG 2.2 AA + axe-core in CI</li>
+                    </ul>
+                    <div class="mt-3 text-xs text-yellow-300">
+                        No more "It works" &rarr; actually done
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center">
+                <p class="text-dark-300 text-sm mb-2">
+                    <code class="text-emerald-light">/implement</code> reads all three artifacts and generates <strong>the complete app</strong>, not just the routes you explicitly asked for.
+                </p>
+                <p class="text-dark-500 text-xs">
+                    Enforced by <strong>Rule 24: UX Completeness</strong> and <strong>Rule 25: RBAC by Default</strong>.
+                </p>
             </div>
         </div>
     </div>
@@ -867,7 +951,7 @@
 <!-- Rules -->
 <section id="rules" class="py-24 px-4">
     <div class="max-w-5xl mx-auto">
-        <h2 class="text-4xl font-bold text-center mb-4">23 Always-Active Rules</h2>
+        <h2 class="text-4xl font-bold text-center mb-4">25 Always-Active Rules</h2>
         <p class="text-center text-dark-400 mb-16">These rules are enforced automatically on every interaction. Non-negotiable quality standards.</p>
 
         <div class="grid md:grid-cols-2 gap-4">
@@ -892,8 +976,10 @@
             <div class="glass rounded-lg p-4 flex items-center gap-4"><span class="text-accent font-mono font-bold w-8">19</span><span>Suggest Next Commands &mdash; after every command, suggest 2-4 relevant next steps</span></div>
             <div class="glass rounded-lg p-4 flex items-center gap-4"><span class="text-accent font-mono font-bold w-8">20</span><span>Chat Visibility &mdash; diagrams &amp; code rendered inline, never hidden in files</span></div>
             <div class="glass rounded-lg p-4 flex items-center gap-4"><span class="text-accent font-mono font-bold w-8">21</span><span>Complexity-Aware &mdash; scale effort to project complexity, ask if unsure</span></div>
-            <div class="glass rounded-lg p-4 flex items-center gap-4 border border-emerald/30"><span class="text-emerald-light font-mono font-bold w-8">22</span><span><strong class="text-emerald-light">Skill-Level-Aware</strong> &mdash; adapt question depth to user's programming skill (Non-Programmer &rarr; Professional) <span class="tag bg-emerald/20 text-emerald-light text-xs ml-1">NEW</span></span></div>
-            <div class="glass rounded-lg p-4 flex items-center gap-4 border border-emerald/30"><span class="text-emerald-light font-mono font-bold w-8">23</span><span><strong class="text-emerald-light">Milestone Validation</strong> &mdash; after every milestone: validate, install, ask for missing info, then wait for user <span class="tag bg-emerald/20 text-emerald-light text-xs ml-1">NEW</span></span></div>
+            <div class="glass rounded-lg p-4 flex items-center gap-4"><span class="text-accent font-mono font-bold w-8">22</span><span>Skill-Level-Aware &mdash; adapt question depth to user's programming skill</span></div>
+            <div class="glass rounded-lg p-4 flex items-center gap-4"><span class="text-accent font-mono font-bold w-8">23</span><span>Milestone Validation &mdash; after every milestone: validate, install, ask, then wait</span></div>
+            <div class="glass rounded-lg p-4 flex items-center gap-4 border border-emerald/30"><span class="text-emerald-light font-mono font-bold w-8">24</span><span><strong class="text-emerald-light">UX Completeness</strong> &mdash; every page has 5 states + feedback + keyboard + WCAG 2.2 AA <span class="tag bg-emerald/20 text-emerald-light text-xs ml-1">NEW</span></span></div>
+            <div class="glass rounded-lg p-4 flex items-center gap-4 border border-emerald/30"><span class="text-emerald-light font-mono font-bold w-8">25</span><span><strong class="text-emerald-light">RBAC by Default</strong> &mdash; any app with users gets full roles &times; permissions + audit log <span class="tag bg-emerald/20 text-emerald-light text-xs ml-1">NEW</span></span></div>
         </div>
     </div>
 </section>
@@ -1232,8 +1318,8 @@ claude /your-project
     <div class="max-w-5xl mx-auto text-center">
         <p class="text-dark-400 mb-2">System Design Architect &mdash; A Claude Code Plugin</p>
         <p class="text-dark-500 text-sm">Powered by knowledge from Alex Xu, Martin Kleppmann, Robert C. Martin, Gang of Four, Martin Fowler, and Steve McConnell.</p>
-        <p class="text-dark-500 text-sm mt-4">116+ files &bull; 44 commands &bull; 23 rules &bull; 14 skills &bull; 16 design references &bull; 4 templates &bull; 8 books</p>
-        <p class="text-dark-500 text-xs mt-2">v1.5.0 &mdash; User skill levels &middot; Stack onboarding &middot; Milestone validation</p>
+        <p class="text-dark-500 text-sm mt-4">119+ files &bull; 47 commands &bull; 25 rules &bull; 14 skills &bull; 16 design references &bull; 4 templates &bull; 8 books</p>
+        <p class="text-dark-500 text-xs mt-2">v1.6.0 &mdash; /pages &middot; /rbac &middot; /ux-kit &mdash; complete apps, not skeletons</p>
     </div>
 </footer>
 

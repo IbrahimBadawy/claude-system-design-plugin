@@ -1,15 +1,28 @@
 # /frontend - Frontend Design & Implementation
 
 Professional frontend design with the best UI libraries, layouts, and component systems.
+Produces a **complete** frontend: every page, every state, every UX pattern.
 
 ## Usage
 ```
-/frontend design                    # Start frontend design process (ask about style, layout, etc.)
+/frontend design                    # Full frontend design flow
 /frontend design --framework vue    # Design with specific framework
 /frontend libraries <framework>     # Show best libraries for a framework
 /frontend layout <type>             # Generate a specific layout (dashboard, landing, admin, etc.)
 /frontend component <name>          # Generate a specific component
+/frontend audit                     # Scan frontend for UX/accessibility/completeness gaps
 ```
+
+## Related commands (recommended flow)
+
+1. `/pages` — enumerate EVERY page the app needs (auth, admin, dashboard, CRUD, system)
+2. `/rbac` — design permission system (buttons/pages hide based on roles)
+3. `/frontend design` — visual style + component library + layout
+4. `/ux-kit` — empty/loading/error states, feedback patterns, a11y
+5. `/implement --frontend <framework>` — scaffold the whole thing
+
+Run all of them before coding. The result is a frontend that feels complete,
+not a happy-path skeleton.
 
 ## Recommended: Install UI/UX Pro Max Skill
 
@@ -39,6 +52,17 @@ its style database for better visual recommendations.
 ---
 
 ## Behavior
+
+### Phase 0: Completeness (FIRST — always)
+
+Before visual design, ensure completeness:
+
+1. **Check `PAGES.md` exists** — if not, run `/pages` first to enumerate all pages
+2. **Check `RBAC.md` exists** — if not, run `/rbac` to design permissions
+3. **Check UX patterns list** — run `/ux-kit` to define states, feedback, keyboard, a11y
+
+If any of these are missing, STOP and build them first. Visual polish on an incomplete
+app is wasted effort — users notice missing pages and broken flows before color schemes.
 
 ### Phase 1: Discovery (ASK the user)
 
@@ -78,6 +102,15 @@ Before ANY frontend work, ask these questions:
 - Data tables with sorting/filtering
 - Charts and visualizations
 - Form builder
+
+**5. Core screens?** (cross-check with PAGES.md)
+- Dashboard with KPIs
+- User profile & settings
+- Admin panel (users, roles, audit)
+- Notifications center
+- Global search (Cmd-K)
+- Help / Docs
+- Onboarding tour
 - File upload
 - Rich text editor
 - Real-time notifications

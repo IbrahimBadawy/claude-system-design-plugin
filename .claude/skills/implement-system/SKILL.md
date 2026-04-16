@@ -21,6 +21,84 @@ You MUST actually create files, run commands, install packages, and build workin
    state them before coding.
 3. For Complex projects: also verify plan approval — see below.
 
+## PRE-CONDITION: Completeness Artifacts (Rule 24 + Rule 25)
+
+For any user-facing app, check these before generating code. If missing, STOP and
+build them first — generating code for an incomplete spec just means more refactoring:
+
+- **`design/PAGES.md`** — full page inventory. Run `/pages` if missing.
+- **`design/RBAC.md`** — permission system (required if app has users). Run `/rbac` if missing.
+- **`design/UX-KIT.md`** — state patterns, components, a11y rules. Run `/ux-kit` if missing.
+
+These documents drive what gets scaffolded. Without them the output is a happy-path
+skeleton that the user will bounce off.
+
+## AUTO-SCAFFOLD LIST (from PAGES.md + RBAC.md + UX-KIT.md)
+
+Every `/implement` run for a user-facing app generates ALL of these automatically:
+
+### Auth (always)
+Login, Register, Forgot Password, Reset Password, Email Verify, 2FA enroll +
+challenge (if enabled), Invite Acceptance (if multi-user), OAuth callback handler.
+
+### User Account
+Profile, Settings (general, language, timezone), Security (2FA, sessions, devices),
+Notification Preferences, Billing & Subscription (if paid), API Keys / Tokens (if API),
+Connected Accounts (if OAuth), Danger Zone (delete account, export GDPR data).
+
+### Admin Panel (if users)
+Admin Dashboard (KPIs + charts), Users list (search/filter/invite/suspend/impersonate),
+User Detail, Roles management, Permissions Matrix (role × permission grid), Audit Log
+(searchable, exportable), System Settings, Feature Flags, Integration Settings.
+
+### Main App
+Dashboard (greeting + KPIs + charts + activity + quick actions), Notifications Center,
+Global Search / Command Palette (Cmd-K), Help / Docs, Keyboard Shortcuts reference.
+
+### Per-Entity (for each entity in schema)
+List page with DataTable (search + sort + filter + pagination + bulk + export),
+Detail page (info + related + activity + actions + comments), Create form (multi-step
+if complex, auto-save draft, validation, preview), Edit form, Archive/Trash page.
+
+### System Pages (always)
+404, 403, 500, Maintenance, Rate Limited, Offline (PWA), Coming Soon (if applicable).
+
+### Legal (always)
+Terms of Service, Privacy Policy, Cookie Settings (GDPR granular consent).
+
+### UX Kit Components (always)
+Toast provider + `useToast()` hook, ConfirmDialog, EmptyState, LoadingSkeleton,
+ErrorBoundary, ErrorState, Breadcrumbs, CommandPalette (cmdk/kbar), KeyboardShortcuts
+modal, ThemeToggle, A11ySkipLink, DataTable (full-featured), BulkActionBar, FilterPanel,
+FileUpload (drag-drop + progress + multi), FormWithAutosave, hooks (useToast, useConfirm,
+useHotkeys, useDebounce, useDarkMode, useOnlineStatus, useReducedMotion, useOptimisticUpdate).
+
+### RBAC Infrastructure (if users)
+Prisma/Drizzle schema for User, Role, Permission, UserRole, RolePermission, ResourceACL,
+AuditLog. Seed file with default roles (Super Admin, Tenant Admin, Manager, Editor,
+Member, Viewer, Guest). Backend middleware/guard for `@Permissions('<resource>:<action>:<scope>')`.
+Frontend `<Can>` component + `ProtectedRoute` wrapper + `usePermission()` hook.
+Audit logger that writes before/after snapshots.
+
+### Every Page Has
+- Empty state (illustration + CTA)
+- Loading skeleton (matches layout)
+- Error state (retry + support link)
+- Success feedback (toast / inline)
+- Keyboard navigation
+- Axe-core clean (no critical/serious violations)
+- Dark mode + respects `prefers-reduced-motion`
+- Responsive 320 / 768 / 1280 / 1920
+- Permission check (hides buttons user can't use)
+
+## Complexity-Driven Scope
+
+| Complexity | Pages | UX Kit | RBAC | Auth |
+|-----------|-------|--------|------|------|
+| **Simple** | 8-15 essential pages | States + toast + confirm | 2-3 roles + decorators | login/register/forgot |
+| **Medium** | 20-35 pages | Full UX kit | Standard 5 roles + admin UI | + 2FA + OAuth |
+| **Complex** | 40-80+ pages | Full kit + i18n + command palette + optimistic updates | Custom roles + resource ACLs + approval workflows + compliance audit | + SSO + SCIM |
+
 ## PRE-CONDITION: Plans Must Be Approved (Complex only)
 
 For Complex projects, **BEFORE writing any code, check:**

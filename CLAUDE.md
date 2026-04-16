@@ -256,6 +256,12 @@ Use `/command-name` to invoke any command:
 - `/gateway <system>` - API gateway and BFF pattern design
 - `/debt <system>` - Technical debt audit and remediation plan
 - `/opensource <system>` - Research open source alternatives, build vs buy vs fork
+- `/pages` - Comprehensive page inventory (auth, admin, dashboard, CRUD, system)
+- `/pages audit` - Check existing code against the page inventory
+- `/rbac` - Full Role-Based Access Control designer (roles × permissions × scopes + audit log)
+- `/rbac audit` - Verify every endpoint is permission-guarded
+- `/ux-kit` - UX patterns & quality gate (empty/loading/error/success, keyboard, a11y)
+- `/ux-kit audit` - Find UX gaps in existing code
 - `/knowledge build <topic> [--global|--project]` - Build domain knowledge at chosen scope
 - `/knowledge import <file>` - Import PDF/URL into knowledge base
 - `/knowledge list [--global|--project]` - Show all knowledge bases
@@ -326,6 +332,8 @@ All rules in `.claude/rules/` are automatically enforced:
 - `21-complexity-aware.md` - Scale effort to project complexity; ask before assuming
 - `22-skill-level-aware.md` - Adapt question depth to user's programming skill level
 - `23-milestone-validation.md` - After every milestone: validate, install, ask for missing info, then wait
+- `24-ux-completeness.md` - Every page has all 5 states + feedback + keyboard + a11y. "It works" is not done.
+- `25-rbac-by-default.md` - Any app with users gets full RBAC + audit log + admin UI — not `is_admin` boolean
 
 ## Estimation Cheat Sheet
 
@@ -364,6 +372,42 @@ Servers = QPS_peak / QPS_per_server
 | 99.9% | 8.77 hours |
 | 99.99% | 52.6 min |
 | 99.999% | 5.26 min |
+
+## App Completeness (Rules 24 + 25)
+
+For any user-facing app, `/implement` will NOT produce a happy-path skeleton.
+It auto-generates these artifacts during implementation:
+
+### Pages (from `/pages`)
+- Auth (login/register/forgot/reset/verify/2FA/invite)
+- User account (profile/settings/security/notifications/billing/API keys/danger zone)
+- Admin panel (dashboard/users/user detail/roles/permission matrix/audit log/settings/flags)
+- Main dashboard (greeting + KPIs + charts + activity + quick actions)
+- Per-entity (list/detail/create/edit/archive) — full CRUD with search/sort/filter/bulk/export
+- System pages (404/403/500/maintenance/rate-limited/offline)
+- Legal (terms/privacy/cookie consent)
+- Page count by complexity: Simple 8-15 · Medium 20-35 · Complex 40-80+
+
+### Permissions (from `/rbac`)
+- Roles × Permissions × Scopes model (not `is_admin` boolean)
+- Default roles: Super Admin, Tenant Admin, Manager, Editor, Member, Viewer, Guest
+- Permission naming: `<resource>:<action>:<scope>` (e.g. `orders:approve:team`)
+- Backend middleware for every endpoint (`@Permissions` / `require_permission`)
+- Frontend `<Can>` component + `ProtectedRoute` (buttons hide, pages 403-gracefully)
+- Audit log for every sensitive action with before/after snapshots + admin UI
+
+### UX Kit (from `/ux-kit`)
+- 5 states per page: empty / loading (skeleton) / error / partial / success
+- Feedback: toast, inline, banner, modal, optimistic updates
+- Destructive actions: confirmation + type-to-confirm + undo toast
+- Tables: search + sort + filter + pagination + bulk + export + empty + skeleton
+- Forms: labels above, inline validation, auto-save drafts, keyboard
+- Keyboard: Cmd-K palette, `?` shortcut cheatsheet, tab order
+- A11y: WCAG 2.2 AA, semantic HTML, focus rings, axe-core in CI
+- Visual: dark mode, RTL, reduced motion, responsive 320/768/1280/1920
+- Components: Toast, ConfirmDialog, EmptyState, LoadingSkeleton, ErrorBoundary,
+  Breadcrumbs, CommandPalette, KeyboardShortcuts, ThemeToggle, DataTable, BulkActionBar,
+  FilterPanel, FileUpload + hooks (useToast, useConfirm, useHotkeys, useDarkMode, etc.)
 
 ## Milestone Validation (Rule 23)
 
