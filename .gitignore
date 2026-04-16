@@ -8,7 +8,10 @@ docs/
 .DS_Store
 Thumbs.db
 
-# Project-specific data (user projects)
+# User projects (NEW location - outside .claude, private per user)
+projects/
+
+# Legacy location (kept for backward compatibility)
 .claude/projects/*/
 
 # Templates created from user projects

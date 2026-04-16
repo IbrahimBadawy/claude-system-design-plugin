@@ -40,12 +40,30 @@ PHASE 3 - IMPLEMENTATION (actual code):
 **Even if ALL plans are approved, DO NOT write any code.**
 **Wait for the user's explicit command to start coding.**
 
-## Plan Structure
+## Plan Structure (varies by project complexity)
 
-All plans are stored in the project's `plans/` directory:
+Plans live at `projects/<project-name>/plans/` (at the workspace root — NOT inside `.claude/`).
 
+### Simple complexity — no formal plans
+For Simple projects, `/plan create` is optional. If run, it produces a single
+lightweight `QUICK-PLAN.md` (front + back structure only, no 10-file expansion).
+
+### Medium complexity — 5 core plans
 ```
-.claude/projects/<project-name>/
+projects/<project-name>/
+  plans/
+    MASTER-PLAN.md                    # High-level overview
+    01-architecture-plan.md           # System components
+    02-database-plan.md               # Schema, indexes
+    03-api-plan.md                    # Endpoints, contracts
+    05-frontend-plan.md               # UI, components
+    06-auth-plan.md                   # Authentication
+    IMPLEMENTATION-ROADMAP.md         # Step-by-step order
+```
+
+### Complex complexity — all 10 plans
+```
+projects/<project-name>/
   plans/
     MASTER-PLAN.md                    # High-level overview of everything
     01-architecture-plan.md           # System architecture decisions
@@ -60,6 +78,9 @@ All plans are stored in the project's `plans/` directory:
     10-monitoring-plan.md             # Observability and monitoring plan
     IMPLEMENTATION-ROADMAP.md         # Step-by-step coding order (generated last)
 ```
+
+**Which set gets generated?** Read `PROJECT.md` → `**Complexity**:` field and
+create only the plans that match that level. Don't force 10 plans on a Simple project.
 
 ## Master Plan Format
 

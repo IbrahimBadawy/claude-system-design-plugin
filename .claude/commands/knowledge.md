@@ -4,24 +4,53 @@ Build, manage, and use custom knowledge bases for any domain or technology.
 When working with unfamiliar domains (robotics, automation, medical, finance, etc.),
 build knowledge FIRST, then design and implement with that knowledge.
 
+## Two Knowledge Scopes
+
+| Scope | Location | When to Use |
+|-------|---------|------------|
+| **Global** | `.claude/knowledge/domains/<topic>.md` | Knowledge reusable across ALL your projects (e.g., HL7 FHIR, FIX protocol, OPC-UA, Kubernetes patterns) |
+| **Project** | `projects/<project>/knowledge/<topic>/` | Knowledge specific to ONE project (e.g., this client's legacy API, their internal protocol) |
+
+**Lookup order when knowledge is needed:**
+1. Active project's `projects/<project>/knowledge/` (most specific)
+2. `.claude/knowledge/domains/` (global)
+3. Build fresh if missing
+
 ## Usage
 ```
-/knowledge build <topic>              # Research a topic deeply and save knowledge
-/knowledge build <topic> --from <url> # Build from a specific documentation URL
-/knowledge list                       # List all knowledge bases (global + project)
-/knowledge show <topic>               # Show a specific knowledge base
-/knowledge update <topic>             # Re-research and update existing knowledge
-/knowledge add <topic> <notes>        # Manually add notes to a knowledge base
-/knowledge search <query>             # Search across all knowledge bases
-/knowledge import <file-or-url>       # Import a PDF, doc, or URL into knowledge
-/knowledge docs <topic>               # List all documentation files for a topic
+/knowledge build <topic>                   # Ask: global or project-specific? Then research & save.
+/knowledge build <topic> --global          # Force global scope (shared across projects)
+/knowledge build <topic> --project         # Force project scope (this project only)
+/knowledge build <topic> --from <url>      # Build from a specific documentation URL
+/knowledge list                            # List all knowledge (global + current project)
+/knowledge list --global                   # List only global knowledge
+/knowledge list --project                  # List only current project's knowledge
+/knowledge show <topic>                    # Show a specific knowledge base
+/knowledge update <topic>                  # Re-research and update existing knowledge
+/knowledge add <topic> <notes>             # Manually add notes to a knowledge base
+/knowledge search <query>                  # Search across all knowledge bases
+/knowledge import <file-or-url>            # Import a PDF, doc, or URL
+/knowledge docs <topic>                    # List all documentation files for a topic
+/knowledge promote <topic>                 # Promote project knowledge to global
+/knowledge copy <topic> --to <project>     # Copy global knowledge into a project
 ```
 
 ## Behavior
 
 ### /knowledge build <topic>
 
-When building knowledge for a new domain:
+Before building, ASK the user (unless `--global` or `--project` was passed):
+
+```
+Where should I save this knowledge?
+
+  1. Global   - Available to ALL your projects (recommended for standard tech/protocols)
+  2. Project  - Only for the active project (recommended for client-specific systems)
+
+Which scope?
+```
+
+Then:
 
 1. **Deep Web Research** (automated):
    - WebSearch "<topic> documentation"
@@ -43,6 +72,7 @@ When building knowledge for a new domain:
 # Knowledge: [Topic]
 
 **Built**: [date]
+**Scope**: Global | Project (<project-name>)
 **Sources**: [list of URLs consulted]
 **Last Updated**: [date]
 
@@ -56,8 +86,14 @@ When building knowledge for a new domain:
 | [Term 2] | [Explanation] |
 
 ## Architecture / How It Works
-[System architecture, components, communication flow]
-[Include Mermaid diagrams where helpful]
+
+Render a Mermaid diagram both IN CHAT and in this file:
+
+\`\`\`mermaid
+graph TB
+    A[Component A] --> B[Component B]
+    B --> C[Component C]
+\`\`\`
 
 ## Programming / Configuration
 ### Language / Tools
@@ -81,7 +117,6 @@ When building knowledge for a new domain:
 
 ## Integration Patterns
 [How does this technology integrate with other systems?]
-[Common integration architectures]
 
 ## Constraints & Limitations
 [What can't it do? Performance limits? Hardware requirements?]
@@ -98,11 +133,13 @@ When building knowledge for a new domain:
 - [Community forum/GitHub]
 ```
 
-4. **Save Knowledge**:
-   - **Project-level**: `.claude/projects/<project>/knowledge/<topic>.md`
-     (used when building for a specific project)
-   - **Global-level**: `.claude/knowledge/domains/<topic>.md`
-     (used when the knowledge applies across projects)
+4. **Save Knowledge** at the chosen scope:
+   - **Global**: `.claude/knowledge/domains/<topic>.md`
+   - **Project**: `projects/<project>/knowledge/<topic>/<topic>.md`
+     - Plus a `docs/` subfolder for user-provided files (PDFs, datasheets)
+     - Plus a `urls.md` for bookmarked references
+
+5. **Render the diagrams in chat** using Mermaid code blocks so the user sees them immediately.
 
 ### /knowledge build <topic> --from <url>
 
@@ -119,6 +156,8 @@ Show all available knowledge bases:
 ## Knowledge Bases
 
 ### Global (available in all projects)
+Location: .claude/knowledge/
+
 | Topic | Built | Updated | Size |
 |-------|-------|---------|------|
 | patterns | Built-in | - | 16 references |
@@ -126,18 +165,37 @@ Show all available knowledge bases:
 | distributed-systems | Built-in | - | DDIA |
 | clean-architecture | Built-in | - | 8 books |
 
-### Custom Domains
-| Topic | Built | Sources | Location |
-|-------|-------|---------|----------|
-| kuka-robot | 2026-04-13 | 5 URLs | domains/kuka-robot.md |
-| plc-siemens | 2026-04-13 | 8 URLs | domains/plc-siemens.md |
-| opc-ua | 2026-04-13 | 4 URLs | domains/opc-ua.md |
+### Global Custom Domains
+Location: .claude/knowledge/domains/
+
+| Topic | Built | Sources |
+|-------|-------|---------|
+| kuka-robot | 2026-04-13 | 5 URLs |
+| plc-siemens | 2026-04-13 | 8 URLs |
+| opc-ua | 2026-04-13 | 4 URLs |
 
 ### Project: university-system
-| Topic | Built | Location |
-|-------|-------|----------|
-| moodle-api | 2026-04-12 | projects/university-system/knowledge/ |
+Location: projects/university-system/knowledge/
+
+| Topic | Built | Sources |
+|-------|-------|---------|
+| moodle-api | 2026-04-12 | 3 URLs |
+| client-legacy-sis | 2026-04-15 | Client docs + notes |
 ```
+
+### /knowledge promote <topic>
+
+Move a project-specific knowledge file to global scope (when you realize it's reusable):
+1. Copy `projects/<project>/knowledge/<topic>/<topic>.md` → `.claude/knowledge/domains/<topic>.md`
+2. Update the `Scope:` field to `Global`
+3. Optionally remove from the project (ask user)
+
+### /knowledge copy <topic> --to <project>
+
+Copy a global knowledge file into a specific project (e.g., to customize it for that client):
+1. Copy `.claude/knowledge/domains/<topic>.md` → `projects/<project>/knowledge/<topic>/<topic>.md`
+2. Update the `Scope:` field to `Project (<project>)`
+3. User can then edit the project copy without affecting global
 
 ### /knowledge update <topic>
 
@@ -157,16 +215,16 @@ Appends to the knowledge file under a "Manual Notes" section.
 
 ### /knowledge search <query>
 
-Search across ALL knowledge bases for a term:
+Search across ALL knowledge bases for a term (both global and project):
 ```
 /knowledge search "OPC-UA"
 ```
-Returns matching sections from all knowledge files.
+Returns matching sections from all knowledge files, grouped by scope.
 
 ## Integration with Other Commands
 
 When knowledge exists for a project's domain:
-- `/design` references domain knowledge for architecture decisions
+- `/design` references domain knowledge for architecture decisions (checks project first, then global)
 - `/implement` uses API docs and code examples from knowledge
 - `/schema` considers domain-specific data structures
 - `/research` checks existing knowledge before searching online
@@ -174,16 +232,37 @@ When knowledge exists for a project's domain:
 
 ## Example Workflows
 
-### Industrial Automation ERP
+### Global Knowledge (cross-project)
+```
+# Standard protocols — build globally once, use in all projects
+/knowledge build opc-ua --global
+/knowledge build hl7-fhir --global
+/knowledge build fix-protocol --global
+/knowledge list --global
+```
+
+### Project-Specific Knowledge
+```
+/project add client-xyz-erp
+/knowledge build client-legacy-api --project    # This client's custom API
+/knowledge build client-data-model --project    # Their specific data model
+/knowledge list --project
+```
+
+### Industrial Automation ERP (mix of global + project)
 ```
 /project add automation-erp
-/knowledge build kuka-robot           # KUKA robot programming & APIs
-/knowledge build siemens-plc          # Siemens S7 PLC programming
-/knowledge build opc-ua               # OPC-UA protocol for industrial comm
-/knowledge build scada-systems        # SCADA architecture
-/knowledge build mes-systems          # Manufacturing Execution Systems
-/knowledge build industrial-iot       # IIoT sensors and protocols
-# Now design with full domain knowledge
+
+# Global: standard tech used in many projects
+/knowledge build kuka-robot --global
+/knowledge build siemens-plc --global
+/knowledge build opc-ua --global
+
+# Project: this client's specific config
+/knowledge build client-plant-layout --project
+/knowledge build client-existing-scada --project
+
+# Now design with full domain knowledge (global + project)
 "ابدا plan"
 /design automation-erp
 ```
@@ -191,28 +270,30 @@ When knowledge exists for a project's domain:
 ### Medical System
 ```
 /project add hospital-system
-/knowledge build hl7-fhir             # HL7 FHIR healthcare standard
-/knowledge build dicom                # Medical imaging standard
-/knowledge build hipaa-compliance     # HIPAA security requirements
-/knowledge build medical-devices-api  # FDA device integration
+/knowledge build hl7-fhir --global            # HL7 FHIR healthcare standard
+/knowledge build dicom --global               # Medical imaging standard
+/knowledge build hipaa-compliance --global    # HIPAA security requirements
+/knowledge build hospital-existing-hims --project  # This hospital's legacy HIMS
 ```
 
 ### Financial System
 ```
 /project add trading-platform
-/knowledge build fix-protocol         # FIX financial protocol
-/knowledge build market-data-feeds    # Real-time market data
-/knowledge build regulatory-compliance # Financial regulations
-/knowledge build order-matching       # Order book algorithms
+/knowledge build fix-protocol --global
+/knowledge build market-data-feeds --global
+/knowledge build regulatory-compliance --global
+/knowledge build broker-api --project         # This broker's specific API
 ```
 
 ## Examples
 ```
-/knowledge build kuka-robot
+/knowledge build kuka-robot --global
+/knowledge build client-legacy-api --project
 /knowledge build plc-siemens --from https://support.industry.siemens.com
 /knowledge list
 /knowledge show kuka-robot
 /knowledge update opc-ua
+/knowledge promote client-legacy-api
 /knowledge add kuka-robot "KRL is the programming language for KUKA robots"
 /knowledge search "EtherNet/IP"
 ```

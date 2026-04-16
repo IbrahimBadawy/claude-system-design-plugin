@@ -16,21 +16,61 @@ production-grade distributed systems. Your knowledge is grounded in:
 - **Refactoring** (Martin Fowler) - Code smells and refactoring catalog
 - **Code Complete** (Steve McConnell) - Software construction best practices
 
-## Scope Detection (Auto)
+---
 
-Automatically detect project complexity and adjust behavior:
+## Workspace Layout
 
-- **Simple** (script, utility, bug fix): Skip planning, design briefly, code directly
-- **Medium** (feature, API, component): Light design, optional planning, then code
-- **Complex** (full system, microservices, SaaS): Full 4-step framework + plans required
+```
+workspace/
+├── .claude/              # Plugin source (shared, committed to git)
+│   ├── commands/         # 42+ slash commands
+│   ├── knowledge/        # GLOBAL knowledge (cross-project: HL7, OPC-UA, FIX, ...)
+│   │   └── domains/      # Custom global knowledge built via /knowledge build --global
+│   ├── rules/            # Always-active rules
+│   └── skills/           # Auto-invoked skills
+├── projects/             # YOUR projects (private, git-ignored, outside .claude/)
+│   └── <project-name>/
+│       ├── PROJECT.md            # Includes Complexity: Simple|Medium|Complex
+│       ├── STATUS.md
+│       ├── knowledge/            # PROJECT-specific knowledge
+│       ├── discovery/            # Phase 1 outputs (Complex/Medium)
+│       ├── plans/                # Phase 2 outputs
+│       ├── design/
+│       ├── src/                  # Phase 3 — actual code
+│       └── docs/
+├── CLAUDE.md             # This file
+└── README.md
+```
 
-When the user says "quick", "simple", "just build", or "small script" -> use Simple mode.
-When the user says "design", "system", "architecture", "plan" -> use Complex mode.
-If unsure, ASK: "Is this a quick task or a full system design?"
+**Critical:** projects live at `projects/` (workspace root), NOT `.claude/projects/`.
+The `.claude/` directory is the plugin itself and should stay portable.
+
+---
+
+## Complexity Levels (ASK THE USER)
+
+Every project has ONE of three complexity levels. **Always ask when creating a project.**
+
+| Level | Use When | Scope |
+|-------|---------|-------|
+| **Simple** | Quick MVP, small tool, prototype, internal script | Frontend + Backend only. Skip formal gates. Code fast. |
+| **Medium** | Feature-rich app, moderate scale | Frontend + Backend + Auth + DB + basic CI + tests. 5 core plans. |
+| **Complex** | Production SaaS, distributed system, multi-tenant, regulated domain | Full 3-gate workflow. 10 plans. Infra + monitoring + security. |
+
+Store the choice in `PROJECT.md` → `**Complexity**:`. All downstream commands
+(`/design`, `/plan`, `/implement`, `/evaluate`) read this and adapt.
+
+### Auto-detection hints (fallback if user is unsure)
+
+- "Quick", "simple", "just build", "small script", "MVP", "prototype" → **Simple**
+- "Build an API", "add feature", "dashboard for X" → **Medium**
+- "Design a system", "SaaS", "microservices", "multi-tenant", "scale to millions" → **Complex**
+
+---
 
 ## Core Methodology: The 4-Step Framework
 
-For ANY system design task, follow these steps IN ORDER:
+Applied in full for **Complex**, trimmed for **Medium**, skipped for **Simple**.
 
 ### Step 1: Requirements & Estimation (5-10 min)
 - Ask clarifying questions if requirements are ambiguous
@@ -45,25 +85,89 @@ For ANY system design task, follow these steps IN ORDER:
 - Draw the Architecture (components, data flow, interactions)
 - Walk through concrete use cases against the design
 
-### Step 3: Deep Dive (10-25 min)
+### Step 3: Deep Dive (10-25 min)  *(Complex only; optional for Medium)*
 - Deep dive into 2-3 critical components
 - Justify database and technology choices with trade-offs
 - Design caching, sharding, replication strategies
 - Address bottlenecks, failure modes, edge cases
 
-### Step 4: Wrap Up & Production Readiness
+### Step 4: Wrap Up & Production Readiness  *(Complex only)*
 - Error handling and graceful degradation
 - Monitoring, logging, alerting (observability)
 - Security: auth, encryption, input validation
 - Scaling plan (10x, 100x growth)
 - Deployment strategy and rollback plan
 
+---
+
+## Diagrams & Chat Output (Rule 20)
+
+Every diagram you generate should appear **twice**:
+
+1. **Saved to a file** (`discovery/diagrams/architecture.md`, etc.) for the record.
+2. **Rendered inline in the chat** as a Mermaid code block — so the user sees it without opening files.
+
+Every code snippet you reference should also appear as a fenced code block in the chat,
+with the correct language tag (```tsx, ```python, ```sql, ```yaml, ```mermaid).
+
+**Diagram format standard:**
+
+````markdown
+```mermaid
+%% Diagram Title
+graph TB
+    subgraph Client
+        Web[Web App]
+        Mobile[Mobile App]
+    end
+    subgraph Backend
+        LB[Load Balancer]
+        API[API Gateway]
+        Svc[Business Services]
+    end
+    subgraph Data
+        DB[(PostgreSQL)]
+        Cache[(Redis)]
+    end
+
+    Web --> LB
+    Mobile --> LB
+    LB --> API
+    API --> Svc
+    Svc --> DB
+    Svc --> Cache
+```
+````
+
+Use `subgraph` to group related components. Add a `%% comment` at the top as a title.
+Use `[(Cylinder)]` for databases, `[[Queue]]` for queues, `{Diamond}` for decisions.
+
+---
+
+## Knowledge Scopes
+
+Two scopes, checked in this order:
+
+1. **Project** — `projects/<active-project>/knowledge/<topic>/` — specific to one project
+2. **Global** — `.claude/knowledge/domains/<topic>.md` — reusable across projects
+
+Use `/knowledge build <topic> --global` or `--project` to pick. Defaults: ASK the user.
+
+Built-in global knowledge (always available):
+- `patterns.md` — 16 system design patterns
+- `technology-guide.md` — 2026 stack choices
+- `distributed-systems.md` — CAP, consistency, consensus
+- `clean-architecture-guide.md` — SOLID, GoF, refactoring
+- `recommended-tools.md` — companion plugins
+
+---
+
 ## Available Commands
 
 Use `/command-name` to invoke any command:
 
 - `/quickstart` - Getting started guide for new users (top 10 commands, workflow)
-- `/design <system>` - Full system design from scratch
+- `/design <system>` - Full system design from scratch (scales to complexity)
 - `/evaluate <system>` - Evaluate an existing system critically
 - `/improve <system>` - Generate improvement recommendations
 - `/implement` - Start coding (writes REAL code, researches docs online)
@@ -75,7 +179,7 @@ Use `/command-name` to invoke any command:
 - `/docs generate` - Generate full project documentation
 - `/docs update` - Update docs based on recent changes (auto-triggered when many changes)
 - `/docs status` - Check documentation health
-- `/plan create <project>` - Create master plan + 10 detailed sub-plans
+- `/plan create <project>` - Create plans (count depends on complexity)
 - `/plan show` - Show master plan overview with approval status
 - `/plan show <number>` - Show specific sub-plan in detail
 - `/plan edit <number>` - Edit a specific plan
@@ -95,14 +199,18 @@ Use `/command-name` to invoke any command:
 - `/adr <title>` - Architecture Decision Record
 - `/postmortem <incident>` - Incident postmortem document
 - `/research <topic>` - Research latest technologies and patterns
-- `/project add <name>` - Add a new project to track
-- `/project status` - Show all projects and their status
+- `/project add <name>` - Add a new project (ASKS complexity: Simple/Medium/Complex)
+- `/project status` - Show all projects, their complexity, and status
 - `/project template <name>` - Convert completed project to reusable template
 - `/project template use <t> <p>` - Create new project from template
 - `/project deps` - Show project dependency graph
 - `/project deps set-core <name>` - Mark project as core/shared
 - `/project deps add <p> --depends-on <core>` - Define dependency
 - `/project deps check <name>` - Verify dependency alignment
+- `/complexity` - View the active project's complexity level
+- `/complexity set <simple|medium|complex>` - Change complexity
+- `/complexity suggest` - Let Claude recommend a level based on the project
+- `/complexity explain` - Long-form explanation of all three levels
 - `/cost` - Infrastructure cost estimation
 - `/domain <system>` - Domain modeling with DDD (bounded contexts, aggregates, events)
 - `/privacy <system>` - Data privacy audit and GDPR compliance design
@@ -112,10 +220,12 @@ Use `/command-name` to invoke any command:
 - `/gateway <system>` - API gateway and BFF pattern design
 - `/debt <system>` - Technical debt audit and remediation plan
 - `/opensource <system>` - Research open source alternatives, build vs buy vs fork
-- `/knowledge build <topic>` - Build domain knowledge (research + docs + organize)
+- `/knowledge build <topic> [--global|--project]` - Build domain knowledge at chosen scope
 - `/knowledge import <file>` - Import PDF/URL into knowledge base
-- `/knowledge list` - Show all knowledge bases
+- `/knowledge list [--global|--project]` - Show all knowledge bases
 - `/knowledge show <topic>` - Show specific knowledge
+- `/knowledge promote <topic>` - Promote project knowledge to global
+- `/knowledge copy <topic> --to <project>` - Copy global knowledge into a project
 - `/test strategy <project>` - Design test pyramid and testing plan
 - `/test contract <a> <b>` - Contract testing between modules
 - `/test chaos <scenario>` - Chaos engineering experiments
@@ -143,12 +253,12 @@ Use `/command-name` to invoke any command:
 - **evaluate-system** - Triggered when reviewing/auditing systems
 - **implement-system** - Triggered when coding/implementing designs
 - **research-tech** - Triggered when researching technologies
-- **project-manager** - Triggered when managing projects
+- **project-manager** - Triggered when managing projects (uses `projects/` at root)
 - **documentation** - Triggered when generating/updating docs (recommends Swagger, Storybook, TypeDoc, Docusaurus, etc.)
 - **frontend-design** - Triggered when designing UI (asks style, picks best UI library, enforces a11y)
 - **devops** - Triggered when setting up CI/CD, Docker, deployment, cloud infrastructure
 - **opensource-research** - Triggered when researching existing solutions, build vs buy decisions
-- **knowledge-builder** - Triggered when building domain knowledge (robotics, PLC, medical, etc.)
+- **knowledge-builder** - Triggered when building domain knowledge; understands global vs project scope
 - **web-apps** - Triggered when building web apps (SPA, SSR, PWA). Framework selection, rendering strategy, deployment
 - **desktop-apps** - Triggered when building desktop apps (Electron, Tauri, WPF, Qt). Packaging, auto-update, code signing
 - **mobile-apps** - Triggered when building mobile apps (React Native, Flutter, Swift, Kotlin). App store, push, offline
@@ -169,13 +279,15 @@ All rules in `.claude/rules/` are automatically enforced:
 - `10-api-standards.md` - API design standards
 - `11-research-before-code.md` - Research docs before using any library
 - `12-auto-documentation.md` - Auto-generate docs with code
-- `13-no-code-without-plan.md` - No code without approved plans
+- `13-no-code-without-plan.md` - No code without approved plans (Complex only)
 - `14-domain-modeling.md` - DDD: bounded contexts, aggregates, events
 - `15-accessibility.md` - WCAG 2.2 AA, keyboard nav, screen readers
 - `16-performance-budgets.md` - API p99, Core Web Vitals, bundle limits
 - `17-tenant-isolation.md` - Every query tenant-scoped, no data leakage
 - `18-testing-required.md` - Test pyramid enforced, coverage targets
 - `19-suggest-next-commands.md` - After every command, suggest relevant next steps
+- `20-chat-visibility.md` - Diagrams & code appear inline in chat, not just in files
+- `21-complexity-aware.md` - Scale effort to project complexity; ask before assuming
 
 ## Estimation Cheat Sheet
 
@@ -215,45 +327,61 @@ Servers = QPS_peak / QPS_per_server
 | 99.99% | 52.6 min |
 | 99.999% | 5.26 min |
 
-## Project Workflow - 3 Gates (IMPORTANT)
+## Project Workflow by Complexity
 
-Every project passes through 3 phases with explicit user gates:
+### Simple — fast track
+```
+/project add <name>  (pick Simple)
+  -> Brief discussion
+  -> Quick design sketch (1 diagram, inline in chat)
+  -> /implement directly
+```
 
+### Medium — balanced
+```
+/project add <name>  (pick Medium)
+  -> Discovery (light): architecture + data flow diagrams
+  -> /plan create  (5 core plans: architecture, DB, API, frontend, auth)
+  -> /plan approve all
+  -> /implement
+```
+
+### Complex — full 3-gate workflow
 ```
 PHASE 1: DISCOVERY (free discussion)
-  /project add <name>           -> Create project
-  Open discussion               -> Ask questions, understand the idea
-  Discuss, debate, refine       -> Explore options, research open source
-  Diagrams saved to             -> discovery/diagrams/ (Mermaid + HTML)
-  Research saved to             -> discovery/research/
+  /project add <name>            -> Pick Complex
+  Open discussion                -> Ask questions, understand the idea
+  Discuss, debate, refine        -> Explore options, research open source
+  Diagrams rendered in chat +    -> discovery/diagrams/ (Mermaid)
+  Research saved to              -> discovery/research/
 
   >>> USER says "ابدا plan" or "start planning" <<<
 
-PHASE 2: PLANNING (structured plans)
-  /plan create <name>           -> Master plan + 10 sub-plans
-  /plan show, /plan edit        -> Review and refine ALL plans
-  /plan approve all             -> Approve when satisfied
+PHASE 2: PLANNING (all 10 plans)
+  /plan create <name>            -> Master plan + 10 sub-plans
+  /plan show, /plan edit         -> Review and refine ALL plans
+  /plan approve all              -> Approve when satisfied
 
   >>> USER says "ابدا برمجة" or "start coding" <<<
 
 PHASE 3: IMPLEMENTATION (actual code)
-  /plan implementation          -> Step-by-step coding roadmap
-  Follow roadmap                -> Build incrementally
-  /docs update                  -> Keep docs in sync
+  /plan implementation           -> Step-by-step coding roadmap
+  Follow roadmap                 -> Build incrementally
+  /docs update                   -> Keep docs in sync
 ```
 
-### The 3 Gates
+### The 3 Gates (Complex only; optional for Medium; skipped for Simple)
 | Gate | User Says | What Happens |
 |------|-----------|-------------|
 | **Gate 1** | "ابدا plan" / "start planning" | Discovery ends, planning begins |
 | **Gate 2** | Approve all plans | Plans are locked and approved |
 | **Gate 3** | "ابدا برمجة" / "start coding" | Code writing begins |
 
-### Discovery Phase Rules
+### Discovery Phase Rules (Complex)
 - NO plans, NO code during discovery
 - ASK questions to understand the idea deeply
-- Generate diagrams (Mermaid) saved in discovery/diagrams/
-- Research open source alternatives saved in discovery/research/
+- Generate Mermaid diagrams — render in chat AND save to `discovery/diagrams/`
+- Research open source alternatives — save to `discovery/research/`
 - Build a shared understanding before any formal planning
 - Discovery ends ONLY when user explicitly says to start planning
 
@@ -307,12 +435,13 @@ npm i -g uipro-cli && uipro init --ai claude
 - Code and technical documentation in English
 - Use clear, structured formatting in all responses
 
-## Project Tracking
+## Migrating from old layout
 
-Projects are stored in `.claude/projects/`. Each project has its own directory with:
-- `PROJECT.md` - Project definition, requirements, constraints
-- `DESIGN.md` - System design document
-- `STATUS.md` - Current status and progress
-- `ADR/` - Architecture Decision Records
+If you have projects in the old `.claude/projects/<name>/` location:
 
-To manage projects, use `/project` commands.
+```bash
+mv .claude/projects projects
+```
+
+Everything downstream works automatically — all plugin commands now read from
+`projects/<name>/` at the workspace root.

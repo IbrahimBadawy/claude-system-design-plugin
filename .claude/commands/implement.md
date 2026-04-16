@@ -113,10 +113,25 @@ ACTION:
 ## Implementation Flow
 
 ### Phase 0: Pre-Flight
-1. Verify system design exists (check DESIGN.md or current conversation)
-2. Confirm technology stack with user
-3. **Research the chosen stack** - fetch latest docs for key technologies
-4. Create implementation plan (list of files to create, in order)
+1. **Read project complexity** from `projects/<active>/PROJECT.md` — this determines
+   how much scaffolding to generate.
+2. Verify system design exists (check DESIGN.md or current conversation)
+3. Confirm technology stack with user
+4. **Research the chosen stack** - fetch latest docs for key technologies
+5. Create implementation plan (list of files to create, in order)
+6. Generated code lives in `projects/<active>/src/` (NOT in `.claude/`)
+
+### Complexity-Driven Output
+
+| Complexity | What gets generated |
+|-----------|---------------------|
+| **Simple** | Frontend + Backend only. Skip auth scaffold unless asked. No tests by default. No Docker. |
+| **Medium** | Full stack + JWT auth + DB migrations + unit/integration tests + Dockerfile + basic CI |
+| **Complex** | Full stack + auth + RBAC + tests (all layers) + Docker + CI/CD + infra configs + monitoring + docs |
+
+For **Simple**, skip phases 4-6 unless explicitly requested.
+For **Medium**, phases 4-5 are required, phase 6 (infra) is optional.
+For **Complex**, all phases are mandatory.
 
 ### Phase 1: Project Initialization
 Execute actual shell commands to set up the project:

@@ -2,6 +2,9 @@
 
 Manage projects within this plugin. Track multiple system design projects.
 
+> **Location**: Projects live in `projects/<name>/` at the **workspace root** (outside `.claude/`).
+> This keeps your private project data separate from the plugin source and is automatically git-ignored.
+
 ## Usage
 ```
 /project add <name>           # Create a new project
@@ -22,6 +25,32 @@ Manage projects within this plugin. Track multiple system design projects.
 /project docs add <file>      # Add a document to the right folder
 /project docs read <file>     # Read and summarize a project document
 ```
+
+## Complexity Level (NEW)
+
+When creating a project, ASK the user to pick a complexity level. This sets the depth
+of design, planning, and scaffolding:
+
+| Level | Use When | What You Get |
+|-------|---------|-------------|
+| **Simple** | Quick MVP, small tool, prototype | Front + Back only. Skip heavy planning. Code fast. |
+| **Medium** | Feature-rich app, moderate scale | Front + Back + Auth + DB + Basic CI + Tests |
+| **Complex** | Production SaaS, distributed system, multi-tenant | Full 3-gate workflow, all 10 plans, infra, monitoring, security |
+
+**How to pick (ASK the user):**
+
+```
+Before I create the project, pick a complexity level:
+
+  1. Simple   - Just frontend + backend. Fast build. Minimal planning.
+  2. Medium   - Full-stack app with auth, DB, tests, basic CI/CD.
+  3. Complex  - Production system: all 10 plans, microservices, monitoring, security, multi-tenancy.
+
+Which one?
+```
+
+Save the choice in `PROJECT.md` under `Complexity`. All subsequent commands
+(`/design`, `/plan create`, `/implement`) adapt their output based on this level.
 
 ## Project Documents
 
@@ -83,52 +112,90 @@ Read a document and provide:
 
 ### /project add <name>
 
-Creates a new project directory at `.claude/projects/<name>/` with:
+Creates a new project directory at `projects/<name>/` (at workspace root, OUTSIDE `.claude/`).
 
+**Step 1** — ASK for complexity level (Simple/Medium/Complex). See "Complexity Level" above.
+
+**Step 2** — Create the directory structure. Scope varies by complexity:
+
+**Simple** (lightweight):
 ```
-<name>/
-  PROJECT.md                    # Project definition
-  STATUS.md                     # Current status and progress
+projects/<name>/
+  PROJECT.md                    # Project definition (includes Complexity: Simple)
+  STATUS.md                     # Current status
+  knowledge/                    # Project-specific knowledge
+  discovery/                    # Notes + quick diagrams
+    DISCUSSION.md
+  src/                          # Code goes here (front + back)
+```
+
+**Medium** (balanced):
+```
+projects/<name>/
+  PROJECT.md                    # Complexity: Medium
+  STATUS.md
+  knowledge/                    # Project-specific knowledge
+  discovery/
+    DISCUSSION.md
+    diagrams/
+      architecture.md
+  plans/                        # Only essential plans (architecture, DB, API, frontend, auth)
+  design/
+    DESIGN.md
+  src/
+  tests/
+  docs/
+```
+
+**Complex** (full workflow — default for production systems):
+```
+projects/<name>/
+  PROJECT.md                    # Complexity: Complex
+  STATUS.md
   incoming/                     # Client-provided documents
     requirements/               # Requirements docs from client
     contracts/                  # Agreements, SOWs, proposals
     mockups/                    # UI mockups, wireframes, designs
     references/                 # Any reference material, standards
   discovery/                    # Phase 1: Discussion & understanding
-    DISCUSSION.md               # Notes, questions, answers, decisions
-    requirements-draft.md       # Evolving requirements (refined during discussion)
-    diagrams/                   # Visual diagrams (Mermaid + HTML)
-      architecture.md           # System architecture (Mermaid)
-      data-flow.md              # Data flow diagram (Mermaid)
-      user-journey.md           # User journey map (Mermaid)
-      er-diagram.md             # Entity relationship (Mermaid)
-    research/                   # Research done during discovery
-      opensource-options.md     # Open source alternatives found
-      tech-comparison.md        # Technology comparisons
-  knowledge/                    # Domain-specific knowledge (built with /knowledge build)
-    <topic>/                    # One folder per topic
+    DISCUSSION.md
+    requirements-draft.md
+    diagrams/                   # Visual diagrams (Mermaid)
+      architecture.md
+      data-flow.md
+      user-journey.md
+      er-diagram.md
+    research/
+      opensource-options.md
+      tech-comparison.md
+  knowledge/                    # Project-specific knowledge
+    <topic>/
       <topic>.md                # Auto-generated structured knowledge
       docs/                     # User-provided docs for THIS topic
-        manual.pdf              # PDF manuals, datasheets
-        api-reference.md        # API docs
-        datasheet.pdf           # Hardware datasheets
-        examples/               # Code examples, configs
-      urls.md                   # Bookmarked reference URLs
-  plans/                        # Phase 2: Structured planning (after "start planning")
+        manual.pdf
+        api-reference.md
+        examples/
+      urls.md
+  plans/                        # Phase 2: All 10 sub-plans
     MASTER-PLAN.md
     01-architecture-plan.md
     ... (10 sub-plans)
     IMPLEMENTATION-ROADMAP.md
-  design/                       # Detailed design documents
-    DESIGN.md                   # Full system design
-    ADR/                        # Architecture Decision Records
-  docs/                         # Phase 3: Documentation (generated with code)
+  design/
+    DESIGN.md
+    ADR/
+  docs/                         # Phase 3: Documentation
+  src/
+  tests/
+  infra/                        # Docker, CI/CD, Terraform
+  monitoring/                   # Observability configs
 ```
 
 ### PROJECT.md Template
 ```markdown
 # Project: [Name]
 **Created**: [date]
+**Complexity**: Simple | Medium | Complex
 **Phase**: Discovery | Planning | Implementation | Review | Completed
 **Client**: [if applicable]
 
@@ -163,7 +230,8 @@ Creates a new project directory at `.claude/projects/<name>/` with:
 - Ask the user to describe their idea
 - Ask clarifying questions about: users, problems, goals, scale, constraints
 - Save notes in `discovery/DISCUSSION.md`
-- Generate diagrams as understanding develops
+- Generate diagrams as understanding develops (save in `discovery/diagrams/`)
+- Render those diagrams IN THE CHAT as Mermaid code blocks too (not just files) — see Rule 20
 - Research open source when relevant
 - Do NOT create plans or write code yet
 
@@ -172,11 +240,11 @@ Shows a dashboard of all projects:
 ```
 ## Projects Dashboard
 
-| Project | Status | Last Updated | Progress |
-|---------|--------|-------------|----------|
-| university-system | In Development | 2026-04-13 | [=====>----] 55% |
-| payment-gateway | In Design | 2026-04-10 | [==>-------] 20% |
-| chat-platform | Active | 2026-04-08 | [=>--------] 10% |
+| Project | Complexity | Status | Last Updated | Progress |
+|---------|-----------|--------|-------------|----------|
+| university-system | Complex | In Development | 2026-04-13 | [=====>----] 55% |
+| payment-gateway | Medium | In Design | 2026-04-10 | [==>-------] 20% |
+| chat-platform | Simple | Active | 2026-04-08 | [=>--------] 10% |
 ```
 
 ### /project switch <name>
@@ -185,7 +253,7 @@ Sets the active project context so all commands reference this project.
 - /evaluate will evaluate this project
 - /implement will implement this project
 
-### Project Workflow (3 Gates)
+### Project Workflow (3 Gates — full version for Complex)
 ```
 1. /project add university-system       # Create project -> starts Discovery
 2. Discuss the idea freely              # Ask questions, understand, research
@@ -198,6 +266,19 @@ Sets the active project context so all commands reference this project.
 9. Follow roadmap, build incrementally  # Code + docs generated together
 10. /project template university-system  # Save as reusable template
 ```
+
+**Shortcuts for Simple/Medium:**
+- **Simple** → Skip Gate 1 & 2. After `/project add`, design briefly, then code. No formal plans required.
+- **Medium** → Gates are optional. Usually: discuss → quick design doc → build. Only create the core 5 plans (architecture, DB, API, frontend, auth).
+
+## Migration from old location
+
+If you have projects in the old `.claude/projects/<name>/` location:
+```bash
+# Move them to the new root-level projects/ folder
+mv .claude/projects projects
+```
+The plugin will use `projects/` at the workspace root going forward.
 
 ## Examples
 ```

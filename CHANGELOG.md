@@ -4,6 +4,37 @@ All notable changes to this project will be documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2026-04-16
+
+### Changed — Major workspace restructure
+- **Projects moved outside `.claude/`**: User projects now live at `projects/` at the workspace root, not `.claude/projects/`. This keeps plugin source clean and user data private. A one-line migration: `mv .claude/projects projects`.
+- **`.gitignore`** updated so `projects/` is never pushed to the plugin repo.
+
+### Added
+- **Complexity levels (Simple / Medium / Complex)** prompted on project creation. Every downstream command scales its output to match:
+  - Simple — front + back only, no formal plans, code fast
+  - Medium — 5 core plans + auth + DB + tests + basic CI
+  - Complex — full 3-gate workflow, 10 plans, infra, monitoring, security
+- **`/complexity` command** — view / change / suggest / explain complexity.
+- **Knowledge scopes (Global vs Project)** made explicit:
+  - `--global` → `.claude/knowledge/domains/<topic>.md` (reusable across projects)
+  - `--project` → `projects/<active>/knowledge/<topic>/` (client-specific)
+  - New operations: `/knowledge promote`, `/knowledge copy --to <project>`, `/knowledge list --global|--project`
+- **Rule 20: Chat Visibility** — diagrams and code always rendered inline in chat as Mermaid / fenced code blocks, not just saved to files.
+- **Rule 21: Complexity-Aware** — scale depth of work to the project's complexity; ASK if unsure.
+- **Diagram standards** — subgraphs, `%% comments`, labeled edges, DB cylinders, queue shapes.
+
+### Improved
+- **Design references** — 3 key references upgraded with proper Mermaid diagrams (Rate Limiter, URL Shortener, Chat System) as canonical examples for the new diagram standard.
+- **`patterns.md`** — SQL vs NoSQL decision tree converted to a Mermaid flowchart.
+- **All command docs** — paths updated from `.claude/projects/` to `projects/`; complexity levels respected everywhere.
+- **`/quickstart`** rewritten to reflect the new layout and complexity-first workflow.
+
+### Migration
+```bash
+mv .claude/projects projects   # one-line migration for existing users
+```
+
 ## [1.3.0] - 2026-04-13
 
 ### Added (8 new commands, 2 new rules)

@@ -21,7 +21,9 @@ After EVERY command execution, show a "What's Next?" section with 2-4 relevant c
 ### After Project & Discovery
 | After This | Suggest These |
 |-----------|---------------|
-| `/project add` | `/project docs add <file>` (if client sent docs), `/discover stakeholders`, `/opensource <system>` |
+| `/project add` | `/complexity explain` (if unsure about level), `/project docs add <file>` (if client sent docs), `/discover stakeholders`, `/opensource <system>` |
+| `/complexity set` | `/design` or `/project docs add` or `/discover stakeholders` (based on level) |
+| `/complexity suggest` | `/complexity set <suggested>`, `/design` |
 | `/project docs add` | `/project docs read <file>`, `/discover stakeholders`, `/discover constraints` |
 | `/project docs read` | `/discover user-journeys`, `/discover constraints`, `/knowledge build <domain>` |
 | `/project docs` | `/project docs add <file>`, `/project docs read <file>` |
@@ -32,7 +34,9 @@ After EVERY command execution, show a "What's Next?" section with 2-4 relevant c
 | `/discover mvp` | `/discover summary`, then say "ابدا plan" |
 | `/discover summary` | Say "ابدا plan" to start planning |
 | `/opensource` | `/discover summary`, `/tradeoff build vs use` |
-| `/knowledge build` | `/knowledge build <next-topic>`, `/discover summary` |
+| `/knowledge build --global` | `/knowledge build <next-topic>`, `/knowledge list --global` |
+| `/knowledge build --project` | `/knowledge build <next-topic> --project`, `/design` |
+| `/knowledge promote` | `/knowledge list --global`, `/design` |
 
 ### After Design & Architecture
 | After This | Suggest These |

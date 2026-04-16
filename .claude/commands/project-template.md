@@ -116,7 +116,7 @@ When creating a project from a template:
    - Any specific constraints?
 3. **Generate the project** by:
    - Replacing all `{{PLACEHOLDERS}}` with user answers
-   - Creating the full project structure in `.claude/projects/<new-project>/`
+   - Creating the full project structure in `projects/<new-project>/` (at workspace root, outside `.claude/`)
    - Pre-filling DESIGN.md from the template architecture
    - Copying relevant ADRs
    - Customizing the checklist

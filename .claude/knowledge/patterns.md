@@ -104,15 +104,18 @@ Reference patterns from Alex Xu's System Design Interview books and real-world s
 | Need speed | Need independent scaling |
 
 ### SQL vs NoSQL Decision Tree
-```
-Need ACID? -> SQL
-Need complex JOINs? -> SQL
-Schema changes often? -> Document DB
-Simple key-value at scale? -> Key-Value DB
-High write throughput? -> Wide-Column DB
-Complex relationships? -> Graph DB
-Full-text search? -> Search Engine
-Time-series? -> Time-Series DB
+
+```mermaid
+%% Database choice decision tree
+flowchart TD
+    Start{Primary need?} -->|ACID transactions| SQL[SQL: PostgreSQL, MySQL]
+    Start -->|Complex JOINs| SQL
+    Start -->|Schema changes often| Doc[Document DB: MongoDB]
+    Start -->|Simple key-value at scale| KV[Key-Value: Redis, DynamoDB]
+    Start -->|High write throughput| Wide[Wide-Column: Cassandra, HBase]
+    Start -->|Complex relationships| Graph[Graph: Neo4j]
+    Start -->|Full-text search| Search[Search: Elasticsearch, Meilisearch]
+    Start -->|Time-series data| TS[Time-Series: InfluxDB, TimescaleDB]
 ```
 
 ### Message Delivery

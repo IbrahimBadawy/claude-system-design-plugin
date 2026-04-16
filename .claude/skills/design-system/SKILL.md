@@ -1,44 +1,99 @@
 ---
 name: design-system
-description: Comprehensive system design skill - triggered when designing new systems, features, or architectures. Uses the 4-step framework from Alex Xu with knowledge from DDIA, Clean Architecture, and distributed systems best practices.
+description: Comprehensive system design skill - triggered when designing new systems, features, or architectures. Uses the 4-step framework from Alex Xu with knowledge from DDIA, Clean Architecture, and distributed systems best practices. Scales depth to the project's Complexity level (Simple/Medium/Complex).
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash, WebFetch, WebSearch, Agent
 ---
 
 # System Design Skill
 
-You are designing a new system. Follow the 4-step framework strictly.
+You are designing a new system. The depth of your design output scales to the
+project's **Complexity** level (see Rule 21).
 
-## Discovery Phase (BEFORE any design)
+## Read Complexity First
+
+Before doing anything:
+1. Check for active project in `projects/<name>/PROJECT.md`
+2. Read the `**Complexity**:` field (Simple | Medium | Complex)
+3. If no project or no complexity, ASK the user
+4. Apply the right depth (outlined below)
+
+## By Complexity
+
+### Simple — fast design, start coding fast
+
+Produce ONE architecture diagram (rendered inline as Mermaid), a component list,
+and 3-5 key endpoints. No requirements/estimation/deep-dive.
+
+### Medium — light 4-step
+
+Steps 1-2 of the framework, with a shallow deep-dive. Render 2 diagrams inline
+(architecture + data flow).
+
+### Complex — full 4-step + production readiness
+
+All four steps. Enter Discovery phase first.
+
+## Discovery Phase (Complex only)
+
 When a project starts, enter Discovery mode:
 1. Ask the user to describe their idea in their own words
 2. Ask clarifying questions: Who are the users? What problem does it solve? What scale?
 3. Discuss and debate the approach freely
 4. Research open source alternatives (/opensource)
-5. Generate Mermaid diagrams as understanding develops:
-   - Architecture diagrams -> save to `discovery/diagrams/architecture.md`
-   - Data flow diagrams -> save to `discovery/diagrams/data-flow.md`
-   - ER diagrams -> save to `discovery/diagrams/er-diagram.md`
-6. Save discussion notes to `discovery/DISCUSSION.md`
-7. Save draft requirements to `discovery/requirements-draft.md`
+5. Generate Mermaid diagrams as understanding develops — **render inline AND save**:
+   - Architecture diagrams -> save to `projects/<project>/discovery/diagrams/architecture.md`
+   - Data flow diagrams -> save to `projects/<project>/discovery/diagrams/data-flow.md`
+   - ER diagrams -> save to `projects/<project>/discovery/diagrams/er-diagram.md`
+6. Save discussion notes to `projects/<project>/discovery/DISCUSSION.md`
+7. Save draft requirements to `projects/<project>/discovery/requirements-draft.md`
 8. Do NOT create plans or write code until user says "start planning"
 
-### Mermaid Diagram Format
-When generating diagrams, use Mermaid syntax in .md files:
+### Mermaid Diagram Format (Rule 20)
+
+Always use this format — subgraphs, comments, labeled edges, renders inline in chat:
+
 ````markdown
 ```mermaid
+%% <System Name> — <Diagram purpose>
 graph TB
-    Client[Client App] --> LB[Load Balancer]
-    LB --> API[API Server]
-    API --> DB[(PostgreSQL)]
-    API --> Cache[(Redis)]
-    API --> Queue[Message Queue]
-    Queue --> Worker[Background Worker]
+    subgraph Client
+        Web[Web App]
+        Mobile[Mobile App]
+    end
+    subgraph Backend
+        LB[Load Balancer]
+        API[API Server]
+    end
+    subgraph Data
+        DB[(PostgreSQL)]
+        Cache[(Redis)]
+        Q[[Message Queue]]
+    end
+    subgraph Workers
+        W[Background Worker]
+    end
+
+    Web --> LB
+    Mobile --> LB
+    LB --> API
+    API --> DB
+    API --> Cache
+    API --> Q
+    Q --> W
 ```
 ````
 
+Node shapes:
+- `[Rect]` — services
+- `[(Cylinder)]` — databases
+- `[[Queue]]` — message queues
+- `{Diamond}` — decisions/gateways
+- `((Circle))` — external/third-party
+- Label edges with protocol: `-->|REST|`, `-->|gRPC|`, `-->|Kafka|`
+
 ## Pre-Design Checklist
 Before formal design (after discovery):
-1. Identify if this resembles a known system design pattern (check knowledge base)
+1. Identify if this resembles a known system design pattern (check knowledge base — project first, then global)
 2. Understand the domain and business context from discovery notes
 3. Confirm requirements with the user from discovery/requirements-draft.md
 
@@ -51,20 +106,24 @@ Ask the user to confirm:
 - What are the main use cases?
 
 ### Non-Functional Requirements
-Define explicitly:
-- **Scale**: Expected DAU, peak concurrent users
-- **Latency**: p99 target (< 200ms for user-facing, < 50ms for internal)
-- **Availability**: SLA target (99.9% = 8.77 hrs downtime/year)
-- **Consistency**: Strong vs eventual (depends on use case)
-- **Durability**: Data loss tolerance (zero for financial, some for analytics)
+Define explicitly as a table (inline in chat):
+
+| Requirement | Target |
+|-------------|--------|
+| Scale | DAU, peak concurrent |
+| Latency | p99 target |
+| Availability | SLA |
+| Consistency | Strong / eventual |
+| Durability | Data loss tolerance |
 
 ### Back-of-Envelope Estimation
-Calculate: QPS, storage, bandwidth, cache size, server count.
-Use formulas from CLAUDE.md estimation cheat sheet.
+Calculate: QPS, storage, bandwidth, cache size, server count. Show as a table
+with the formula used for each number.
 
 ## Step 2: High-Level Design
 
 ### API Design
+- Render the endpoint list as a Markdown table
 - RESTful by default (GraphQL for flexible client queries, gRPC for internal)
 - Version all APIs from day 1
 - Include auth, rate limiting, pagination, idempotency
@@ -72,10 +131,11 @@ Use formulas from CLAUDE.md estimation cheat sheet.
 ### Data Model
 - Choose database based on access patterns (see rules/09-data-model.md)
 - Design schema with proper indexes
-- Plan for data growth and migration
+- Render as a table: `| Table | Column | Type | Constraints | Index |`
+- Include an ER diagram (Mermaid `erDiagram`), rendered inline
 
 ### Architecture
-Draw the component diagram showing:
+Render the component diagram as Mermaid (inline) showing:
 - Client -> CDN -> Load Balancer -> API Gateway
 - API Servers (stateless) -> Cache -> Database
 - Message Queue -> Workers
@@ -85,7 +145,7 @@ Draw the component diagram showing:
 
 Select 2-3 critical components and design in detail:
 - Algorithm and data structure choices
-- Technology selection with trade-off analysis
+- Technology selection with trade-off analysis (as a table)
 - Failure modes and recovery
 - Scaling approach
 
@@ -108,10 +168,16 @@ Apply these patterns where appropriate:
 Address all items from the checklist command.
 Focus on: failure scenarios, monitoring, security, scaling plan.
 
+All outputs rendered inline as tables (Rule 20).
+
 ## Output
-Use the System Design Document template in templates/ directory.
+
+- Render all diagrams/tables inline in chat
+- Use the System Design Document template in `.claude/skills/design-system/templates/`
+- Save to `projects/<active>/design/DESIGN.md`
 
 ## Research Mode
+
 If the design involves technologies you're not confident about:
 1. Search the web for latest best practices
 2. Check official documentation
