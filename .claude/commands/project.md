@@ -407,7 +407,7 @@ projects/<name>/
 - Ask clarifying questions about: users, problems, goals, scale, constraints
 - Save notes in `discovery/DISCUSSION.md`
 - Generate diagrams as understanding develops (save in `discovery/diagrams/`)
-- Render those diagrams IN THE CHAT as Mermaid code blocks too (not just files) — see Rule 20
+- Draw those diagrams IN THE CHAT as ASCII / Unicode box-drawing (Rule 20). Keep the full Mermaid version in the saved file.
 - Research open source when relevant
 - Do NOT create plans or write code yet
 

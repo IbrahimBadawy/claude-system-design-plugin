@@ -87,7 +87,7 @@ Then:
 
 ## Architecture / How It Works
 
-Render a Mermaid diagram both IN CHAT and in this file:
+Show the diagram as ASCII in chat; persist the Mermaid version in this file (Rule 20):
 
 \`\`\`mermaid
 graph TB

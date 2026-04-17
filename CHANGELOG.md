@@ -4,6 +4,54 @@ All notable changes to this project will be documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.2] - 2026-04-17
+
+### Correction — Rule 20: ASCII in chat, Mermaid only in files
+
+User reported: "Mermaid in the chat shows as source code, not as a rendered
+diagram." This is true on Claude Code CLI and most VS Code panels.
+
+**The fix:** Rule 20 now distinguishes **chat body** from **saved files**:
+
+- **Chat body (message shown to user):** ASCII / Unicode box-drawing only.
+  Renders as a picture in every viewer. No external tools, no surprises.
+- **Saved files (`.md` with Mermaid fences):** Mermaid is fine — renders when
+  the user opens the file in VS Code Preview, claude.ai, or GitHub.
+
+### Rule 20 expanded with concrete ASCII templates
+
+Templates added for:
+- Architecture diagrams (nodes + arrows with `┌─┐│└▶`)
+- Sequence diagrams (actors + timeline)
+- Trees / hierarchies
+- State machines
+- Simple ER (entities + cardinality)
+- KPI / data (use tables, with optional Unicode block bars)
+
+Plus a **Viewer Matrix** table showing which surface renders what.
+
+### Cascaded updates across the plugin
+
+Removed "render inline as Mermaid" language from everywhere it was misleading:
+- CLAUDE.md (main diagrams section + 2 workflow spots)
+- `/design` command (3 locations)
+- `/core-modules` command
+- `/knowledge` command
+- `/project` command
+- `/quickstart` command
+- `design-system` skill (3 locations)
+- `project-manager` skill
+- `knowledge-builder` skill
+
+All now say "ASCII in chat, Mermaid in file" consistently.
+
+### Why this matters
+
+The old rule produced invisible work on Claude Code CLI — diagrams looked
+like source-code dumps. The new rule produces actual pictures the user can
+read in the chat, while still persisting the Mermaid source for richer
+rendering when the user opens the file.
+
 ## [1.9.1] - 2026-04-17
 
 ### Correction — Permission model is Multi-Dimensional (domain-specific N), not fixed at 5

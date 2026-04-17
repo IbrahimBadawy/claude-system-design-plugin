@@ -95,7 +95,7 @@ Always include the scope in the knowledge file's frontmatter:
 ```
 
 ### Step 5: Render in Chat
-After saving, render any generated Mermaid diagrams IN THE CHAT as code blocks too,
+After saving, draw any diagrams IN THE CHAT as **ASCII / Unicode box-drawing** (see Rule 20). Mermaid stays in the `.md` file.
 so the user can see the architecture without opening files.
 
 ### Step 6: Import User-Provided Docs

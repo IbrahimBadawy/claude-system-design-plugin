@@ -153,7 +153,7 @@ pick defaults and list them briefly for review.
      - Non-Programmer / Beginner → plain-English product questions only
      - Intermediate / Professional → technical questions welcome
    - Save notes to `discovery/DISCUSSION.md`
-   - Generate Mermaid diagrams — render inline in chat AND save to files
+   - Draw diagrams in chat as **ASCII / Unicode box-drawing** (Rule 20). Save the same diagrams as **Mermaid** to files.
    - For Simple: generate ONE quick architecture sketch
    - For Medium: architecture + data flow
    - For Complex: architecture + data flow + user journey + ER diagram

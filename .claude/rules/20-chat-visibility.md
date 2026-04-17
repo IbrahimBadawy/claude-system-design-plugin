@@ -1,5 +1,5 @@
 ---
-description: Every diagram and key code snippet must appear inline in the chat as well as saved to files. The user should never have to open a file to see what was generated.
+description: Every diagram and key code snippet must appear inline in the chat. For the chat message body use ASCII/Unicode box-drawing diagrams (renders everywhere). Mermaid is for files only (renders in VS Code preview, claude.ai, GitHub). Never rely on Mermaid in the chat itself — it often shows as unrendered source code.
 globs: "*"
 ---
 
@@ -7,32 +7,159 @@ globs: "*"
 
 ## The Rule
 
-When you generate a diagram, schema, architecture, API spec, or any code snippet,
-render it **directly in the chat** using properly formatted fenced code blocks —
-even if you are also saving it to a file.
+When you generate a diagram, schema, architecture, API spec, or any code
+snippet, the user should **see the result immediately in the chat, rendered
+to actually look like a diagram — not as raw Mermaid/SVG/HTML source**.
 
-The user should be able to read the result of your work without opening a single file.
+Because most Claude Code viewers (CLI terminal, some VS Code panels) do NOT
+render Mermaid or SVG inline in the chat, the rule is:
 
-## Why
+- **In the chat message body:** use **ASCII / Unicode box-drawing diagrams**
+  (renders as graphics in every viewer, zero dependencies).
+- **In saved files:** use Mermaid inside ```` ```mermaid ```` fences. Those
+  render when the `.md` file is opened in VS Code preview (Ctrl+Shift+V),
+  claude.ai, GitHub, or exported via `@mermaid-js/mermaid-cli`.
+- **Tables:** always use Markdown tables in chat — they render natively.
+- **Code:** always use fenced blocks with the correct language tag.
 
-- Users want to see results immediately, not hunt through folders.
-- Mermaid diagrams render in most chat clients when fenced with ` ```mermaid `.
-- Code in fenced blocks with a language tag gets syntax highlighting and is easy to copy.
-- Skipping the inline render makes reviews slower and feels like the work is hidden.
+**NEVER** put a Mermaid fence in the chat body as the "rendered" artifact.
+Mermaid looks like ugly source code in most viewers. It belongs in files.
 
-## How to apply
+---
 
-### Diagrams (architecture, flow, ER, sequence, etc.)
+## 1. ASCII / Unicode Diagrams in the Chat Body
 
-Always use Mermaid in fenced code blocks, AND save to the appropriate file:
+Use box-drawing characters (`┌ ┐ └ ┘ ─ │ ├ ┤ ┬ ┴ ┼ ╔ ═ ║ ▶ ◀ ▲ ▼`) to draw
+the diagram as text the terminal can already display.
 
-````markdown
+### Architecture (nodes + arrows)
+
+```
+┌──────────────┐     ┌──────────────┐     ┌──────────────┐
+│   Browser    │───▶│ Load Balancer │───▶│ API Gateway  │
+└──────────────┘     └──────────────┘     └──────┬───────┘
+                                                  │
+              ┌───────────────────────┬───────────┴──────────┐
+              ▼                       ▼                      ▼
+      ┌──────────────┐        ┌──────────────┐       ┌──────────────┐
+      │ Auth Service │        │Order Service │       │ User Service │
+      └──────┬───────┘        └──────┬───────┘       └──────┬───────┘
+             │                       │                      │
+             └───────────┬───────────┴──────────┬──────────┘
+                         ▼                      ▼
+                  ┌──────────────┐       ┌──────────────┐
+                  │  PostgreSQL  │       │    Redis     │
+                  └──────────────┘       └──────────────┘
+```
+
+Style conventions:
+- `┌┐└┘` corners, `─` horizontal, `│` vertical, `├┤┬┴┼` junctions
+- Arrows: `───▶` `◀───` `▲` `▼`, dashed with `╌╌▶` for async/events
+- Databases can use `(DB)` or stacked lines `═══` to distinguish from services
+- Keep to 3-15 nodes; split into multiple diagrams if bigger
+- Max width ~80 chars so it doesn't wrap in narrow terminals
+
+### Sequence diagrams
+
+```
+ User          Frontend         API            DB
+  │               │              │              │
+  │── login ─────▶│              │              │
+  │               │── verify ───▶│              │
+  │               │              │── query ────▶│
+  │               │              │◀── user ─────│
+  │               │◀── token ────│              │
+  │◀── session ───│              │              │
+  │               │              │              │
+  │── fetch ─────▶│              │              │
+  │               │── GET /me ──▶│              │
+  │               │              │◀── data ─────│
+  │               │◀── 200 ──────│              │
+  │◀── UI ────────│              │              │
+```
+
+### Trees / hierarchies (use Unicode box drawing)
+
+```
+workspace/
+├── .claude/              # Plugin source
+│   ├── commands/
+│   ├── knowledge/
+│   │   └── domains/
+│   ├── rules/
+│   └── skills/
+├── projects/             # User projects (git-ignored)
+│   └── <name>/
+│       ├── discovery/
+│       ├── plans/
+│       └── src/
+├── CLAUDE.md
+└── README.md
+```
+
+### State machines / flowcharts
+
+```
+         ┌──────────┐
+         │   Draft  │
+         └────┬─────┘
+              │ submit
+              ▼
+         ┌──────────┐  approve   ┌──────────┐
+         │ Pending  │───────────▶│ Approved │
+         └────┬─────┘            └──────────┘
+              │ reject
+              ▼
+         ┌──────────┐
+         │ Rejected │
+         └──────────┘
+```
+
+### ER-lite (entity relationships)
+
+```
+┌─────────────┐        ┌─────────────┐        ┌─────────────┐
+│    User     │  1:N   │    Order    │  N:1   │   Product   │
+│─────────────│───────▶│─────────────│◀───────│─────────────│
+│ id (PK)     │        │ id (PK)     │        │ id (PK)     │
+│ email       │        │ user_id(FK) │        │ sku         │
+│ name        │        │ total       │        │ price       │
+└─────────────┘        └─────────────┘        └─────────────┘
+```
+
+### KPI / data (use tables, not charts)
+
+Bar charts don't fit in ASCII well. For numbers, use Markdown tables:
+
+| Service | CPU | RAM | p99 | Status |
+|---------|----:|----:|----:|:------:|
+| API | 45% | 2.1G | 87ms | ✓ |
+| Worker | 78% | 3.4G | — | ⚠ |
+| DB | 62% | 8.0G | 12ms | ✓ |
+
+For a rough bar chart, Unicode blocks work:
+```
+Revenue by department
+  Engineering  ████████████████████████  $4.2M
+  Sales        ███████████████████       $3.4M
+  Marketing    ███████████████           $2.7M
+  Operations   ██████████                $1.9M
+  Support      █████                     $1.0M
+```
+
+---
+
+## 2. Mermaid for Saved Files (NEVER for chat display)
+
+When you save a `.md` file, the Mermaid block inside it will render when the
+user opens the file in VS Code Preview, claude.ai, GitHub, or any Markdown
+viewer that supports Mermaid.
+
 ```mermaid
-%% Architecture — <system name>
+%% file: discovery/diagrams/architecture.md
 graph TB
     subgraph Frontend
         Web[Web App]
-        Mobile[Mobile App]
     end
     subgraph Backend
         API[API Gateway]
@@ -42,31 +169,51 @@ graph TB
         DB[(PostgreSQL)]
         Cache[(Redis)]
     end
-
     Web --> API
-    Mobile --> API
     API --> Svc
     Svc --> DB
     Svc --> Cache
 ```
-````
 
-Diagram style standards:
-- Use `subgraph Name["Label"]` to group components — never flat lists
-- Put a `%% comment` at the top describing what the diagram shows
+Mermaid style conventions (for files only):
+- Use `subgraph Name["Label"]` to group components
+- Put a `%% comment` at the top
 - Database: `[(PostgreSQL)]`, `[(Redis)]`, `[(MongoDB)]`
 - Queue: `[[Queue]]`, `[[Kafka]]`
-- Decision / gateway: `{Gateway}`
+- Decision/gateway: `{Gateway}`
 - External service: `((External))`
-- Label the edges with protocols: `-->|REST|`, `-->|gRPC|`, `-->|Kafka|`
-- Limit to 15-20 nodes — split into multiple diagrams if larger
+- Label edges with protocol: `-->|REST|`, `-->|gRPC|`, `-->|Kafka|`
+- Limit to 15-20 nodes per diagram
 
-### Tables
+When you save a file with Mermaid, **also draw an ASCII version in the chat**
+so the user sees it immediately, and mention the file:
 
-Use Markdown tables for comparisons, trade-offs, schemas, and API specs.
-Tables render natively in the chat and are the clearest way to show structured data.
+```
+Saved full Mermaid version to: projects/chat-app/discovery/diagrams/architecture.md
+```
 
-### Code
+---
+
+## 3. Tables
+
+Markdown tables render everywhere. Use them for:
+- Comparisons / trade-offs
+- API endpoint specs
+- Schema definitions
+- Data with numbers
+- Decision matrices
+
+```markdown
+| Option | Pros | Cons | Verdict |
+|--------|------|------|---------|
+| REST | Simple, cacheable | Over-fetching | Use for public API |
+| GraphQL | Flexible | Complex cache | Use for mobile |
+| tRPC | Type-safe | TS-only | Use internal full-stack |
+```
+
+---
+
+## 4. Code
 
 Always fence with the correct language tag:
 
@@ -74,43 +221,71 @@ Always fence with the correct language tag:
 - ` ```ts ` for plain TypeScript
 - ` ```py ` for Python
 - ` ```sql ` for SQL
-- ` ```yaml ` for YAML configs
+- ` ```yaml ` for YAML
 - ` ```bash ` for shell
 - ` ```json ` for JSON
 
-### File outputs
+---
 
-Whenever you save a diagram or code to a file (`discovery/diagrams/architecture.md`,
-`plans/01-architecture-plan.md`, etc.), also print it in the chat. Follow with:
+## Complete Example (good vs bad)
 
-```
-Saved to: <file-path>
-```
+### ❌ Bad — Mermaid in chat, looks like source code
 
-So the user knows it was persisted too.
-
-## Example
-
-**Bad** (invisible work):
-> I've saved the architecture diagram to discovery/diagrams/architecture.md.
-
-**Good** (inline + saved):
 > Here's the architecture:
 >
+> ````
 > ```mermaid
-> %% Chat System — High-level architecture
 > graph TB
->     Client[Chat Client] -->|WebSocket| LB[Load Balancer]
->     LB --> WS[WebSocket Server]
->     WS --> Cache[(Redis — presence)]
->     WS --> Queue[[Kafka]]
->     Queue --> Store[(Cassandra — messages)]
+>     Client --> LB --> API --> DB
+> ```
+> ````
+>
+> *(user sees raw Mermaid source, not a diagram)*
+
+### ✅ Good — ASCII in chat, Mermaid persisted to file
+
+> Here's the architecture:
+>
+> ```
+> ┌─────────┐    ┌──────────────┐    ┌──────┐    ┌────────────┐
+> │ Client  │──▶ │ Load Balancer│──▶ │ API  │──▶ │ PostgreSQL │
+> └─────────┘    └──────────────┘    └──────┘    └────────────┘
 > ```
 >
-> Saved to: `projects/chat-app/discovery/diagrams/architecture.md`
+> Saved full Mermaid version to: `projects/<app>/discovery/diagrams/architecture.md`
+
+---
+
+## Viewer Matrix (reference)
+
+| Viewer | Mermaid in chat | Mermaid in `.md` file | ASCII | Tables |
+|--------|:--------------:|:--------------------:|:-----:|:------:|
+| Claude Code CLI | ❌ source code | ✅ (open in VS Code) | ✅ | ✅ |
+| VS Code Claude panel | ❌ usually | ✅ Markdown Preview | ✅ | ✅ |
+| claude.ai (web) | ✅ renders | ✅ | ✅ | ✅ |
+| Claude Desktop | ✅ renders | ✅ | ✅ | ✅ |
+| Cursor / Windsurf | ⚠️ inconsistent | ✅ preview | ✅ | ✅ |
+| Terminal (iTerm/Warp) | ❌ | n/a | ✅ | ✅ |
+
+**Rule of thumb:** ASCII is the only format that renders in 100% of the
+rows above. That's why it's the chat default.
+
+---
 
 ## When to skip
 
-Only skip inline rendering when the output is genuinely too large (e.g., a 500-line
-generated schema). In that case, show the FIRST 30-50 lines inline and mention the file
-for the full version.
+Skip inline ASCII ONLY when:
+- The output is too large (>40 lines) — show top of it + point to the file
+- The diagram is a pure schema / ER with many tables — use a Markdown table of the schema
+- The user explicitly says "I'll open the file, don't draw in chat"
+
+## Quick Recipe
+
+When about to draw a diagram, ask:
+
+1. **Is this for the chat body?** → ASCII / Unicode box-drawing.
+2. **Am I saving it to a file?** → Mermaid inside the file + ASCII preview in chat.
+3. **Is it tabular data?** → Markdown table, not a chart.
+4. **Is it code?** → Fenced block with language tag.
+
+Never: raw Mermaid fence as the chat-visible "diagram."

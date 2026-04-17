@@ -21,7 +21,7 @@ Before doing anything:
 
 ### Simple — fast design, start coding fast
 
-Produce ONE architecture diagram (rendered inline as Mermaid), a component list,
+Produce ONE architecture diagram (drawn as ASCII in chat, saved as Mermaid to file — Rule 20), a component list,
 and 3-5 key endpoints. No requirements/estimation/deep-dive.
 
 ### Medium — light 4-step
@@ -40,7 +40,7 @@ When a project starts, enter Discovery mode:
 2. Ask clarifying questions: Who are the users? What problem does it solve? What scale?
 3. Discuss and debate the approach freely
 4. Research open source alternatives (/opensource)
-5. Generate Mermaid diagrams as understanding develops — **render inline AND save**:
+5. Draw diagrams as understanding develops — **ASCII in chat (Rule 20) + Mermaid saved to file**:
    - Architecture diagrams -> save to `projects/<project>/discovery/diagrams/architecture.md`
    - Data flow diagrams -> save to `projects/<project>/discovery/diagrams/data-flow.md`
    - ER diagrams -> save to `projects/<project>/discovery/diagrams/er-diagram.md`
@@ -132,10 +132,10 @@ with the formula used for each number.
 - Choose database based on access patterns (see rules/09-data-model.md)
 - Design schema with proper indexes
 - Render as a table: `| Table | Column | Type | Constraints | Index |`
-- Include an ER diagram (Mermaid `erDiagram`), rendered inline
+- Include an ER diagram as ASCII in chat; full Mermaid `erDiagram` saved in the file (Rule 20)
 
 ### Architecture
-Render the component diagram as Mermaid (inline) showing:
+Draw the component diagram as ASCII in chat, save Mermaid to file (Rule 20). Show:
 - Client -> CDN -> Load Balancer -> API Gateway
 - API Servers (stateless) -> Cache -> Database
 - Message Queue -> Workers

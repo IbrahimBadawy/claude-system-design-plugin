@@ -104,7 +104,7 @@ Use `/complexity` at any time to view/change it.
 3. Research docs before using any library
 4. Security, accessibility, and performance by default
 5. Auto-documentation alongside code
-6. **Diagrams & code rendered inline in chat** (not just saved to files) — Rule 20
+6. **Diagrams as ASCII in chat + Mermaid in files**; code as fenced blocks — Rule 20
 7. **Complexity-aware workflow** — Simple projects skip ceremony — Rule 21
 
 ## Tips

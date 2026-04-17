@@ -150,7 +150,7 @@ For each module declared, generate a skeleton `module.manifest.json`:
 }
 ```
 
-## `/core-modules diagram` output (inline Mermaid)
+## `/core-modules diagram` output (ASCII in chat + Mermaid in file — Rule 20)
 
 ```mermaid
 %% Core + Modules architecture for <project>

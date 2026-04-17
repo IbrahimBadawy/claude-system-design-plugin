@@ -140,13 +140,34 @@ Applied in full for **Complex**, trimmed for **Medium**, skipped for **Simple**.
 
 Every diagram you generate should appear **twice**:
 
-1. **Saved to a file** (`discovery/diagrams/architecture.md`, etc.) for the record.
-2. **Rendered inline in the chat** as a Mermaid code block — so the user sees it without opening files.
+1. **In the chat body** as **ASCII / Unicode box-drawing** so it renders as a
+   picture in every viewer (Claude Code CLI terminal included).
+2. **Saved to a file** (`discovery/diagrams/architecture.md`, etc.) as
+   **Mermaid** for record-keeping and for viewers that render it
+   (VS Code Preview, claude.ai, GitHub).
 
-Every code snippet you reference should also appear as a fenced code block in the chat,
-with the correct language tag (```tsx, ```python, ```sql, ```yaml, ```mermaid).
+**Never put raw Mermaid in the chat body** — most Claude Code viewers show
+Mermaid as source code, not as a diagram. That's the opposite of what
+Rule 20 wants.
 
-**Diagram format standard:**
+Code snippets use fenced blocks with the correct language tag
+(`tsx`, `python`, `sql`, `yaml`, `bash`, `json`).
+
+**Chat diagram format — ASCII / Unicode:**
+
+```
+┌──────────────┐     ┌──────────────┐     ┌──────────────┐
+│   Browser    │───▶│ Load Balancer│───▶│ API Gateway  │
+└──────────────┘     └──────────────┘     └──────┬───────┘
+                                                  │
+                            ┌─────────────────────┼─────────────────────┐
+                            ▼                     ▼                     ▼
+                    ┌──────────────┐      ┌──────────────┐      ┌──────────────┐
+                    │Core Services │      │  PostgreSQL  │      │    Redis     │
+                    └──────────────┘      └──────────────┘      └──────────────┘
+```
+
+**File diagram format — Mermaid:**
 
 ````markdown
 ```mermaid
@@ -175,8 +196,14 @@ graph TB
 ```
 ````
 
-Use `subgraph` to group related components. Add a `%% comment` at the top as a title.
-Use `[(Cylinder)]` for databases, `[[Queue]]` for queues, `{Diamond}` for decisions.
+Mermaid style conventions (files only):
+- `subgraph Name["Label"]` to group components
+- `%% comment` at the top
+- `[(Cylinder)]` for databases, `[[Queue]]` for queues, `{Diamond}` for decisions
+- Edges labeled with protocol: `-->|REST|`, `-->|gRPC|`, `-->|Kafka|`
+
+For ASCII conventions + more examples (sequence, tree, state machine, KPIs),
+see `rules/20-chat-visibility.md`.
 
 ---
 
@@ -503,7 +530,7 @@ PHASE 1: DISCOVERY (free discussion)
   /project add <name>            -> Pick Complex
   Open discussion                -> Ask questions, understand the idea
   Discuss, debate, refine        -> Explore options, research open source
-  Diagrams rendered in chat +    -> discovery/diagrams/ (Mermaid)
+  Diagrams in chat (ASCII) +      -> discovery/diagrams/ (Mermaid source)
   Research saved to              -> discovery/research/
 
   >>> USER says "ابدا plan" or "start planning" <<<
@@ -531,7 +558,8 @@ PHASE 3: IMPLEMENTATION (actual code)
 ### Discovery Phase Rules (Complex)
 - NO plans, NO code during discovery
 - ASK questions to understand the idea deeply
-- Generate Mermaid diagrams — render in chat AND save to `discovery/diagrams/`
+- Draw diagrams: **ASCII in the chat** (picture renders everywhere) +
+  **Mermaid saved to `discovery/diagrams/`** (for file viewers)
 - Research open source alternatives — save to `discovery/research/`
 - Build a shared understanding before any formal planning
 - Discovery ends ONLY when user explicitly says to start planning

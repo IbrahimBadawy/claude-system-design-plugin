@@ -28,7 +28,7 @@ Quick check: what's the complexity?
 
 Skip the 4-step framework. Produce:
 
-1. **One architecture diagram** (Mermaid, inline in chat + saved)
+1. **One architecture diagram** (ASCII in chat + Mermaid saved to file — Rule 20)
 2. **Component list** — frontend pieces, backend pieces, database choice
 3. **Key endpoints** — 3-5 most important routes
 4. **Start point** — "here's where to begin coding"
@@ -114,7 +114,7 @@ Include request/response JSON examples as fenced `json` blocks.
 2. Design the **Data Model**:
    - Tables/collections as a table: `| Table | Column | Type | Constraints | Index |`
    - Relationships (1:1, 1:N, N:M)
-   - Include an ER diagram as Mermaid (rendered inline):
+   - Draw an ER diagram as ASCII in chat; save Mermaid `erDiagram` to file (Rule 20):
 
 ````markdown
 ```mermaid
@@ -134,7 +134,7 @@ erDiagram
 ```
 ````
 
-3. Design the **Architecture** as a Mermaid `graph TB` with subgraphs, rendered inline:
+3. Draw the **Architecture** — ASCII boxes in chat; save Mermaid `graph TB` with subgraphs to file (Rule 20):
 
 ````markdown
 ```mermaid
