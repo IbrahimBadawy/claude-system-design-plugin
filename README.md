@@ -7,6 +7,22 @@ Design, evaluate, plan, and build production-grade distributed systems — from 
 
 ---
 
+## What's New in v1.9.2 — Rule 20 correction: ASCII in chat, Mermaid in files
+
+Mermaid diagrams were showing as **raw source code** in Claude Code CLI and
+most VS Code panels, not as rendered graphics. Rule 20 now splits the two
+surfaces:
+
+- **Chat body** → **ASCII / Unicode box-drawing** (renders everywhere, zero setup)
+- **Saved `.md` files** → **Mermaid** (renders in VS Code Preview, claude.ai, GitHub)
+
+ASCII templates now provided in Rule 20 for: architecture, sequence,
+tree/hierarchy, state machine, ER-lite, KPI tables. Viewer matrix included
+so you know which surface renders what.
+
+11 files updated (CLAUDE.md, 5 commands, 3 skills, Rule 20 itself) so the
+whole plugin speaks the same language.
+
 ## What's New in v1.9.1 — Multi-Dimensional Permissions (correction)
 
 v1.9.0 hardcoded "5-Dimensional" everywhere based on the SIS example. This
@@ -215,7 +231,7 @@ The "complete app" release. No more happy-path skeletons.
 - **Projects moved outside `.claude/`** — your work now lives at `projects/` at the workspace root (private, git-ignored). The plugin stays portable.
 - **Complexity levels** — every project picks **Simple / Medium / Complex** upfront. Scope adapts automatically.
 - **Knowledge scopes** — `--global` (cross-project) vs `--project` (client-specific). Build once, reuse everywhere.
-- **Inline diagrams (Rule 20)** — every Mermaid diagram and code block is rendered in the chat, not hidden in a file.
+- **Inline diagrams (Rule 20)** — ASCII/Unicode diagrams drawn in chat (render everywhere), Mermaid saved to files for VS Code Preview / claude.ai / GitHub.
 - **Complexity-aware workflow (Rule 21)** — small projects skip ceremony, big projects get the full treatment.
 
 Migration for existing users:
@@ -335,33 +351,44 @@ References 16 pre-built design patterns (Rate Limiter, Chat System, Payment Syst
 
 ### 5. Inline Diagrams & Code (Rule 20)
 
-Every diagram and code snippet appears **inline in the chat** as a Mermaid / fenced
-code block — you never have to open a file to see what was generated.
+Every diagram is drawn so the user **actually sees a picture**, not source code.
 
-Example:
+- **In the chat body** — **ASCII / Unicode box-drawing**. Renders as graphics
+  in every viewer (Claude Code CLI, VS Code panel, claude.ai, Claude Desktop,
+  any terminal). Zero setup.
+- **In saved files** — **Mermaid** inside ```` ```mermaid ```` fences.
+  Renders when the `.md` is opened in VS Code Preview (Ctrl+Shift+V),
+  claude.ai, or GitHub.
+- **Tables** for structured data; **fenced code blocks** with language tags for code.
+
+Chat-side example (renders as a picture in any terminal):
+
+```
+┌──────────────┐     ┌──────────────┐     ┌──────────────┐
+│   Browser    │───▶│ Load Balancer│───▶│ API Gateway  │
+└──────────────┘     └──────────────┘     └──────┬───────┘
+                                                  │
+                            ┌─────────────────────┼─────────────────────┐
+                            ▼                     ▼                     ▼
+                    ┌──────────────┐      ┌──────────────┐      ┌──────────────┐
+                    │Core Services │      │  PostgreSQL  │      │    Redis     │
+                    └──────────────┘      └──────────────┘      └──────────────┘
+```
+
+File-side (same diagram, saved as Mermaid, renders in VS Code Preview):
+
 ````markdown
 ```mermaid
-%% Chat System — architecture
 graph TB
-    subgraph Client
-        Web[Web App]
-        Mobile[Mobile]
-    end
-    subgraph Backend
-        LB[Load Balancer]
-        CS[Chat Server]
-    end
-    subgraph Data
-        DB[(Cassandra)]
-        Cache[(Redis)]
-    end
-    Web --> LB
-    Mobile --> LB
-    LB --> CS
-    CS --> DB
-    CS --> Cache
+    Browser --> LB[Load Balancer] --> API[API Gateway]
+    API --> Core[Core Services]
+    API --> DB[(PostgreSQL)]
+    API --> Cache[(Redis)]
 ```
 ````
+
+ASCII templates are provided in Rule 20 for: architecture, sequence,
+tree/hierarchy, state machine, ER-lite, KPI tables + Unicode bar charts.
 
 ### 6. Domain Knowledge Builder
 
@@ -633,7 +660,7 @@ After EVERY command, suggests 2-4 relevant next commands.
 | 17 | Tenant Isolation |
 | 18 | Testing Required |
 | 19 | Suggest Next Commands |
-| 20 | Chat Visibility — diagrams & code inline, not hidden |
+| 20 | Chat Visibility — ASCII diagrams in chat, Mermaid in files, tables for data |
 | 21 | Complexity-Aware — scale effort to project size |
 | 22 | Skill-Level-Aware — adapt question depth to user skill |
 | 23 | Milestone Validation — validate + install + ask + wait after every milestone |
