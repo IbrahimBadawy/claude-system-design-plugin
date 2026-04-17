@@ -75,15 +75,15 @@
         <!-- Stats -->
         <div class="grid grid-cols-2 md:grid-cols-5 gap-4 max-w-4xl mx-auto mb-12">
             <div class="glass rounded-xl p-4 glow">
-                <div class="text-3xl font-bold gradient-text">134+</div>
+                <div class="text-3xl font-bold gradient-text">140+</div>
                 <div class="text-sm text-dark-400">Total Files</div>
             </div>
             <div class="glass rounded-xl p-4 glow">
-                <div class="text-3xl font-bold gradient-text">51</div>
+                <div class="text-3xl font-bold gradient-text">55</div>
                 <div class="text-sm text-dark-400">Commands</div>
             </div>
             <div class="glass rounded-xl p-4 glow">
-                <div class="text-3xl font-bold gradient-text">28</div>
+                <div class="text-3xl font-bold gradient-text">30</div>
                 <div class="text-sm text-dark-400">Rules</div>
             </div>
             <div class="glass rounded-xl p-4 glow">
@@ -96,11 +96,11 @@
             </div>
         </div>
 
-        <!-- v1.7.0 banner -->
+        <!-- v1.8.0 banner -->
         <div class="max-w-4xl mx-auto mb-8">
             <div class="glass rounded-xl p-4 border border-emerald/30 glow text-center">
-                <span class="tag bg-emerald/20 text-emerald-light mr-2">NEW v1.7.0</span>
-                <span class="text-dark-200 text-sm">12 new authoritative knowledge files &middot; <code class="text-emerald-light">/design-system</code> &middot; <code class="text-emerald-light">/copy-audit</code> &middot; <code class="text-emerald-light">/a11y-audit</code> &middot; <code class="text-emerald-light">/i18n</code> &middot; 40+ modern sources codified</span>
+                <span class="tag bg-emerald/20 text-emerald-light mr-2">NEW v1.8.0</span>
+                <span class="text-dark-200 text-sm">Modular architecture (core + modules, plug-and-play) &middot; Functional taxonomy (Features/Tools/Tasks/Services/Flows) &middot; Fully manageable apps</span>
             </div>
         </div>
 
@@ -165,6 +165,118 @@
             <div class="mt-6 text-center">
                 <code class="text-sm text-emerald-light bg-dark-900 px-3 py-1 rounded">/complexity</code>
                 <span class="text-dark-400 text-sm ml-2">view, change, or let Claude suggest the right level</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Modular + Functional Section (v1.8.0) -->
+<section class="py-16 px-4">
+    <div class="max-w-6xl mx-auto">
+        <div class="glass rounded-2xl p-8 glow border border-emerald/30">
+            <div class="text-center mb-8">
+                <span class="tag bg-emerald/20 text-emerald-light mb-2">NEW v1.8.0</span>
+                <h2 class="text-3xl font-bold mt-3 mb-3">Modular + Fully Manageable</h2>
+                <p class="text-dark-300 max-w-3xl mx-auto">The plugin now builds apps that are <strong class="text-emerald-light">plug-and-play modular</strong> (any app can be standalone, a core, or a module) AND <strong class="text-emerald-light">completely manageable</strong> (every capability classified + admin UI generated).</p>
+            </div>
+
+            <!-- Functional Taxonomy -->
+            <div class="mb-10">
+                <h3 class="text-xl font-bold text-center mb-2">Functional Taxonomy &mdash; every capability classified</h3>
+                <p class="text-center text-dark-400 text-sm mb-6">Each category gets auto-generated admin UI: toggle, config, audit, schedule, retry, catalog.</p>
+                <div class="grid md:grid-cols-5 gap-3">
+                    <div class="bg-dark-900/50 rounded-xl p-4 border border-accent/20 text-center">
+                        <div class="text-2xl mb-2">&#128100;</div>
+                        <h4 class="font-bold text-accent-light text-sm mb-1">Features</h4>
+                        <p class="text-xs text-dark-400">End-user capabilities</p>
+                        <p class="text-xs text-dark-500 mt-2">"Submit expense", "Apply for leave"</p>
+                    </div>
+                    <div class="bg-dark-900/50 rounded-xl p-4 border border-yellow-500/20 text-center">
+                        <div class="text-2xl mb-2">&#128736;</div>
+                        <h4 class="font-bold text-yellow-300 text-sm mb-1">Tools</h4>
+                        <p class="text-xs text-dark-400">Admin utilities</p>
+                        <p class="text-xs text-dark-500 mt-2">"Impersonate", "Bulk import"</p>
+                    </div>
+                    <div class="bg-dark-900/50 rounded-xl p-4 border border-emerald/20 text-center">
+                        <div class="text-2xl mb-2">&#9201;</div>
+                        <h4 class="font-bold text-emerald-light text-sm mb-1">Tasks</h4>
+                        <p class="text-xs text-dark-400">Background / scheduled</p>
+                        <p class="text-xs text-dark-500 mt-2">"Monthly payroll", "Nightly sync"</p>
+                    </div>
+                    <div class="bg-dark-900/50 rounded-xl p-4 border border-sky-500/20 text-center">
+                        <div class="text-2xl mb-2">&#128279;</div>
+                        <h4 class="font-bold text-sky-300 text-sm mb-1">Services</h4>
+                        <p class="text-xs text-dark-400">APIs / events</p>
+                        <p class="text-xs text-dark-500 mt-2">"attendance-API", "user-dir"</p>
+                    </div>
+                    <div class="bg-dark-900/50 rounded-xl p-4 border border-purple-500/20 text-center">
+                        <div class="text-2xl mb-2">&#128200;</div>
+                        <h4 class="font-bold text-purple-300 text-sm mb-1">Flows</h4>
+                        <p class="text-xs text-dark-400">Multi-step processes</p>
+                        <p class="text-xs text-dark-500 mt-2">"Onboarding", "Leave approval"</p>
+                    </div>
+                </div>
+                <div class="mt-4 text-center text-xs text-dark-400">
+                    <code class="text-emerald-light">/functional-model</code> classifies, then <code class="text-emerald-light">/pages</code> generates admin UI per category.
+                </div>
+            </div>
+
+            <!-- Modular Architecture -->
+            <div>
+                <h3 class="text-xl font-bold text-center mb-2">Core + Modules &mdash; plug-and-play</h3>
+                <p class="text-center text-dark-400 text-sm mb-6">Same codebase can run <strong>standalone</strong>, as a <strong>core</strong> for other apps, or as a <strong>module</strong> inside another core. Both directions work.</p>
+
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-dark-900/50 rounded-xl p-6 border border-accent/20">
+                        <h4 class="font-bold text-accent-light mb-3">Direction A: HR as core</h4>
+                        <pre class="bg-dark-950 rounded p-3 text-xs overflow-x-auto"><code class="text-dark-300">hr-system/         <span class="text-accent-light">CORE</span>
+├── core/          identity, auth, orgs, events
+├── modules/
+│   ├── attendance/   <span class="text-emerald-light">plugged in</span>
+│   ├── payroll/      <span class="text-emerald-light">plugged in</span>
+│   └── portal/       <span class="text-emerald-light">plugged in</span>
+└── app-shell/</code></pre>
+                        <p class="text-xs text-dark-400 mt-3">HR provides identity + auth. Modules consume via ports.</p>
+                    </div>
+
+                    <div class="bg-dark-900/50 rounded-xl p-6 border border-emerald/20">
+                        <h4 class="font-bold text-emerald-light mb-3">Direction B: Attendance was standalone first</h4>
+                        <pre class="bg-dark-950 rounded p-3 text-xs overflow-x-auto"><code class="text-dark-300">attendance-system/  <span class="text-emerald-light">standalone</span>
+├── core/           (minimal, self-contained)
+└── app-shell/
+
+# Later &rarr; HR wraps it
+hr-system/          <span class="text-accent-light">CORE</span>
+├── core/           (richer identity)
+├── modules/
+│   └── attendance/  <span class="text-yellow-300">with ACL</span>
+└── app-shell/</code></pre>
+                        <p class="text-xs text-dark-400 mt-3">ACL translates HR's Employee ↔ Attendance's User.</p>
+                    </div>
+                </div>
+
+                <div class="mt-6 grid md:grid-cols-4 gap-3 text-center text-xs">
+                    <div class="bg-dark-900/50 rounded-lg p-3 border border-accent/20">
+                        <code class="text-accent-light font-bold">/functional-model</code>
+                        <p class="text-dark-400 mt-1">Classify capabilities</p>
+                    </div>
+                    <div class="bg-dark-900/50 rounded-lg p-3 border border-emerald/20">
+                        <code class="text-emerald-light font-bold">/core-modules</code>
+                        <p class="text-dark-400 mt-1">Design core + modules</p>
+                    </div>
+                    <div class="bg-dark-900/50 rounded-lg p-3 border border-yellow-500/20">
+                        <code class="text-yellow-300 font-bold">/app-as-module</code>
+                        <p class="text-dark-400 mt-1">Wrap standalone as plug</p>
+                    </div>
+                    <div class="bg-dark-900/50 rounded-lg p-3 border border-purple-500/20">
+                        <code class="text-purple-300 font-bold">/integrate</code>
+                        <p class="text-dark-400 mt-1">Wire core + module</p>
+                    </div>
+                </div>
+
+                <div class="mt-6 text-center text-sm text-dark-400">
+                    Enforced by <strong>Rule 29: Modular by Default</strong> + <strong>Rule 30: Functional Completeness</strong>.
+                </div>
             </div>
         </div>
     </div>
@@ -951,7 +1063,7 @@
 <!-- Rules -->
 <section id="rules" class="py-24 px-4">
     <div class="max-w-5xl mx-auto">
-        <h2 class="text-4xl font-bold text-center mb-4">28 Always-Active Rules</h2>
+        <h2 class="text-4xl font-bold text-center mb-4">30 Always-Active Rules</h2>
         <p class="text-center text-dark-400 mb-16">These rules are enforced automatically on every interaction. Non-negotiable quality standards.</p>
 
         <div class="grid md:grid-cols-2 gap-4">
@@ -980,9 +1092,11 @@
             <div class="glass rounded-lg p-4 flex items-center gap-4"><span class="text-accent font-mono font-bold w-8">23</span><span>Milestone Validation &mdash; after every milestone: validate, install, ask, then wait</span></div>
             <div class="glass rounded-lg p-4 flex items-center gap-4"><span class="text-accent font-mono font-bold w-8">24</span><span>UX Completeness &mdash; every page has 5 states + feedback + keyboard + WCAG 2.2 AA</span></div>
             <div class="glass rounded-lg p-4 flex items-center gap-4"><span class="text-accent font-mono font-bold w-8">25</span><span>RBAC by Default &mdash; any app with users gets full roles &times; permissions + audit log</span></div>
-            <div class="glass rounded-lg p-4 flex items-center gap-4 border border-emerald/30"><span class="text-emerald-light font-mono font-bold w-8">26</span><span><strong class="text-emerald-light">Design System First</strong> &mdash; tokens before UI code, no hex in components, atomic design <span class="tag bg-emerald/20 text-emerald-light text-xs ml-1">NEW</span></span></div>
-            <div class="glass rounded-lg p-4 flex items-center gap-4 border border-emerald/30"><span class="text-emerald-light font-mono font-bold w-8">27</span><span><strong class="text-emerald-light">Copy Quality</strong> &mdash; no lorem ipsum, no "Click here", verb+object buttons, inclusive language <span class="tag bg-emerald/20 text-emerald-light text-xs ml-1">NEW</span></span></div>
-            <div class="glass rounded-lg p-4 flex items-center gap-4 border border-emerald/30"><span class="text-emerald-light font-mono font-bold w-8">28</span><span><strong class="text-emerald-light">Data Viz Honesty</strong> &mdash; bar charts start at 0, no chartjunk, chart type matches data shape <span class="tag bg-emerald/20 text-emerald-light text-xs ml-1">NEW</span></span></div>
+            <div class="glass rounded-lg p-4 flex items-center gap-4"><span class="text-accent font-mono font-bold w-8">26</span><span>Design System First &mdash; tokens before UI code, no hex in components, atomic design</span></div>
+            <div class="glass rounded-lg p-4 flex items-center gap-4"><span class="text-accent font-mono font-bold w-8">27</span><span>Copy Quality &mdash; no lorem ipsum, no "Click here", verb+object buttons, inclusive language</span></div>
+            <div class="glass rounded-lg p-4 flex items-center gap-4"><span class="text-accent font-mono font-bold w-8">28</span><span>Data Viz Honesty &mdash; bar charts start at 0, no chartjunk, chart type matches data shape</span></div>
+            <div class="glass rounded-lg p-4 flex items-center gap-4 border border-emerald/30"><span class="text-emerald-light font-mono font-bold w-8">29</span><span><strong class="text-emerald-light">Modular by Default</strong> &mdash; every system is Core + Modules, plug-and-play, no cross-module imports <span class="tag bg-emerald/20 text-emerald-light text-xs ml-1">NEW</span></span></div>
+            <div class="glass rounded-lg p-4 flex items-center gap-4 border border-emerald/30"><span class="text-emerald-light font-mono font-bold w-8">30</span><span><strong class="text-emerald-light">Functional Completeness</strong> &mdash; classify capabilities + auto admin UIs + whole app manageable <span class="tag bg-emerald/20 text-emerald-light text-xs ml-1">NEW</span></span></div>
         </div>
     </div>
 </section>
@@ -1391,8 +1505,8 @@ claude /your-project
     <div class="max-w-5xl mx-auto text-center">
         <p class="text-dark-400 mb-2">System Design Architect &mdash; A Claude Code Plugin</p>
         <p class="text-dark-500 text-sm">Powered by knowledge from Alex Xu, Martin Kleppmann, Robert C. Martin, Gang of Four, Martin Fowler, and Steve McConnell.</p>
-        <p class="text-dark-500 text-sm mt-4">134+ files &bull; 51 commands &bull; 28 rules &bull; 14 skills &bull; 22 knowledge files &bull; 8 books + 40 modern sources</p>
-        <p class="text-dark-500 text-xs mt-2">v1.7.0 &mdash; Deep knowledge drop: /design-system &middot; /copy-audit &middot; /a11y-audit &middot; /i18n</p>
+        <p class="text-dark-500 text-sm mt-4">140+ files &bull; 55 commands &bull; 30 rules &bull; 14 skills &bull; 24 knowledge files</p>
+        <p class="text-dark-500 text-xs mt-2">v1.8.0 &mdash; Modular architecture + Functional taxonomy + Fully manageable apps</p>
     </div>
 </footer>
 

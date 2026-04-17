@@ -221,6 +221,10 @@ Built-in global knowledge (always available):
 - `microcopy.md` — Nielsen Norman + Mailchimp + Polaris + GOV.UK + ban list + voice/tone framework
 - `i18n-rtl.md` — CSS logical properties + ICU MessageFormat + Intl API + icon mirroring + Arabic fonts
 
+### Modular Architecture & Functional Management (v1.8.0)
+- `functional-taxonomy.md` — 5-category classification (Features/Tools/Tasks/Services/Flows) + admin UI patterns
+- `modular-architecture.md` — Core + Modules + Ports/Adapters + ACL + lifecycle + module catalog
+
 ---
 
 ## Available Commands
@@ -291,6 +295,10 @@ Use `/command-name` to invoke any command:
 - `/copy-audit` - UX writing quality gate (ban lorem ipsum, "click here", "Error 500", etc.)
 - `/a11y-audit` - Accessibility audit (WCAG 2.2 AA+, WAI-ARIA APG, keyboard, contrast)
 - `/i18n` - Internationalization + RTL setup, CSS logical properties, ICU plurals, Intl API
+- `/functional-model` - Classify app capabilities into Features/Tools/Tasks/Services/Flows + auto admin UIs
+- `/core-modules` - Design core + modules architecture (plug-and-play, manifests)
+- `/app-as-module` - Wrap an existing standalone app to be pluggable into a core
+- `/integrate` - Wire two apps together as core + module (generates ACL, event bridge, permissions map)
 - `/knowledge build <topic> [--global|--project]` - Build domain knowledge at chosen scope
 - `/knowledge import <file>` - Import PDF/URL into knowledge base
 - `/knowledge list [--global|--project]` - Show all knowledge bases
@@ -366,6 +374,8 @@ All rules in `.claude/rules/` are automatically enforced:
 - `26-design-system-first.md` - Tokens before UI code. No hex in components, no arbitrary spacing, atomic design enforced
 - `27-copy-quality.md` - No lorem ipsum, no "Click here", no "Error 500", verb+object buttons, inclusive language
 - `28-data-viz-honesty.md` - Bar charts start at 0, no chartjunk, chart type matches data shape, charts accessible
+- `29-modular-by-default.md` - Every system is Core + Modules with plug-and-play contracts. Same code can be standalone, a core, or a module
+- `30-functional-completeness.md` - Classify all capabilities (Features/Tools/Tasks/Services/Flows) + auto admin UIs. The whole app is manageable
 
 ## Estimation Cheat Sheet
 

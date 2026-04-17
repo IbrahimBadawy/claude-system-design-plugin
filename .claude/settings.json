@@ -1,28 +1,123 @@
 {
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "permissions": {
     "allow": [
       "Read",
       "Write",
       "Edit",
+      "MultiEdit",
       "Glob",
       "Grep",
+      "TodoWrite",
+      "WebFetch",
+      "WebSearch",
+      "Agent",
+
+      "Edit(.claude/**)",
+      "Write(.claude/**)",
+      "Edit(projects/**)",
+      "Write(projects/**)",
+      "Edit(CLAUDE.md)",
+      "Edit(README.md)",
+      "Edit(index.html)",
+      "Edit(CHANGELOG.md)",
+
       "Bash(npm *)",
+      "Bash(pnpm *)",
+      "Bash(yarn *)",
+      "Bash(bun *)",
       "Bash(node *)",
       "Bash(npx *)",
+      "Bash(tsc *)",
+      "Bash(eslint *)",
+      "Bash(prettier *)",
+      "Bash(vitest *)",
+      "Bash(jest *)",
+      "Bash(playwright *)",
+
       "Bash(python *)",
+      "Bash(python3 *)",
       "Bash(pip *)",
-      "Bash(git *)",
+      "Bash(pip3 *)",
+      "Bash(poetry *)",
+      "Bash(uv *)",
+      "Bash(pytest *)",
+      "Bash(ruff *)",
+      "Bash(mypy *)",
+
+      "Bash(go *)",
+      "Bash(cargo *)",
+      "Bash(rustc *)",
+      "Bash(mvn *)",
+      "Bash(gradle *)",
+      "Bash(dotnet *)",
+
+      "Bash(git add *)",
+      "Bash(git status *)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git commit *)",
+      "Bash(git push)",
+      "Bash(git pull *)",
+      "Bash(git checkout *)",
+      "Bash(git branch *)",
+      "Bash(git merge *)",
+      "Bash(git stash *)",
+      "Bash(git rebase *)",
+      "Bash(git tag *)",
+      "Bash(git remote *)",
+      "Bash(git init)",
+      "Bash(git clone *)",
+
       "Bash(ls *)",
       "Bash(mkdir *)",
+      "Bash(touch *)",
+      "Bash(mv *)",
+      "Bash(cp *)",
       "Bash(cat *)",
+      "Bash(echo *)",
+      "Bash(pwd)",
+      "Bash(cd *)",
+      "Bash(find *)",
+      "Bash(head *)",
+      "Bash(tail *)",
+      "Bash(wc *)",
+      "Bash(tree *)",
+
       "Bash(docker *)",
       "Bash(docker-compose *)",
-      "WebFetch",
-      "WebSearch"
+      "Bash(kubectl *)",
+      "Bash(helm *)",
+      "Bash(terraform *)",
+
+      "Bash(prisma *)",
+      "Bash(drizzle-kit *)",
+      "Bash(alembic *)",
+      "Bash(psql *)",
+      "Bash(redis-cli *)",
+
+      "Bash(curl *)",
+      "Bash(wget *)",
+      "Bash(gh *)",
+
+      "Bash(chmod *)",
+      "Bash(chown *)",
+
+      "Bash(make *)",
+      "Bash(cmake *)",
+      "Bash(task *)",
+      "Bash(just *)"
     ],
     "deny": [
-      "Bash(rm -rf *)",
-      "Bash(git push --force*)"
+      "Bash(rm -rf /*)",
+      "Bash(rm -rf ~*)",
+      "Bash(sudo rm *)",
+      "Bash(dd *)",
+      "Bash(mkfs *)",
+      "Bash(git push --force *)",
+      "Bash(git push -f *)",
+      "Bash(git reset --hard origin/master)",
+      "Bash(git reset --hard origin/main)"
     ]
   },
   "hooks": {
@@ -32,7 +127,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo '[DOC CHECK] File written. If this is a source code file, remember to update documentation.'",
+            "command": "echo '[DOC CHECK] File written. If this is source code, remember to update the matching docs.'",
             "timeout": 5
           }
         ]

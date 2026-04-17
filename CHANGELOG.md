@@ -4,6 +4,66 @@ All notable changes to this project will be documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.0] - 2026-04-16
+
+### Added — Modular Architecture + Functional Management
+
+Addresses user feedback: "the plugin builds good structure, but apps aren't fully
+manageable and aren't modular enough to be cores or modules for other apps."
+
+#### Core Concept 1 — Functional Taxonomy
+
+Every app's capabilities now get classified into 5 categories:
+
+1. **Features** — end-user capabilities (with per-user/role toggles)
+2. **Tools** — admin/operator utilities (with audit log)
+3. **Tasks** — background/scheduled work (with scheduler UI, retry, pause)
+4. **Services** — APIs/events for other apps (with versioning, consumer catalog)
+5. **Flows** — multi-step orchestrated processes (with visual designer)
+
+Each category auto-generates an admin UI. The whole app becomes manageable from
+one place, not just "backend code that works."
+
+#### Core Concept 2 — Modular Architecture (Core + Modules)
+
+Every system is built as Core + Modules:
+- **Core** = identity + auth + event bus + tenant context (nothing domain-specific)
+- **Modules** = business capabilities with versioned contracts
+- Same codebase can be **standalone**, a **core** for other apps, or a **module**
+  inside another core (dual-boot)
+- Communication via **ports**, **events**, or **published APIs** only — no
+  cross-module imports
+
+Example from user: HR system as core → Attendance plugs in. OR the reverse:
+Attendance built standalone, later HR wraps it. Both directions work.
+
+#### New Knowledge Files (2)
+
+- `functional-taxonomy.md` — The 5 categories with admin UI patterns per category
+- `modular-architecture.md` — Core + Modules, Ports/Adapters, ACL, lifecycle,
+  module catalog, event bus options
+
+#### New Commands (4)
+
+- **`/functional-model`** — Classify all app capabilities into Features/Tools/Tasks/Services/Flows. Auto-generates `FUNCTIONAL-MODEL.md` + admin UIs. Drift audit.
+- **`/core-modules`** — Design the core + module split. Generates `MODULAR-ARCH.md`, module manifests, composition root, lifecycle stubs. Modularity audit.
+- **`/app-as-module`** — Wrap an existing standalone app to be pluggable into another core. Generates manifest, ports, contracts, ACL, dual-boot support.
+- **`/integrate`** — Wire two apps together (core + module). Generates anticorruption layer, event bridge, permission mapping, composition root, contract tests.
+
+#### New Rules (2)
+
+- **Rule 29: Modular by Default** — Every system is Core + Modules with plug-and-play contracts. Banned: cross-module imports, cross-module DB queries, modules mentioned in core.
+- **Rule 30: Functional Completeness** — Classify every capability into the 5 categories. Generate admin UI for each. The whole app is toggle-able, configurable, auditable — not just "backend that works."
+
+#### Updated
+
+- **`/discover`** — New sub-commands: `/discover integration` (asks about modularity, existing-system integration, core/module/both direction, event bus choice, ACLs); `/discover functional-inventory` (classify capabilities upfront)
+- **`.claude/settings.json`** — Auto-approve file edits in `.claude/**` and `projects/**`; full dev toolchain (pnpm, bun, docker, kubectl, terraform, prisma, drizzle, pytest, playwright, gh, etc.). No more permission prompts for plugin development.
+
+#### Totals
+
+**140+ files · 55 commands · 30 rules · 14 skills · 24 knowledge files**
+
 ## [1.7.0] - 2026-04-16
 
 ### Added — 12 new authoritative knowledge files, 4 commands, 3 rules

@@ -3,11 +3,59 @@
 The most comprehensive system design plugin for Claude Code.
 Design, evaluate, plan, and build production-grade distributed systems — from quick MVPs to multi-tenant SaaS.
 
-**134+ files | 51 commands | 28 rules | 14 skills | 22 knowledge files | 8 books + 40 modern sources**
+**140+ files | 55 commands | 30 rules | 14 skills | 24 knowledge files**
 
 ---
 
-## What's New in v1.7.0 (April 2026) — Deep Knowledge Drop
+## What's New in v1.8.0 (April 2026) — Modular + Fully Manageable
+
+Two big additions that make apps feel finished instead of "just backend code":
+
+### 1. Functional Taxonomy (every capability classified + manageable)
+
+Every app capability gets classified into one of 5 categories:
+
+| Category | Example | What you get |
+|----------|---------|--------------|
+| **Features** | "Submit expense", "Apply for leave" | User-facing, permission-gated, toggle-able |
+| **Tools** | "Impersonate user", "Bulk import" | Admin-only, audited, type-to-confirm |
+| **Tasks** | "Monthly payroll", "Nightly sync" | Scheduled, retry-able, pausable |
+| **Services** | "attendance-API", "user-directory" | Versioned, consumer catalog, rate-limited |
+| **Flows** | "Onboarding", "Leave approval" | Visual workflow, SLA tracking, instances |
+
+Each category gets an auto-generated admin UI. The whole app is manageable from one
+dashboard — toggles, audit logs, scheduler, API catalog, workflow designer.
+
+### 2. Modular Architecture (Core + Modules, plug-and-play)
+
+Every system is built as **Core + Modules**:
+- **Core** = identity + auth + event bus + tenant context
+- **Modules** = business capabilities with versioned contracts
+
+Same codebase can run:
+- **Standalone** (with local adapters)
+- As a **core** for other apps (provides APIs/events)
+- As a **module** inside a different core (plugs into their identity/auth)
+
+Example: build HR as core → attendance/payroll/portal plug in. OR build attendance
+standalone → later it becomes a module inside someone's HR. Both directions work.
+
+### 4 New Commands
+- **`/functional-model`** — classify all capabilities, generate admin UIs
+- **`/core-modules`** — design core + module architecture
+- **`/app-as-module`** — wrap existing app to be pluggable
+- **`/integrate`** — wire two apps (core + module) with ACL, event bridge, permission map
+
+### 2 New Rules
+- **Rule 29: Modular by Default** — every system is core + modules, no cross-module imports
+- **Rule 30: Functional Completeness** — classify everything, generate admin UIs, whole app is manageable
+
+### Auto-approve permissions
+Updated `settings.json` with permissive defaults for `.claude/**` and `projects/**`, plus full dev toolchain. No more permission prompts for plugin development.
+
+---
+
+## What Landed in v1.7.0 — Deep Knowledge Drop
 
 Grounded in research across 40+ authoritative sources (Laws of UX, Don Norman, Refactoring UI,
 Atomic Design, Stephen Few, Cole Nussbaumer, Tufte, Testing Trophy, FSD, OpenAPI 3.1,
@@ -487,9 +535,11 @@ After EVERY command, suggests 2-4 relevant next commands.
 | 23 | Milestone Validation — validate + install + ask + wait after every milestone |
 | 24 | UX Completeness — every page has 5 states + feedback + keyboard + a11y |
 | 25 | RBAC by Default — any app with users gets roles × permissions × audit |
-| 26 | **Design System First** — tokens before UI code, no hex, atomic design (NEW) |
-| 27 | **Copy Quality** — no lorem ipsum, verb+object buttons, inclusive language (NEW) |
-| 28 | **Data Viz Honesty** — no chartjunk, no truncated axes, accessible charts (NEW) |
+| 26 | Design System First — tokens before UI code, no hex, atomic design |
+| 27 | Copy Quality — no lorem ipsum, verb+object buttons, inclusive language |
+| 28 | Data Viz Honesty — no chartjunk, no truncated axes, accessible charts |
+| 29 | **Modular by Default** — every system is Core + Modules, plug-and-play, no cross-module imports (NEW) |
+| 30 | **Functional Completeness** — classify capabilities, auto admin UIs, whole app manageable (NEW) |
 
 ---
 
