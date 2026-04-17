@@ -3,11 +3,59 @@
 The most comprehensive system design plugin for Claude Code.
 Design, evaluate, plan, and build production-grade distributed systems — from quick MVPs to multi-tenant SaaS.
 
-**141+ files | 55 commands | 30 rules | 14 skills | 25 knowledge files**
+**147+ files | 57 commands | 31 rules | 14 skills | 27 knowledge files**
 
 ---
 
-## What's New in v1.8.1 (April 2026) — Formalized Architecture Spec
+## What's New in v1.9.0 — Shared Components (§7) + 5-Dim Permissions (§8)
+
+The canonical architecture spec now includes two new major sections (§7 & §8)
+authored by the plugin user. Everything in the plugin conforms.
+
+### §7 — Shared Components & Shared Features
+
+Any capability appearing in 2+ places MUST be factored into shared code at
+the appropriate ownership layer:
+
+| Layer | Owned by | Home for |
+|-------|---------|---------|
+| **Core-level** | Core itself | Cross-cutting: DataTable, Form, Toast, auth, i18n |
+| **Domain-level** | Foundation module | Module-family-specific: GradeTable for academic modules |
+| **Module-level** | Single module | Module-internal helpers |
+
+- **New command:** `/shared-components` — catalog, create, promote, audit, fix
+- **New Rule 31: Shared First** — no copy-paste, no forks, no module-specific
+  logic in shared code
+- Promotion as deliberate versioned refactor (never an ad-hoc copy)
+
+### §8 — 5-Dimensional Permission Model
+
+`/rbac` overhauled from simple `resource:action:scope` to the full
+**5-dimensional model** the spec mandates.
+
+A user is authorized only if ALL 5 dimensions align:
+
+1. **Organizational scope** — hierarchical (University → College → Dept → Program → Cohort)
+2. **Academic year** — temporal annual
+3. **Semester** — temporal sub-annual
+4. **Functional scope** — app hierarchy (Main App → Sub-App → Feature)
+5. **Action type** — View/Insert/Edit/Close/Open/Delete + custom per module
+
+**Profiles are the primary admin abstraction** — versioned, cloneable.
+**Assignment modes**: profile-based / group-based / user-specific (denials win).
+**4 canonical reports required**: who-can / what-can-user-do / profiles-with / recent-changes.
+
+**Discovery-phase requirement:** `/discover permissions` asks 10 mandatory
+questions (from spec §8.6). `/implement` refuses to scaffold permission-
+sensitive modules without answers.
+
+### New Knowledge Files
+- `shared-components.md` — 3-layer ownership, promotion, catalog, contracts
+- `permissions-model.md` — 5-dim DB schema, evaluator, admin UI, reports
+
+---
+
+## v1.8.1 — Formalized Architecture Spec
 
 The modular architecture is now governed by a formal specification
 (`architecture-spec.md`). Every modular feature conforms to it.
@@ -567,8 +615,9 @@ After EVERY command, suggests 2-4 relevant next commands.
 | 26 | Design System First — tokens before UI code, no hex, atomic design |
 | 27 | Copy Quality — no lorem ipsum, verb+object buttons, inclusive language |
 | 28 | Data Viz Honesty — no chartjunk, no truncated axes, accessible charts |
-| 29 | **Modular by Default** — every system is Core + Modules, plug-and-play, no cross-module imports (NEW) |
-| 30 | **Functional Completeness** — classify capabilities, auto admin UIs, whole app manageable (NEW) |
+| 29 | Modular by Default — every system is Core + Modules, plug-and-play |
+| 30 | Functional Completeness — classify capabilities, auto admin UIs, manageable |
+| 31 | **Shared First** — factor-before-copy, 3-layer ownership, no forks (NEW) |
 
 ---
 

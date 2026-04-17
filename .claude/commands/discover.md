@@ -9,8 +9,10 @@ Structured sub-commands for the Discovery phase. Makes discovery systematic.
 /discover constraints                 # Technical, legal, budget, timeline
 /discover risks                       # Build risk register
 /discover mvp                         # MVP scope (Phase 1 vs Phase 2+)
-/discover integration                 # Ask about modularity & integration with other apps (NEW)
-/discover functional-inventory        # Classify app capabilities (Features/Tools/Tasks/Services/Flows) (NEW)
+/discover integration                 # Ask about modularity & integration with other apps
+/discover functional-inventory        # Classify app capabilities (Features/Tools/Tasks/Services/Flows)
+/discover permissions                 # Mandatory 10-question permission model (NEW — from spec §8.6)
+/discover shared                      # Ask about shared components / cross-module reuse (NEW)
 /discover summary                     # Compile all discovery findings
 ```
 
@@ -165,6 +167,80 @@ What multi-step processes span multiple actors/steps?
 Saved to `discovery/FUNCTIONAL-INVENTORY.md` which feeds both `/plan` and
 `/core-modules` (services often = module boundaries).
 
+## /discover permissions (NEW — mandatory when permissions are non-trivial)
+
+**MUST be run** during discovery for any system with organizational, academic,
+financial, or personnel data. Based on `architecture-spec.md §8.6`. Without
+answers, `/implement` refuses to scaffold permission-sensitive modules.
+
+Asks the 10 mandatory questions:
+
+```
+1. What's your organizational hierarchy? (levels, depth, shape)
+   Examples: SIS (University→College→Dept→Program→Cohort),
+             Hospital (Group→Hospital→Dept→Ward→Shift)
+
+2. Are permissions time-scoped?
+   (academic years / fiscal years / semesters / campaigns / none)
+
+3. What's the functional hierarchy (main app → sub-app → feature) to secure?
+
+4. What action types beyond the standard six (view/insert/edit/close/open/delete)?
+   (approve / reject / export / import / print / publish / submit / ...)
+
+5. What initial profiles should ship?
+   (Super Admin, Dean, Department Head, Faculty, Student, Guest, ...)
+
+6. What are the default scopes + actions per profile?
+   (asked per profile)
+
+7. Group-based or individual overrides expected?
+
+8. Are there guests or visitors? How should they be monitored?
+
+9. Day-1 permission reports required?
+   (4 standard: who-can / what-can-user-do / profiles-with / recent-changes)
+
+10. Audit + compliance requirements?
+    (retention, GDPR/HIPAA/FERPA/SOX/PCI, right-to-be-forgotten, residency)
+```
+
+Delegates to `/rbac discover` for interactive flow. Output saved to
+`projects/<project>/design/PERMISSIONS.md`.
+
+## /discover shared (NEW)
+
+Maps shared component / feature / service needs across modules.
+
+```
+Q1: Which UI components will appear in multiple modules?
+    Common candidates: data tables, forms, search bars, filter panels,
+    modals, confirmations, toasts, empty/loading/error states,
+    date pickers, file uploaders, rich text editors
+
+Q2: Which behavioral features are cross-cutting?
+    search, filtering, sorting, pagination, bulk actions, import/export,
+    printing, attachments, tagging, commenting, audit trails, soft delete,
+    archiving, undo/redo
+
+Q3: Which cross-cutting services?
+    auth, authorization (5-dim RBAC), logging, auditing, notifications,
+    i18n, theming, caching, background jobs, scheduling, file storage,
+    event bus
+
+Q4: Are there module families that share a "foundation"?
+    e.g., all academic modules share GradeTable, StudentPicker, AcademicYearContext
+         all billing modules share InvoicePreview, TaxCalculator
+
+Q5: What's your 3-layer ownership proposal?
+    - Core-level (available to all modules)
+    - Domain-level (one foundation module, shared within a domain family)
+    - Module-level (internal to single module only)
+```
+
+Saved to `projects/<project>/design/SHARED-CATALOG.md`. Feeds into
+`/shared-components create` commands during implementation.
+
 ## /discover summary
 Compiles ALL discovery findings into one document:
 - Stakeholder map
@@ -173,8 +249,10 @@ Compiles ALL discovery findings into one document:
 - Constraints
 - Risks
 - MVP scope
-- **Integration plan** (new: core/module role, ACLs, event bus)
-- **Functional inventory** (new: features/tools/tasks/services/flows)
+- Integration plan (core/module role, ACLs, event bus)
+- Functional inventory (features/tools/tasks/services/flows)
+- **Permissions model** (5-dimensional, profiles, reports) — NEW
+- **Shared catalog** (3-layer ownership plan) — NEW
 - Open questions
 - Recommendation: ready for planning?
 

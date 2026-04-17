@@ -4,6 +4,142 @@ All notable changes to this project will be documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.0] - 2026-04-17
+
+### Extended Architecture Spec — Shared Components (§7) + 5-Dim Permissions (§8)
+
+User appended sections 7 & 8 to the canonical architecture spec. Plugin
+upgraded comprehensively to conform.
+
+### Spec §7 — Shared Components & Shared Features
+
+The architecture now treats reusable UI/behavior as first-class citizens
+with 3-layer ownership.
+
+**Principle:** any capability appearing in 2+ places MUST be factored into
+Core-level / Domain-level / Module-level shared, consumed via stable
+versioned contract. No copy-paste, no forks, no module-specific logic
+inside shared code.
+
+**New:** `shared-components.md` practical guide — catalog, contract
+requirements, promotion workflow, audit patterns, anti-patterns.
+
+**New command:** `/shared-components`
+- `catalog` — browse all shared by layer
+- `create <name> --level <core|domain|module>` — scaffold with versioned
+  public API + Storybook + a11y tests + extension points
+- `promote <name> --from <a> --to <b>` — migrate component upward with
+  migration PRs + contract tests
+- `demote` — reverse direction when a "shared" turns out to have one consumer
+- `audit` — find copies (≥80% similar), forks, module-specific logic in
+  shared, undeclared consumption
+- `fix-suggest` — auto-fixes
+
+**New Rule 31: Shared First (Factor-Before-Copy)**
+- 3-layer ownership enforced
+- Contract requirements (stable versioned API, configurable, themeable,
+  localizable, tested, consistent)
+- Banned: copy-paste, forks, module-specific `if/switch` inside shared,
+  undeclared consumption, props explosion
+- Promotion as deliberate versioned refactor only
+
+**Required shared catalog** (core SHOULD provide):
+- **UI**: DataTable, SearchBar, FilterPanel, Form, Modal, ConfirmDialog,
+  Toast, Breadcrumbs, EmptyState, LoadingSkeleton, ErrorState, ActionMenu,
+  DatePicker, FileUploader, RichTextEditor
+- **Behavioral**: search (unified query), filtering, sorting, pagination,
+  bulk actions, import/export, printing, attachments, tagging, commenting,
+  audit trails, soft delete, archiving, undo/redo
+- **Cross-cutting services**: auth, authz (5-dim RBAC), logging, auditing,
+  notifications, i18n, theming, caching, jobs, scheduling, storage, bus
+
+### Spec §8 — Permissions & Access Control (5-Dimensional)
+
+The `/rbac` command overhauled from 3-field `resource:action:scope` to the
+full **5-dimensional model** mandated by the spec.
+
+**The 5 dimensions** (all must align for access):
+
+1. **Organizational scope** — hierarchical (University → College → Dept →
+   Program → Cohort), domain-specific shape
+2. **Academic year** — temporal annual (year / range / all)
+3. **Semester** — temporal sub-annual (term / range / all)
+4. **Functional scope** — app hierarchy (Main App → Sub-App → Feature)
+5. **Action type** — View / Insert / Edit / Close / Open / Delete + module-
+   custom (Approve / Export / Submit / …)
+
+**Profiles as primary admin abstraction** — administrators assign profiles,
+not individual permissions. Profiles versioned with rollback support.
+
+**Assignment modes** (increasing specificity):
+- Profile-based (broadest)
+- Group-based override
+- User-specific override
+- **Denials always win** over grants
+
+**Required admin capabilities** (all mandatory for Medium+):
+- User management (CRUD + reset/lock/MFA/sessions/policies)
+- Profile management (CRUD + clone + version + archive)
+- Assignment management (profile + group + override, live effective
+  preview)
+- Visitor / guest management (when applicable)
+- **4 canonical reports** (required):
+  1. *Who can do X?* — users + their source chains
+  2. *What can user Z do?* — actions + where each came from
+  3. *Which profiles grant X?*
+  4. *Recent changes* — audit-filtered
+- Full audit trail (1yr+ retention)
+
+**Discovery-phase requirement (MANDATORY)** — `/discover permissions` asks
+10 questions from spec §8.6. `/implement` refuses to scaffold permission-
+sensitive modules without `design/PERMISSIONS.md`:
+1. Organizational hierarchy shape + depth
+2. Time scoping (annual / fiscal / semester / campaign / none)
+3. Functional hierarchy (main → sub → feature)
+4. Action types beyond standard six
+5. Initial profiles to ship
+6. Default scopes + actions per profile
+7. Group / individual overrides expected
+8. Guests / visitors handling
+9. Day-1 permission reports required
+10. Audit + compliance requirements
+
+**New:** `permissions-model.md` practical guide — complete DB schema
+(LTREE hierarchies, profiles, grants, overrides, audit), deterministic
+evaluation algorithm, admin UI designs, decision-table tests, domain
+starter profiles (SIS, hospital, ERP, retail, factory).
+
+**Rule 25 (RBAC by Default)** fully rewritten for 5-dim model:
+- Mandates the 5 dimensions + profiles + 4 reports + discovery-phase answers
+- Bans simple `is_admin`, 3-field models, ad-hoc role checks,
+  compile-time-hardcoded permissions
+- Skip-condition tightened (only genuinely single-user apps)
+
+### Updated
+
+- **`/discover`** — new sub-commands: `/discover permissions` (mandatory
+  10-question flow) and `/discover shared` (shared-catalog questions
+  per domain)
+- **`/rbac` command** — complete overhaul:
+  - 5-dim discovery flow + interactive profile builder
+  - Generates DB schema, seeds, middleware, `<Can>` component, admin UI,
+    the 4 canonical reports, audit log
+  - `/rbac audit` scans endpoints for 5-dim coverage
+  - `/rbac test` runs decision-table tests including denial-wins and
+    scope-boundary cases
+  - Domain-specific starter profiles: `--domain sis | hospital | erp | retail | factory`
+- **`architecture-spec.md`** — appended §7 and §8 verbatim from the user's
+  specification, updated Compliance Matrix
+
+### Totals
+
+**147+ files · 57 commands · 31 rules · 14 skills · 27 knowledge files**
+
+### Credit
+
+Sections 7 & 8 of the canonical `architecture-spec.md` authored by the
+plugin user. The plugin was upgraded exhaustively to conform.
+
 ## [1.8.1] - 2026-04-17
 
 ### Formalized the Modular Architecture Specification

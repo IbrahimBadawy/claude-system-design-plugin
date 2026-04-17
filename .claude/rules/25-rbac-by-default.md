@@ -1,130 +1,158 @@
 ---
-description: Any app with user accounts gets a full Roles x Permissions x Resources model with audit logging and admin UI — not a simple is_admin boolean. Every sensitive action is permission-guarded and audited.
+description: Any app with user accounts implements the 5-Dimensional Permission Model from architecture-spec §8. Every permission is the intersection of (Organizational scope, Academic year, Semester, Functional scope, Action type). Profiles are the primary admin abstraction. Deny always wins. Full audit trail. The 4 canonical reports are required.
 globs: "*"
 ---
 
-# Rule 25: RBAC by Default
+# Rule 25: RBAC by Default (5-Dimensional Model)
+
+> Canonical source: `.claude/knowledge/architecture-spec.md §8`
+> Practical guide: `.claude/knowledge/permissions-model.md`
+> Command: `/rbac`
 
 ## The Rule
 
-Every project with user accounts MUST implement a real permission system from day 1.
-No `if (user.isAdmin)` checks scattered across the codebase. No "we'll add permissions
-later". Wire it in from the start.
+Every project with user accounts MUST implement the **5-Dimensional
+Permission Model** from spec §8. No `if (user.isAdmin)` checks. No simple
+3-field `resource:action:scope` — the full 5-dimensional model from day 1.
 
-## Minimum Model
+## The 5 Dimensions (all must align)
 
-- `User` table
-- `Role` table (tenant-scoped if SaaS)
-- `Permission` table (system-level catalog)
-- `user_role` junction (which users have which roles)
-- `role_permission` junction (which roles have which permissions)
-- `audit_log` table (who did what when)
+| # | Dimension | Nature |
+|---|-----------|--------|
+| 1 | **Organizational scope** | Hierarchical (University → College → Dept → …) |
+| 2 | **Academic year** | Temporal (annual range or all) |
+| 3 | **Semester** | Temporal (term range or all) |
+| 4 | **Functional scope** | App hierarchy (Main App → Sub-App → Feature) |
+| 5 | **Action type** | View / Insert / Edit / Close / Open / Delete (+ module-custom) |
 
-For Complex projects, also add:
-- `resource_acl` for row-level overrides
-- Approval workflow fields (`requires_approval`, `approved_by`, `approved_at`)
+A user is authorized ONLY if **all five dimensions align**.
 
-## Permission Naming
+## What's Required
 
-All permissions follow `<resource>:<action>[:<scope>]`:
+### Data model (from `permissions-model.md`)
 
-- `users:read:all` — read any user
-- `orders:approve:team` — approve orders in user's team
-- `settings:update:tenant` — change tenant settings
-- `billing:read:own` — read own billing info
+- [ ] `org_nodes` table with hierarchy (LTREE)
+- [ ] `academic_years` + `semesters`
+- [ ] `apps` (functional hierarchy)
+- [ ] `action_types` (core-defined + module-extensible via manifest)
+- [ ] `profiles` + `profile_grants`
+- [ ] `user_profiles`, `groups`, `group_members`, `group_profiles`
+- [ ] `user_overrides` (most specific, wins over profile + group)
+- [ ] `permission_audit` (1-year minimum retention)
 
-## Standard Roles (ship with these)
+### Profiles as primary admin abstraction (§8.3)
 
-Every app ships with these default roles, customizable by tenant:
+- [ ] Administrators assign **profiles**, not individual permissions
+- [ ] Profiles are versioned (rollback supported)
+- [ ] Starter profiles shipped per domain (Super Admin, Dean, Faculty, ...)
+- [ ] Visual 5-dimensional grant builder in admin UI
+- [ ] "Preview: who gains/loses access if this ships"
 
-| Role | Default Permissions |
-|------|--------------------|
-| Super Admin | `*:*:all` (cross-tenant, platform owner) |
-| Tenant Admin | `*:*:tenant` (all within tenant except billing global) |
-| Manager | team + approval permissions |
-| Editor | CRUD on own/team content |
-| Member | CRUD on own, read shared |
-| Viewer | read-only |
-| Guest | limited external access |
+### Assignment modes (§8.4, increasing specificity)
 
-## Every Endpoint Must Be Guarded
+- [ ] Profile-based assignment (broadest)
+- [ ] Group-based override
+- [ ] User-specific override (most specific)
+- [ ] **Denial always wins** over grants
+- [ ] Effective permission computed deterministically
 
-```typescript
-// ✓ Good
-@UseGuards(AuthGuard('jwt'), PermissionsGuard)
-@Permissions('orders:approve:team')
-@Post('orders/:id/approve')
+### Admin UI required (§8.5 — mandatory for Medium+)
 
-// ✗ Bad
-@Post('orders/:id/approve')   // no guard
-async approve() { ... }
+- [ ] User management (create/edit/deactivate/lock/MFA/sessions)
+- [ ] Profile management (CRUD + clone + version + archive)
+- [ ] Assignment management (profile + group + override)
+- [ ] Visitor / guest management (if applicable)
+- [ ] Permission reports — 4 canonical (required):
+  1. **Who can do X?** — given (action, org, year, semester, app) → users + sources
+  2. **What can user Z do?** — given user → actions + source chain
+  3. **Which profiles grant X?** — given (action, scope) → profiles
+  4. **Recent changes** — audit-filtered
+- [ ] Audit log (searchable, exportable, 1yr+ retention)
 
-// ✗ Bad
-@Post('orders/:id/approve')
-async approve(@Req() req) {
-  if (!req.user.isAdmin) throw new Error();  // ad-hoc check
+### Evaluator contract
+
+- [ ] Single canonical `canUser(user, action, ctx)` function
+- [ ] ctx = `{orgNodeId, year, semester, appNodeId}` — all 4 must be provided
+- [ ] Returns `{allowed, reason, reasonChain}` for traceability
+- [ ] Denial wins (explicit deny at any layer blocks)
+- [ ] Default deny (no applicable grant = denied)
+- [ ] Every access decision logged for audit trail
+- [ ] Middleware / guard wraps every route needing it
+- [ ] Frontend `<Can>` component uses same evaluator
+
+### Module manifest declaration
+
+Every module declares permissions it provides + consumes:
+
+```jsonc
+"permissions": {
+  "provides": ["grades:view", "grades:edit", "grades:approve", ...],
+  "actionTypes": {
+    "approve": { "displayName": "Approve final grades" }
+  },
+  "consumes": ["users:view:*", "courses:view:scope"]
 }
 ```
 
-## UI Must Be Permission-Aware
+## Discovery-Phase Requirement (§8.6) — MANDATORY
 
-Buttons, menu items, whole pages hide based on permissions:
+When a project involves non-trivial permissions, `/discover permissions`
+MUST be run during discovery and **all 10 questions answered** before
+implementation. `/implement` refuses to scaffold permission-sensitive
+modules without `design/PERMISSIONS.md`.
 
-```tsx
-<Can I="approve" a="orders" scope="team">
-  <Button onClick={approve}>Approve</Button>
-</Can>
-```
+The 10 questions:
+1. Organizational hierarchy shape + depth
+2. Time scoping (annual / fiscal / semester / campaign / none)
+3. Functional hierarchy (main → sub → feature)
+4. Action types beyond standard 6
+5. Initial profiles to ship
+6. Default scopes + actions per profile
+7. Group / individual overrides expected
+8. Guests / visitors handling
+9. Day-1 permission reports required
+10. Audit + compliance requirements
 
-No showing a button that 403s when clicked.
+## What's Banned
 
-## Every Sensitive Action Is Audited
-
-On create/update/delete/approve of any important entity:
-- Write to `audit_log` table with: user_id, action, resource_type, resource_id,
-  before_snapshot, after_snapshot, timestamp, IP, user-agent
-- For destructive actions, capture a reason from the user
-- Audit log has admin UI with filters + export
-
-## Admin UI (mandatory for Medium+)
-
-- Users list (search, filter, invite, suspend, impersonate)
-- User detail (profile, roles, activity)
-- Roles list + create/edit
-- Role-permission matrix (checkbox grid)
-- Audit log (searchable, exportable)
+- Simple `is_admin` booleans scattered through code
+- 3-field `resource:action:scope` without org/year/semester/app dimensions
+- Ad-hoc `if (user.role === 'admin')` in route handlers
+- Permissions hard-coded at compile time (must be profile-driven, admin-editable)
+- Bypassing the canonical evaluator
+- Building permission-sensitive features without `/discover permissions` completed
+- Missing audit log on permission changes
+- Missing any of the 4 canonical reports
 
 ## Complexity-Driven Scope
 
-| Complexity | What's Required |
-|-----------|-----------------|
-| **Simple** (with users) | 2-3 roles, basic `@Permissions` decorators, lightweight audit log |
-| **Medium** | Standard 5 roles, permission middleware, audit log (7-30 day retention), admin UI for users + roles |
-| **Complex** | Full model: roles + permissions + scopes + resource ACLs, custom roles per tenant, approval workflows, audit log with full compliance features |
+| Complexity | Minimum Requirements |
+|-----------|---------------------|
+| **Simple** (with users) | Full 5-dim model but 2-3 profiles (admin, user, guest), lightweight audit log |
+| **Medium** | Standard 7-8 profiles per domain, full admin UI, all 4 reports, 1-year audit retention |
+| **Complex** | Everything + group overrides + user overrides + versioned profiles + compliance-ready audit (configurable retention) + per-tenant profiles |
 
 ## Skip Condition
 
-RBAC is optional ONLY if:
+Rule 25 is optional ONLY if:
 - The app has NO user accounts (purely public), OR
-- The app is a single-user tool (no multi-user scenario ever)
-
-In all other cases, Rule 25 applies.
+- The app is truly single-user with zero multi-user scenarios ever
 
 ## How to Verify
 
-Run `/rbac audit` — scans endpoints and verifies:
-- Every route has a permission decorator
-- No route is silently public
-- Destructive actions log to audit
-- Permission names follow convention
-- Admin UI exists for roles + users
+- `/rbac audit` — scans endpoints for missing/wrong-dim guards
+- `/rbac test` — runs decision-table tests
+- `/rbac who-can`, `/rbac what-can`, etc. — reports work
+- `/a11y-audit` — permission admin UI is keyboard + screen-reader accessible
 
 Run before declaring any milestone done.
 
 ## Why This Rule Exists
 
-- Permission logic scattered across 100 endpoints is the #1 source of auth bugs.
-- `if (user.isAdmin)` leaks to other parts of the app and is impossible to refactor.
-- A permission system built on day 1 is cheap; retrofitted on day 90 is painful.
-- Users expect role management — not having it makes the app look amateur.
-- Audit log is a compliance requirement for most domains (SOC2, HIPAA, GDPR).
+- Simple RBAC (role boolean) leaks to every endpoint and becomes unrefactorable
+- Real-world permission needs span time (academic years, fiscal cycles) and
+  organizational nesting — the 3-field model doesn't capture this
+- Retrofitting 5 dimensions onto a built system is a full rewrite
+- The reports are non-optional for compliance (SOC2, HIPAA, FERPA, GDPR)
+- "Who can do X?" is the #1 question admins ask — if your system can't
+  answer it in 1 second, you haven't shipped real RBAC

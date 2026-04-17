@@ -221,9 +221,11 @@ Built-in global knowledge (always available):
 - `microcopy.md` — Nielsen Norman + Mailchimp + Polaris + GOV.UK + ban list + voice/tone framework
 - `i18n-rtl.md` — CSS logical properties + ICU MessageFormat + Intl API + icon mirroring + Arabic fonts
 
-### Modular Architecture & Functional Management (v1.8.x)
-- `architecture-spec.md` — **Canonical** Microkernel specification (source of truth): 5 roles, manifest schema, symmetric lifecycle, design principles
-- `modular-architecture.md` — Practical implementation guide: manifest authoring, lifecycle state machine, 5 integration mechanisms, Bridge + Dependent patterns, fractal composability
+### Modular Architecture, Functional Management, Shared & Permissions (v1.8.x - v1.9.x)
+- `architecture-spec.md` — **Canonical** Microkernel specification (source of truth): 5 roles, manifest schema, symmetric lifecycle, design principles, §7 shared components, §8 5-dim permissions
+- `modular-architecture.md` — Practical guide for spec §1-6: manifest authoring, lifecycle state machine, 5 integration mechanisms, Bridge + Dependent patterns, fractal composability
+- `shared-components.md` — Practical guide for spec §7: 3-layer ownership (core/domain/module), promotion workflow, catalog, contract requirements
+- `permissions-model.md` — Practical guide for spec §8: 5-dimensional permission model, profiles, evaluation algorithm, admin UI, 4 canonical reports
 - `functional-taxonomy.md` — 5-category classification (Features/Tools/Tasks/Services/Flows) + admin UI patterns
 
 ---
@@ -299,7 +301,8 @@ Use `/command-name` to invoke any command:
 - `/functional-model` - Classify app capabilities into Features/Tools/Tasks/Services/Flows + auto admin UIs
 - `/core-modules` - Design core + modules architecture (plug-and-play, manifests)
 - `/app-as-module` - Wrap an existing standalone app to be pluggable into a core
-- `/integrate` - Wire two apps together as core + module (generates ACL, event bridge, permissions map)
+- `/integrate` - Wire systems together (Module-of / Bridge / Dependent) with ACL + event bridge + permissions map
+- `/shared-components` - Shared UI/features/services with 3-layer ownership (core/domain/module) + promotion workflow
 - `/knowledge build <topic> [--global|--project]` - Build domain knowledge at chosen scope
 - `/knowledge import <file>` - Import PDF/URL into knowledge base
 - `/knowledge list [--global|--project]` - Show all knowledge bases
@@ -377,6 +380,7 @@ All rules in `.claude/rules/` are automatically enforced:
 - `28-data-viz-honesty.md` - Bar charts start at 0, no chartjunk, chart type matches data shape, charts accessible
 - `29-modular-by-default.md` - Every system is Core + Modules with plug-and-play contracts. Same code can be standalone, a core, or a module
 - `30-functional-completeness.md` - Classify all capabilities (Features/Tools/Tasks/Services/Flows) + auto admin UIs. The whole app is manageable
+- `31-shared-first.md` - Factor-before-copy. 3-layer ownership (core/domain/module) for all shared UI/features/services. No forks, no copies, no module logic inside shared code.
 
 ## Estimation Cheat Sheet
 
