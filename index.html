@@ -75,7 +75,7 @@
         <!-- Stats -->
         <div class="grid grid-cols-2 md:grid-cols-5 gap-4 max-w-4xl mx-auto mb-12">
             <div class="glass rounded-xl p-4 glow">
-                <div class="text-3xl font-bold gradient-text">140+</div>
+                <div class="text-3xl font-bold gradient-text">141+</div>
                 <div class="text-sm text-dark-400">Total Files</div>
             </div>
             <div class="glass rounded-xl p-4 glow">
@@ -96,11 +96,11 @@
             </div>
         </div>
 
-        <!-- v1.8.0 banner -->
+        <!-- v1.8.1 banner -->
         <div class="max-w-4xl mx-auto mb-8">
             <div class="glass rounded-xl p-4 border border-emerald/30 glow text-center">
-                <span class="tag bg-emerald/20 text-emerald-light mr-2">NEW v1.8.0</span>
-                <span class="text-dark-200 text-sm">Modular architecture (core + modules, plug-and-play) &middot; Functional taxonomy (Features/Tools/Tasks/Services/Flows) &middot; Fully manageable apps</span>
+                <span class="tag bg-emerald/20 text-emerald-light mr-2">NEW v1.8.1</span>
+                <span class="text-dark-200 text-sm">Formal Microkernel spec &middot; 5 integration roles (Core / Module-of / Standalone / Bridge / Dependent) &middot; Symmetric lifecycle &middot; Manifest-first development</span>
             </div>
         </div>
 
@@ -223,7 +223,32 @@
 
             <!-- Modular Architecture -->
             <div>
-                <h3 class="text-xl font-bold text-center mb-2">Core + Modules &mdash; plug-and-play</h3>
+                <h3 class="text-xl font-bold text-center mb-2">Microkernel Architecture &mdash; 5 Integration Roles</h3>
+                <p class="text-center text-dark-400 text-sm mb-4">A formal spec (<code class="text-emerald-light">architecture-spec.md</code>) governs all modular features. A system can declare any combination of these roles simultaneously.</p>
+
+                <div class="grid md:grid-cols-5 gap-2 mb-6">
+                    <div class="bg-dark-900/50 rounded-lg p-3 border border-accent/20 text-center">
+                        <div class="text-accent-light font-bold text-sm mb-1">Core</div>
+                        <p class="text-xs text-dark-400">Hosts modules</p>
+                    </div>
+                    <div class="bg-dark-900/50 rounded-lg p-3 border border-emerald/20 text-center">
+                        <div class="text-emerald-light font-bold text-sm mb-1">Module-of</div>
+                        <p class="text-xs text-dark-400">Plugs into a Core</p>
+                    </div>
+                    <div class="bg-dark-900/50 rounded-lg p-3 border border-yellow-500/20 text-center">
+                        <div class="text-yellow-300 font-bold text-sm mb-1">Standalone</div>
+                        <p class="text-xs text-dark-400">Runs alone</p>
+                    </div>
+                    <div class="bg-dark-900/50 rounded-lg p-3 border border-sky-500/20 text-center">
+                        <div class="text-sky-300 font-bold text-sm mb-1">Bridge</div>
+                        <p class="text-xs text-dark-400">Mediates 2+ Cores</p>
+                    </div>
+                    <div class="bg-dark-900/50 rounded-lg p-3 border border-purple-500/20 text-center">
+                        <div class="text-purple-300 font-bold text-sm mb-1">Dependent</div>
+                        <p class="text-xs text-dark-400">Requires siblings</p>
+                    </div>
+                </div>
+
                 <p class="text-center text-dark-400 text-sm mb-6">Same codebase can run <strong>standalone</strong>, as a <strong>core</strong> for other apps, or as a <strong>module</strong> inside another core. Both directions work.</p>
 
                 <div class="grid md:grid-cols-2 gap-6">
@@ -275,7 +300,8 @@ hr-system/          <span class="text-accent-light">CORE</span>
                 </div>
 
                 <div class="mt-6 text-center text-sm text-dark-400">
-                    Enforced by <strong>Rule 29: Modular by Default</strong> + <strong>Rule 30: Functional Completeness</strong>.
+                    Enforced by <strong>Rule 29: Modular by Default</strong> + <strong>Rule 30: Functional Completeness</strong>.<br>
+                    Canonical spec: <code class="text-emerald-light">.claude/knowledge/architecture-spec.md</code> &middot; Practical guide: <code class="text-emerald-light">modular-architecture.md</code>
                 </div>
             </div>
         </div>
@@ -1505,8 +1531,8 @@ claude /your-project
     <div class="max-w-5xl mx-auto text-center">
         <p class="text-dark-400 mb-2">System Design Architect &mdash; A Claude Code Plugin</p>
         <p class="text-dark-500 text-sm">Powered by knowledge from Alex Xu, Martin Kleppmann, Robert C. Martin, Gang of Four, Martin Fowler, and Steve McConnell.</p>
-        <p class="text-dark-500 text-sm mt-4">140+ files &bull; 55 commands &bull; 30 rules &bull; 14 skills &bull; 24 knowledge files</p>
-        <p class="text-dark-500 text-xs mt-2">v1.8.0 &mdash; Modular architecture + Functional taxonomy + Fully manageable apps</p>
+        <p class="text-dark-500 text-sm mt-4">141+ files &bull; 55 commands &bull; 30 rules &bull; 14 skills &bull; 25 knowledge files</p>
+        <p class="text-dark-500 text-xs mt-2">v1.8.1 &mdash; Formal Microkernel spec &middot; 5 integration roles &middot; Symmetric lifecycle &middot; Manifest-first</p>
     </div>
 </footer>
 

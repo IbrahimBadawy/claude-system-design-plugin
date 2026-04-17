@@ -1,16 +1,32 @@
-# /integrate - Wire Two Apps Together (Core + Module)
+# /integrate - Wire Systems Together (5 Integration Roles)
 
-Connect two apps: one as core, the other as module. Generates the anticorruption
-layer, event bridges, and shared-kernel alignment. Makes plug-and-play real.
+Connect systems in one of the five architectural roles from `architecture-spec.md`:
+**Core**, **Module-of**, **Standalone**, **Bridge**, or **Dependent**. Generates
+the anticorruption layer, event bridges, permission mapping, sibling-requirement
+checks, and composition code.
 
 ## Usage
 ```
-/integrate <core> <module>           # Wire module into core
-/integrate <a> <b> --bidirectional   # Both apps can host the other as module
-/integrate status                    # Show all active integrations
-/integrate unwire <core> <module>    # Disconnect (data preserved)
-/integrate verify                    # Run contract tests across integrations
+/integrate <core> <module>                        # Module-of: wire module into core
+/integrate <a> <b> --bidirectional                # Either can be core
+/integrate bridge <system> <coreA> <coreB>        # Bridge: mediate between 2+ cores
+/integrate dependent <module> --parent <core> --requires <sibling1>,<sibling2>
+                                                  # Dependent: module-of + required siblings
+/integrate status                                 # All active integrations
+/integrate graph                                  # Visualize system-of-systems
+/integrate unwire <core> <module>                 # Disconnect (data preserved)
+/integrate verify                                 # Contract + symmetric-uninstall + degradation tests
 ```
+
+## The 5 Roles Recap (from architecture spec §4)
+
+| Role | Purpose | Command form |
+|------|---------|--------------|
+| **Core** | Hosts modules | `/core-modules` (not /integrate) |
+| **Module-of** | Plugs into a Core | `/integrate <core> <module>` |
+| **Standalone** | Runs alone | No integration needed |
+| **Bridge** | Mediates 2+ Cores | `/integrate bridge <name> <coreA> <coreB>` |
+| **Dependent** | Module-of + requires siblings | `/integrate dependent <mod> --parent --requires` |
 
 ## What It Does
 
@@ -292,26 +308,77 @@ HR.Employee → Attendance.User → reverse → original (lossless for relevant 
 Integration is healthy.
 ```
 
-## Integration Scenarios
+## Integration Scenarios (from architecture spec §4)
 
-### Scenario A: HR core + Attendance module (this example)
+### Scenario A: Module-of — HR core + Attendance module
 
-HR provides identity. Attendance plugs in. ACL maps Employee ↔ User.
+HR provides identity. Attendance plugs in via ACL (Employee ↔ User).
 
-### Scenario B: Attendance core (standalone) + HR wraps it later
+```bash
+/integrate hr-system attendance
+```
 
-Attendance ran standalone. Now HR is being built. HR becomes the new core,
-attendance becomes a module. ACL reverse direction.
+### Scenario B: Reverse — Attendance was standalone, HR wraps it
+
+Attendance ran standalone. Now HR is the new core; attendance becomes module-of.
+Same command; `/app-as-module --for hr-system` was run first.
 
 ### Scenario C: Bidirectional
 
 Both apps CAN be the core. Useful when deploying differently per customer.
 Same codebase, different boot config.
 
-### Scenario D: Three-way
+```bash
+/integrate hr-system attendance --bidirectional
+```
 
-HR core + Attendance module + Payroll module + Portal module. Each pair has
-its own integration config. `/integrate status` shows the graph.
+### Scenario D: Bridge — Payroll Calculator between HR + Attendance
+
+A Payroll Calculator system pulls employee data from HR and time data from
+Attendance, computes payroll, writes results back. Acts as **Bridge**:
+
+```bash
+/integrate bridge payroll-calculator hr-system attendance
+```
+
+Generates:
+- `payroll-calculator/manifest.json` with `"roles": ["bridge"]` and declared consumers
+- ACL mapping both Cores' domain models → Payroll's internal model
+- Event subscriptions: `hr.employee.salary-changed`, `attendance.daily-summary`
+- No domain data ownership — only mapping/coordination state
+
+### Scenario E: Dependent — Overtime Approval needs HR + Attendance siblings
+
+An Overtime Approval module is Module-of HR, but ALSO requires Attendance to
+be installed on the same HR Core:
+
+```bash
+/integrate dependent overtime-approval \
+    --parent hr-system \
+    --requires hr-employees@^2,attendance@^1
+```
+
+The Core now enforces: overtime-approval cannot be activated unless both
+`hr-employees` AND `attendance` are installed + enabled on the same Core.
+
+### Scenario F: Fractal — Federation of enterprise systems
+
+HR, ERP, CRM all integrated as siblings under an Enterprise Federation Core,
+with bridges between specific pairs. Same pattern, larger scale.
+
+```bash
+/integrate enterprise-fed hr-system        # HR as module of federation
+/integrate enterprise-fed erp-system       # ERP as module of federation
+/integrate bridge hr-erp-sync hr-system erp-system
+```
+
+## The 3 Integration Types
+
+| Type | Manifest role | What `/integrate` generates |
+|------|--------------|----------------------------|
+| **Module-of** | `"roles": ["module-of"], "parent": {...}` | ACL + event bridge + permission map + composition |
+| **Bridge** | `"roles": ["bridge"], "bridges": [...]` | Dual ACLs + cross-core event router + mapping state store |
+| **Dependent** | `"roles": ["module-of"], "requiresSiblings": [...]` | Sibling check on enable + dependency graph + fail-fast on missing |
 
 ## Integration with Other Commands
 

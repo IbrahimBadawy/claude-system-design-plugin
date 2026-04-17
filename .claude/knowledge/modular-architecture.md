@@ -1,374 +1,543 @@
-# Modular Architecture — Core + Modules + Plug-and-Play
+# Modular Architecture — Practical Guide
 
-> How to build systems as **Core + Modules** where modules are plug-and-play both
-> within one app and across multiple apps. Either direction: an app can be a core
-> (HR is the core for attendance) or a module (attendance plugs into HR).
+> Practical, code-level companion to `architecture-spec.md` (the canonical
+> specification). Read the spec first; this file shows how to implement it.
+
+The architecture is a **Microkernel (Core–Module) pattern** with **fractal
+composability** — the same pattern applies recursively from single-app
+modularity to federation-of-systems.
 
 ---
 
-## The Core Idea
-
-Every system has two possible roles at any moment:
-
-| Role | What it does | Example |
-|------|--------------|---------|
-| **Core** | Provides identity, shared data, auth, base contracts | HR system (employees, departments, roles, policies) |
-| **Module** | Extends a core with specialized functionality | Attendance, Payroll, Employee Portal, Assets |
-
-The same codebase can be **both** — a standalone app when you need it, a module when
-another system wants to extend. This is the plug-and-play promise.
+## Quick Mental Model
 
 ```mermaid
-%% Core + Modules architecture
+%% Microkernel: Core + Modules, recursively composable
 graph TB
-    subgraph Core["HR System (Core)"]
+    subgraph Core["Core (self-sufficient standalone app)"]
         Users[User Directory]
         Auth[Auth + Permissions]
-        Orgs[Orgs / Departments]
-        Events[[Event Bus]]
-        Contracts[(Contract Registry)]
+        Orgs[Orgs / Tenants]
+        Router[Routing + UI shell]
+        Bus[[Event Bus]]
+        Reg[(Contract Registry)]
+        Lifecycle[Module Lifecycle Manager]
     end
 
-    subgraph M1["Attendance Module"]
-        Att[Check-in / out]
-        AttAPI[Attendance API]
+    subgraph M1["Module A"]
+        MA[Capability A]
+    end
+    subgraph M2["Module B"]
+        MB[Capability B]
     end
 
-    subgraph M2["Payroll Module"]
-        Pay[Compute Payroll]
-        PayAPI[Payroll API]
-    end
+    M1 <-->|events + ports + APIs| Bus
+    M2 <-->|events + ports + APIs| Bus
+    M1 -->|required| Auth
+    M2 -->|required| Users
 
-    subgraph M3["Portal Module"]
-        Portal[Employee Self-service]
-    end
-
-    M1 <-->|events + API| Events
-    M1 -->|uses| Auth
-    M1 -->|reads| Users
-
-    M2 <-->|events + API| Events
-    M2 -->|uses| Auth
-    M2 -->|consumes| AttAPI
-
-    M3 <-->|events + API| Events
-    M3 -->|uses| Auth
-    M3 -->|consumes| AttAPI
-    M3 -->|consumes| PayAPI
+    Lifecycle -->|install/enable/upgrade| M1
+    Lifecycle -->|install/enable/upgrade| M2
 ```
+
+The Core runs alone. Modules plug in. The whole thing together can become
+a module in a larger Core — recursively.
 
 ---
 
-## Anatomy of a Module
+## The 5 Roles (from spec §4)
 
-Every module is a self-contained package with a strict surface:
+Every system in this architecture declares one or more roles:
 
-```
-my-module/
-├── module.manifest.json       # Metadata, version, dependencies, capabilities
-├── src/
-│   ├── core/                  # Business logic (isolated)
-│   ├── api/                   # HTTP / tRPC / gRPC surface
-│   ├── events/                # Emitted + consumed events
-│   ├── ui/                    # UI components (optional, if module ships UI)
-│   ├── admin/                 # Admin UI (config, audit, health)
-│   ├── migrations/            # Database migrations (scoped to module tables)
-│   ├── seeds/                 # Seed data for this module
-│   └── tests/
-├── contracts/
-│   ├── events.schema.json     # Event schemas (public contract)
-│   ├── api.openapi.yaml       # API schema (public contract)
-│   └── ports.ts               # TypeScript ports this module needs
-├── docs/
-│   └── README.md              # What this module does, how to install
-├── package.json
-└── MODULE.md                  # Human-readable overview
-```
+| Role | Declaration | When to use |
+|------|------------|-------------|
+| **Core** | `roles: ["core"]` | Hosts other systems/modules as its own modules |
+| **Module-of** | `roles: ["module-of"], parent: "hr-system@^2"` | Attaches to another Core as a module |
+| **Standalone** | `roles: ["standalone"]` | Runs independently, no parent Core |
+| **Bridge** | `roles: ["bridge"], bridges: ["hr-system", "payroll-system"]` | Mediates between 2+ Cores (translation, sync, event brokering) |
+| **Dependent** | `roles: ["module-of"], requiresSiblings: ["attendance@^1", "hr-employees@^2"]` | Module-of + requires specific sibling modules on same Core |
 
-### module.manifest.json
+A system MAY declare multiple roles. Example: HR is `["core", "standalone"]`
+(runs alone OR hosts modules). Attendance is `["core", "standalone", "module-of"]`
+(runs alone, can host its own modules, OR attaches to HR).
 
-```json
+---
+
+## Module Manifest — Canonical Schema
+
+Every module ships with `module.manifest.json` conforming to this schema:
+
+```jsonc
 {
-  "name": "attendance",
-  "displayName": "Attendance Module",
+  "$schema": "https://plugin.dev/schemas/module-manifest.v1.json",
+
+  // § Identity
+  "id": "attendance",
+  "name": "Attendance Module",
   "version": "1.2.0",
-  "description": "Records employee check-in/out and computes attendance reports",
+  "author": "Acme Corp",
+  "license": "MIT",
+  "description": "Records check-in/out and computes attendance reports",
 
-  "role": "module",
-  "canBeStandalone": true,
-  "canBeCore": true,
+  // § Roles (spec §4)
+  "roles": ["standalone", "module-of", "core"],
 
-  "requires": {
-    "ports": [
-      { "name": "user-directory", "version": "^1.0.0" },
-      { "name": "auth", "version": "^2.0.0" }
+  // When acting as module-of
+  "parent": {
+    "id": "hr-system",
+    "versionRange": "^2.0.0"
+  },
+
+  // When acting as Dependent — siblings REQUIRED on the same Core
+  "requiresSiblings": [
+    { "id": "hr-employees", "versionRange": "^2.0.0" }
+  ],
+
+  // When acting as Bridge — the Cores being mediated
+  "bridges": [],
+
+  // § Compatibility
+  "compatibility": {
+    "coreVersion": ">=2.0.0 <4.0.0",
+    "platform": ["node>=20", "postgres>=14"]
+  },
+
+  // § Dependencies on sibling modules (optional, not required — graceful degradation)
+  "dependencies": {
+    "user-directory": { "versionRange": "^1.0.0", "optional": false },
+    "notifications":  { "versionRange": "^1.0.0", "optional": true  }
+  },
+
+  // § Integration points (spec §3.1)
+  "integrations": {
+    "routes": [
+      { "path": "/api/v1/attendance", "public": true },
+      { "path": "/admin/attendance",  "public": false }
+    ],
+    "events": {
+      "publishes": [
+        "attendance.checked-in",
+        "attendance.checked-out",
+        "attendance.anomaly-detected"
+      ],
+      "subscribes": [
+        "hr.employee.terminated",
+        "hr.employee.department-changed"
+      ]
+    },
+    "uiSlots": [
+      { "slot": "dashboard.widgets", "component": "AttendanceSummary" },
+      { "slot": "employee.tabs",     "component": "AttendanceHistory" }
+    ],
+    "schemaExtensions": [
+      { "entity": "employee", "fields": [
+        { "name": "attendanceShift", "type": "string", "nullable": true }
+      ]}
+    ],
+    "scheduledJobs": [
+      { "id": "nightly-aggregation", "schedule": "0 2 * * *" },
+      { "id": "sync-fingerprint",    "schedule": "*/5 * * * *" }
+    ],
+    "apiEndpoints": [
+      { "method": "GET",  "path": "/attendance/records" },
+      { "method": "POST", "path": "/attendance/check-in" }
     ]
   },
 
-  "provides": {
-    "ports": [
-      { "name": "attendance-records", "version": "1.0.0" }
+  // § Permissions & Scopes (spec §3.1)
+  "permissions": {
+    "provides": [
+      "attendance:read:own",
+      "attendance:read:team",
+      "attendance:read:all",
+      "attendance:manage:team",
+      "attendance:override:all"
     ],
-    "events": [
-      "attendance.checked-in",
-      "attendance.checked-out",
-      "attendance.anomaly-detected"
-    ],
-    "features": ["check-in-out", "attendance-report", "anomaly-dashboard"],
-    "tasks": ["sync-fingerprint-device", "nightly-aggregation"],
-    "services": ["attendance-api"]
+    "consumes": [
+      "users:read:all",
+      "orgs:read:tenant"
+    ]
   },
 
-  "permissions": [
-    "attendance:read:own",
-    "attendance:read:team",
-    "attendance:read:all",
-    "attendance:manage:team",
-    "attendance:override"
-  ],
+  // § Assets
+  "assets": {
+    "migrations": "./migrations",
+    "seeds":      "./seeds",
+    "translations": "./i18n",
+    "staticFiles": "./public",
+    "configTemplates": "./config/templates"
+  },
 
-  "migrations": "src/migrations",
-  "seeds": "src/seeds",
-  "adminRoutes": "/admin/attendance"
+  // § Lifecycle hooks (spec §3.2)
+  "lifecycle": {
+    "install":   "./src/lifecycle/install.ts",
+    "uninstall": "./src/lifecycle/uninstall.ts",
+    "enable":    "./src/lifecycle/enable.ts",
+    "disable":   "./src/lifecycle/disable.ts",
+    "upgrade":   "./src/lifecycle/upgrade.ts",
+    "healthCheck": "./src/lifecycle/health.ts"
+  },
+
+  // § Graceful degradation (spec §5)
+  "degradation": {
+    "standaloneFallback": true,
+    "whenMissing": {
+      "notifications": "Disable notification features; keep core working",
+      "user-directory": "Cannot start — required"
+    }
+  }
 }
 ```
 
-The manifest is the **contract of the module**. Anything not listed here is private.
+The manifest is the **contract of the module**. Anything not listed here is
+private and MUST NOT be relied upon by consumers.
 
 ---
 
-## The 4 Plug-and-Play Mechanisms
+## Lifecycle Implementation (spec §3.2)
 
-A module plugs into a core via one or more of these:
-
-### 1. Port / Adapter (Hexagonal)
-
-Module declares **ports** it needs; core provides **adapters**.
+Every module implements a `ModuleLifecycle` interface. The five operations
+must be symmetric inverses where applicable.
 
 ```ts
-// Module declares what it needs
-export interface UserDirectoryPort {
-  getUser(id: string): Promise<User>;
-  listUsersByDept(deptId: string): Promise<User[]>;
+// module-core/lifecycle.ts (shared type)
+export interface ModuleLifecycle {
+  install(ctx: ModuleContext):    Promise<InstallResult>;
+  uninstall(ctx: ModuleContext):  Promise<UninstallResult>;  // MUST be inverse of install
+  enable(ctx: ModuleContext, tenantId: TenantId):  Promise<void>;
+  disable(ctx: ModuleContext, tenantId: TenantId): Promise<void>;
+  upgrade(ctx: ModuleContext, from: SemVer, to: SemVer): Promise<UpgradeResult>;
+  healthCheck(ctx: ModuleContext): Promise<HealthStatus>;
 }
 
-// Core provides the implementation
-class HRUserDirectory implements UserDirectoryPort { ... }
-
-// Module is initialized with adapters
-initAttendanceModule({
-  userDirectory: hrUserDirectory,
-  auth: hrAuth,
-  eventBus: sharedBus,
-});
+export type UpgradeResult =
+  | { ok: true; fromVersion: SemVer; toVersion: SemVer }
+  | { ok: false; rolledBack: true; reason: string };
 ```
 
-### 2. Event Bus (loose coupling)
+### Lifecycle state machine
 
-Module publishes events; other modules subscribe. No direct calls.
-
-```ts
-// Attendance publishes
-eventBus.publish('attendance.checked-in', {
-  userId, timestamp, location, method
-});
-
-// Payroll subscribes
-eventBus.subscribe('attendance.checked-in', (event) => {
-  updateAttendanceCount(event.userId);
-});
+```mermaid
+stateDiagram-v2
+    [*] --> NotInstalled
+    NotInstalled --> Installing: install()
+    Installing --> Installed: success
+    Installing --> NotInstalled: rollback
+    Installed --> Enabled: enable(tenant)
+    Enabled --> Disabled: disable(tenant)
+    Disabled --> Enabled: enable(tenant)
+    Installed --> Upgrading: upgrade()
+    Upgrading --> Installed: success
+    Upgrading --> Installed: rollback
+    Installed --> Uninstalling: uninstall()
+    Uninstalling --> NotInstalled: success (symmetric — zero residue)
 ```
 
-### 3. API / RPC (explicit call)
+### Symmetric install/uninstall contract
 
-Module exposes API; consumers call it with auth.
+- `install()` applies: migrations, seeds, contract registrations, scheduled
+  jobs, UI slot registrations, permission declarations
+- `uninstall()` reverses **all of the above** in reverse order; the Core's
+  state after uninstall MUST be byte-indistinguishable from pre-install
+  (modulo audit logs, which are allowed to persist)
+- Test: `install → uninstall → install → uninstall` over 10 cycles leaves
+  no orphaned data, schema, or registrations
+
+---
+
+## The 5 Integration Mechanisms (how modules plug in)
+
+Modules connect via one or more of these, in order of preferred coupling
+(loose → tight):
+
+### 1. Events (preferred — loose coupling)
+
+Publish/subscribe through the shared Event Bus. Consumers filter by topic.
 
 ```ts
-// Module exposes
-GET /api/v1/attendance/records?userId=X&from=Y&to=Z
-
-// Consumer calls
-const records = await attendanceClient.getRecords(userId, from, to);
+eventBus.publish('attendance.checked-in', { userId, timestamp, method });
+eventBus.subscribe('hr.employee.terminated', (e) => deactivateUser(e.userId));
 ```
 
-### 4. Shared Kernel (explicit opt-in)
+### 2. UI Slots (declarative)
 
-Core and modules agree on a tiny set of shared types — **only** the ubiquitous
-domain language. Keep it minimal.
+Host exposes named slots; modules register components:
 
 ```ts
-// @shared-kernel — tiny, stable, versioned
+// Core defines slots
+<DashboardWidgets>
+  <Slot name="dashboard.widgets" />
+</DashboardWidgets>
+
+// Module registers via manifest:
+// "uiSlots": [{ "slot": "dashboard.widgets", "component": "AttendanceSummary" }]
+```
+
+### 3. Ports + Adapters (Hexagonal)
+
+Module declares what it needs; Core provides the implementation.
+
+```ts
+// Module declares
+export interface UserDirectoryPort {
+  getUser(id: UserId): Promise<User | null>;
+}
+
+// Module is instantiated with adapters at boot
+initAttendanceModule({ userDirectory: hrUserDirectoryAdapter, ... });
+```
+
+### 4. Versioned APIs (synchronous request)
+
+Module exposes a versioned HTTP/RPC API. Consumers call it with auth.
+
+```
+GET /api/v1/attendance/records?userId=X
+```
+
+### 5. Shared Kernel (tiny, stable, versioned)
+
+A minimal shared library of ubiquitous primitives. Keep it small:
+
+```ts
 export type UserId = string & { readonly __brand: 'UserId' };
 export type TenantId = string & { readonly __brand: 'TenantId' };
 export type ISODateTime = string & { readonly __brand: 'ISODateTime' };
+export type Money = { amount: number; currency: string };
 ```
 
 ---
 
-## Core Responsibilities
+## Bridge Pattern (spec §4)
 
-A **core** is what every module depends on. Keep it small:
+A Bridge mediates between two or more independent Cores. Example: a Payroll
+Calculator that pulls time data from Attendance and employee data from HR.
 
-1. **Identity** — who is a user, what are they called, which tenant are they in
-2. **Auth + Permissions** — token verification, RBAC, scoped access
-3. **Event Bus** — transport for cross-module events (Kafka, NATS, Redis Streams, or in-memory)
-4. **Contract Registry** — discovery of ports/events/APIs available
-5. **Configuration** — feature flags, module settings, secrets
-6. **Observability baseline** — trace context propagation, log correlation
-7. **Tenant Context** — multi-tenancy scoping for every call
+```mermaid
+graph LR
+    HR[HR Core] <--> B[Payroll Bridge]
+    B <--> Att[Attendance Core]
+    B -->|produces| Out[Payroll outputs]
+```
 
-A core should NOT own:
-- Business logic for specific domains (that's module territory)
-- Data outside of identity + tenancy
-- UI beyond the minimal shell (nav + auth + module-loader)
+The Bridge's manifest declares:
+
+```jsonc
+{
+  "roles": ["bridge"],
+  "bridges": [
+    { "id": "hr-system",         "versionRange": "^2.0.0", "role": "consumes" },
+    { "id": "attendance-system", "versionRange": "^1.0.0", "role": "consumes" }
+  ],
+  "integrations": {
+    "events": {
+      "subscribes": [
+        "hr.employee.salary-changed",
+        "attendance.daily-summary"
+      ]
+    }
+  }
+}
+```
+
+### Bridge implementation contract
+
+- **Translates data models** between the two Cores (Anticorruption Layer)
+- **Synchronizes state** where both sides need eventual consistency
+- **Brokers events** — filter, translate, enrich before forwarding
+- **Has its own data** only for the mapping/coordination state
+- **Doesn't own domain data** from either side
 
 ---
 
-## The Two Directions (user's example)
+## Dependent Pattern (spec §4)
 
-### Direction A: HR is Core, Attendance is Module
+A Dependent is a Module-of that additionally requires specific sibling
+modules to be installed on the same Core.
 
-```
-hr-system/             # CORE
-├── core/              # users, auth, orgs, events, contracts
-├── modules/
-│   ├── attendance/    # PLUGGED IN (local folder or npm dep)
-│   ├── payroll/
-│   └── portal/
-└── app-shell/         # Composes all modules
-```
+Example: Overtime Approval module requires both HR-Employees AND Attendance
+to be installed on the same HR Core before it can activate.
 
-The HR core provides `user-directory` and `auth`. Attendance module consumes both.
-Payroll consumes attendance events. Portal consumes everything.
-
-### Direction B: Attendance is Core, HR wraps around it
-
-```
-attendance-system/     # STANDALONE APP
-├── core/              # users (minimal), auth, events, contracts
-└── app-shell/         # Standalone UI
-
-# Later, HR wraps it:
-hr-system/             # NEW CORE
-├── core/              # users (full), auth, orgs, events
-├── modules/
-│   └── attendance/    # attendance-system AS A MODULE
-│       └── adapter/   # bridges attendance's user concept to HR's richer user
-└── app-shell/
+```jsonc
+{
+  "id": "overtime-approval",
+  "roles": ["module-of"],
+  "parent": { "id": "hr-system", "versionRange": "^2.0.0" },
+  "requiresSiblings": [
+    { "id": "hr-employees", "versionRange": "^2.0.0" },
+    { "id": "attendance",   "versionRange": "^1.0.0" }
+  ]
+}
 ```
 
-The attendance-system codebase stays unchanged. An **adapter layer** bridges its
-assumptions (simple users) to HR's reality (departments, managers, contracts).
+The Core MUST enforce sibling requirements before `enable()`:
+- If siblings are missing → refuse to enable, show helpful error
+- If siblings are installed but disabled → warn user, offer to enable all
 
-This is the **Anticorruption Layer** pattern (DDD). Every integration between two
-systems that weren't built together goes through an ACL.
+---
+
+## Graceful Degradation (spec §5)
+
+The absence of an optional parent Core or sibling module MUST NOT break the
+system. It should fall back to standalone behavior, or disable only the
+features that depend on the missing piece.
+
+### Implementation pattern
+
+```ts
+// Module checks optional dependencies at boot
+export async function bootstrap(ctx: ModuleContext) {
+  const notifications = await ctx.resolvePort('notifications'); // optional
+
+  if (notifications.isAvailable) {
+    registerHandler('attendance.anomaly-detected', (e) => notifications.send(e));
+  } else {
+    logger.info('Notifications module not present; anomaly alerts disabled');
+    // Core feature still works; only the notification feature is disabled
+  }
+}
+```
+
+### Manifest declaration
+
+```jsonc
+"degradation": {
+  "standaloneFallback": true,
+  "whenMissing": {
+    "notifications": "Disable notification features; keep core working",
+    "user-directory": "Cannot start — required"
+  }
+}
+```
+
+### Contract test
+
+Every module MUST have a test that boots it with each optional dependency
+removed, and verifies required features still work.
+
+---
+
+## Manifest-First Development (spec §5 + §6)
+
+**Rule:** write the manifest BEFORE writing implementation code. The code
+conforms to the contract, not the other way around.
+
+### Workflow
+
+1. Run `/module create <name>` or `/app-as-module`
+2. Edit `module.manifest.json` to describe intended surface
+3. Run `manifest validate` — CI fails on invalid schema
+4. Generate TypeScript types from manifest (codegen)
+5. Implement lifecycle hooks, events, ports, APIs to match the manifest
+6. CI runs contract tests — code must match declared surface
+7. If you need to change the manifest → version bump, deprecation plan
+
+### Anti-pattern (banned)
+
+- Writing code first, then "documenting" it in the manifest after the fact
+- Manifest declares event `X` but code emits `Y` instead
+- Code imports from `sibling-module/internal` — not declared in manifest
+- Module uses a Core feature not listed in `permissions.consumes`
+
+---
+
+## Core Responsibilities (spec §2)
+
+The Core MUST be:
+
+1. **Self-sufficient** — runs standalone with zero modules and still provides
+   meaningful functionality
+2. **Structural backbone:**
+   - Identity (users, tenants, orgs)
+   - Auth + RBAC
+   - Routing + middleware
+   - Configuration + secrets
+   - Event bus
+   - Logging + OTel SDK + trace context propagation
+   - Tenant context scoping
+3. **Extension contract:**
+   - Routes: `app.mountModule('/api/v1/attendance', attendance.routes)`
+   - Events: `eventBus.register('attendance.checked-in', schema)`
+   - UI slots: `shell.registerSlot('dashboard.widgets', component)`
+   - Schema: `schemaRegistry.extend('employee', attendanceFields)`
+   - Permissions: `rbac.register(attendance.permissions)`
+4. **Lifecycle owner:**
+   - Maintains registry of installed modules
+   - Orchestrates install/upgrade/uninstall
+   - Enforces dependencies (required siblings, parent Core version)
+   - Enforces symmetric uninstall (rollback on failure)
+
+The Core MUST NOT:
+- Know about specific modules (discovery via registry only)
+- Own business logic for specific domains
+- Bypass its own extension contract
+
+---
+
+## Fractal Composability (spec §5)
+
+The same Core–Module pattern applies at every scale:
+
+```mermaid
+graph TD
+    subgraph Fed["Enterprise Federation (Core)"]
+        HR2[HR System]
+        ERP[ERP System]
+        CRM[CRM System]
+        Bridge2[HR↔ERP Bridge]
+    end
+
+    subgraph HR[HR System - itself Core+Modules]
+        HRCore[HR Core]
+        HREmp[Employees Module]
+        HRPay[Payroll Module]
+        Att[Attendance Module]
+    end
+
+    subgraph AttInternal[Attendance Module - itself Core+Modules]
+        AttCore[Attendance Core]
+        AttBio[Biometric Module]
+        AttShift[Shift Scheduler Module]
+    end
+
+    HR2 -.is.-> HR
+    Att -.is.-> AttInternal
+```
+
+A module can contain its own sub-modules following the same rules recursively.
+Integration between scales uses the same mechanisms: events, ports, APIs,
+bridges, ACLs.
 
 ---
 
 ## Anticorruption Layer (ACL)
 
-When two systems meet that weren't designed together, put an ACL between them:
+When two systems that weren't built together integrate, an ACL sits between
+them. The `/integrate` command generates this automatically.
 
-```mermaid
-graph LR
-    HR[HR System<br/>rich domain] -->|events| ACL[Anticorruption Layer]
-    ACL -->|translated| Att[Attendance System<br/>simpler domain]
-    Att -->|events| ACL
-    ACL -->|enriched| HR
-```
+Responsibilities:
+- **Translate terminology** (HR's `Employee` ↔ Attendance's `User`)
+- **Filter events** (Attendance doesn't care about salary changes)
+- **Enrich data** (Attendance needs `departmentId`; ACL adds it from HR)
+- **Map permissions** (HR's roles → Attendance's permissions)
+- **Version negotiation** (HR v3 ↔ Attendance v1)
 
-ACL responsibilities:
-- Translate terminology (HR's `Employee` ↔ Attendance's `User`)
-- Filter events (Attendance doesn't care about salary changes)
-- Enrich data (Attendance needs `departmentId`; ACL adds it from HR)
-- Map permissions (HR's `HR-Admin` → Attendance's `admin`)
-- Version negotiation (HR v3 ↔ Attendance v1)
+Bridges always use ACLs; Module-of with direct domain compatibility may not
+need one.
 
 ---
 
-## Module Communication Patterns
+## Module Communication — Decision Matrix
 
-| Pattern | When |
-|---------|------|
-| **In-process events** (monolith modules) | Simple, fast, same codebase |
-| **Message queue** (Kafka, NATS, RabbitMQ, Redis Streams) | Cross-service, at-scale, asynchronous |
-| **HTTP / gRPC** | Synchronous request-response, cross-service |
-| **GraphQL federation** | Unified schema across modules |
-| **tRPC** | TypeScript monorepo, same team |
-| **Webhooks** | External systems (third-party integrations) |
-
-**Default stack (plugin opinion):**
-- Monolith with modules → in-process EventEmitter or `node:events` + DI
-- Microservices → NATS or Redis Streams (lightweight) or Kafka (scale)
-- Frontend → tRPC or GraphQL, depending on team
-
----
-
-## Contract Evolution Rules
-
-1. **Never break a public contract** (events, APIs, ports) — version it
-2. **Additive changes** (new optional field, new event type) → minor version
-3. **Breaking changes** (remove field, rename event) → major version + parallel support
-4. **Deprecation** = 6 months of parallel support minimum + sunset notice in headers
-5. **Contract tests** (Pact) verify consumers + providers stay aligned
-6. **Schema registry** stores all versions + allows discovery
-
----
-
-## Module Catalog (discoverability)
-
-Every app hosts a Module Catalog page:
-
-```
-┌──────────────────────────────────────────────────────┐
-│  Module Catalog              [+ Install Module]      │
-├──────────────────────────────────────────────────────┤
-│  Module        | Version | Status   | Provides       │
-│  attendance    | 1.2.0   | ✓ Active | 3 features, 2 tasks, 1 service, 3 events │
-│  payroll       | 2.0.1   | ✓ Active | 2 features, 4 tasks, 1 service          │
-│  portal        | 1.0.0   | ⚠ Beta   | 5 features                              │
-│  fingerprint   | -       | Available | 1 service, 2 tasks (not installed)     │
-└──────────────────────────────────────────────────────┘
-
-Click module → config, consumers, events, API docs, audit log
-```
-
----
-
-## Installation Lifecycle
-
-Every module has a lifecycle managed by the core:
-
-```mermaid
-stateDiagram-v2
-    [*] --> Discovered: Appears in catalog
-    Discovered --> Installing: install()
-    Installing --> Migrating: Apply migrations
-    Migrating --> Seeding: Seed initial data
-    Seeding --> Registered: Register contracts
-    Registered --> Active: Enable for tenants
-    Active --> Disabled: Disable (data retained)
-    Active --> Uninstalling: uninstall()
-    Disabled --> Active: Re-enable
-    Uninstalling --> [*]: Remove (data migrated/exported)
-```
-
-Lifecycle hooks every module implements:
-- `install()` — apply migrations, seed data, register contracts
-- `activate(tenantId)` — enable for a specific tenant
-- `deactivate(tenantId)` — disable but keep data
-- `uninstall()` — remove everything, export data first
-- `healthCheck()` — liveness + readiness for this module
-
----
-
-## Multi-tenancy & Modules
-
-Each module is tenant-aware by default:
-- Every query scoped by `tenantId`
-- Module enabled/disabled **per tenant**
-- Module configuration **per tenant** (e.g., attendance rules differ per country)
-- Permissions per module per tenant
+| Situation | Use |
+|-----------|-----|
+| Notification of something happening | **Events** (loose coupling, preferred) |
+| Module B needs data from Module A right now | **Published API** of Module A |
+| Module needs a Core service (auth, users, events) | **Port + Adapter** |
+| UI composition (widget in dashboard) | **UI Slot** |
+| Extending a Core entity (add field to Employee) | **Schema extension** in manifest |
+| Coordinating 2+ independent Cores | **Bridge** with ACL |
+| Requires specific siblings on same Core | **Dependent** role with `requiresSiblings` |
 
 ---
 
@@ -378,73 +547,92 @@ Each module is tenant-aware by default:
 |------|-------|
 | **Unit** | Business logic inside the module, zero adapters |
 | **Integration** | Module + fake adapters (test doubles for ports) |
-| **Contract** | Module's promises (events, API) match schemas (Pact) |
-| **End-to-end** | Real adapters, real core, as user-facing app |
+| **Contract** | Module's promises (events, API, UI slots) match manifest declarations (Pact + JSON Schema) |
+| **Degradation** | Boots with each optional dependency removed; verifies required features still work |
+| **Lifecycle** | `install → uninstall → install → uninstall` over N cycles leaves no residue |
+| **Version compatibility** | Module works across declared Core version range (min, max, middle) |
+| **End-to-end** | Real adapters, real Core, as user-facing app |
 
-Modules MUST pass contract tests before any release that bumps a public version.
-
----
-
-## Module vs Plugin vs Service vs Package
-
-Same pattern, different names by ecosystem. When this plugin says **module**, it means:
-
-- WordPress ecosystem → "plugin"
-- VSCode ecosystem → "extension"
-- Elixir / Phoenix → "umbrella app"
-- Java / Spring → "bounded context" / "module"
-- .NET → "area" / "feature module"
-- Node.js → "package" (in monorepo)
-- Kubernetes → "operator" / "controller"
-
-This plugin uses **module** consistently.
+All tests MUST pass before any release that bumps a public version.
 
 ---
 
-## Decision Rules
+## Module Catalog
 
-| Question | Answer |
-|----------|--------|
-| Should this be a module or a feature? | If it has its own tables, events, and lifecycle → module. Else feature. |
-| In-process or separate service? | Start in-process (monolithic modular). Split to service only when scaling or team structure demands. |
-| Shared library or module? | Shared library = shared types/utils. Module = business capability with state. |
-| Events or direct API call? | Events for notification/audit. API for synchronous data needs. |
-| How much should the core know? | As little as possible. Core = identity + auth + bus + contracts. |
-| Can Module A call Module B directly? | Prefer events. If API, always via published port (never internal code). |
+Every Core hosts a Module Catalog page (mandatory for Medium+ complexity):
 
----
+```
+┌──────────────────────────────────────────────────────────────┐
+│  Module Catalog                         [+ Install Module]  │
+├──────────────────────────────────────────────────────────────┤
+│ Module         │Ver   │Roles        │Status  │Capabilities  │
+│─────────────── │───── │──────────── │─────── │──────────── │
+│ attendance     │1.2.0 │core,mod-of  │Active  │3F 2T 1S 3E   │
+│ payroll        │2.0.1 │module-of    │Active  │2F 4T 1S      │
+│ portal         │1.0.0 │module-of    │Beta    │5F            │
+│ hr-erp-bridge  │0.9.0 │bridge       │Active  │Syncs HR↔ERP  │
+│ overtime       │1.0.0 │module-of    │Blocked │Missing: att  │
+│                │      │+ dependent  │        │              │
+└──────────────────────────────────────────────────────────────┘
+```
 
-## Modularity Checklist
-
-Every module must:
-
-- [ ] Have `module.manifest.json` listing requires/provides/events/permissions
-- [ ] Own its database tables (no module queries another's tables directly)
-- [ ] Expose a versioned API or event surface as its only interface
-- [ ] Define ports for core dependencies (no hard-coded imports of core internals)
-- [ ] Be installable / uninstallable with lifecycle hooks
-- [ ] Ship its own migrations + seeds
-- [ ] Ship its own admin UI entry (config, audit, health)
-- [ ] Have contract tests
-- [ ] Support per-tenant enable/disable
-- [ ] Work standalone AND as a module (both directions)
-- [ ] Document integration examples
-- [ ] Register in the Module Catalog
-
-## Integration with Other Plugin Parts
-
-- `/functional-model` classifies capabilities into Features/Tools/Tasks/Services/Flows
-- `/core-modules` designs the core + module split for a project
-- `/app-as-module` wraps an existing standalone app to be pluggable
-- `/integrate` wires two apps together (via ACL)
-- `/module` creates new modules with manifest, contracts, lifecycle
-- `/rbac` auto-generates permissions from module manifest
+Click module → manifest viewer, lifecycle state, consumers, event graph,
+permissions, migrations, audit log.
 
 ---
 
-**Sources:**
+## Implementation Checklist (per module)
+
+- [ ] `module.manifest.json` present and valid against schema
+- [ ] Roles declared (at least one)
+- [ ] Parent + version range declared if `module-of`
+- [ ] `requiresSiblings` declared if `dependent`
+- [ ] `bridges` declared if `bridge`
+- [ ] Lifecycle hooks: install + uninstall + enable + disable + upgrade + healthCheck
+- [ ] Install/uninstall are symmetric inverses (tested over 10 cycles)
+- [ ] Graceful degradation for every optional dependency
+- [ ] Own database tables (no cross-module queries)
+- [ ] Versioned API + event schemas in manifest
+- [ ] Contract tests (Pact or equivalent)
+- [ ] Supports per-tenant enable/disable
+- [ ] Can run standalone (with default adapters) AND attached (with injected ports)
+- [ ] Migrations + seeds scoped to this module
+- [ ] Admin UI mounted at `/admin/<module-id>`
+- [ ] Registered in the Module Catalog
+- [ ] Manifest authored BEFORE implementation code
+- [ ] Core version range tested (min, max)
+
+---
+
+## Plugin Commands That Implement This Spec
+
+| Need | Command |
+|------|---------|
+| Design core + modules for a new project | `/core-modules` |
+| Create a new module with valid manifest | `/module create <name>` |
+| Wrap an existing standalone app as pluggable | `/app-as-module` |
+| Wire two apps together (Module-of / Bridge / Dependent) | `/integrate` |
+| Audit existing code for modularity violations | `/core-modules audit` |
+| Visualize event graph across modules | `/module events map` |
+| Detect circular module dependencies | `/module deps graph` |
+| Contract-test module against manifest | `/test contract` |
+
+---
+
+## See Also
+
+- **`architecture-spec.md`** — the canonical specification (source of truth)
+- **`functional-taxonomy.md`** — 5-category classification that lives inside each module
+- **Rule 29** — enforces this spec at review time
+
+---
+
+## Sources & Prior Art
+
 - Eric Evans — *Domain-Driven Design* (Bounded Contexts, ACL)
 - Alistair Cockburn — Hexagonal Architecture (Ports & Adapters)
 - Sam Newman — *Building Microservices* (service boundaries, events)
 - Vaughn Vernon — *Implementing DDD* (context mapping, sagas)
-- Monolith-first + Modular Monolith patterns (Simon Brown)
+- Simon Brown — Modular Monolith pattern
+- Microkernel pattern — POSA vol. 1 (Buschmann et al.)
+- WordPress / VSCode / Elixir Umbrella — real-world microkernel implementations

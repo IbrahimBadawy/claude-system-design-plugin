@@ -4,6 +4,65 @@ All notable changes to this project will be documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.1] - 2026-04-17
+
+### Formalized the Modular Architecture Specification
+
+Promoted the modular architecture into a formal, canonical specification
+contributed by the user. The plugin now uses a single source of truth for
+all modular features, with all commands/rules conforming to it.
+
+#### Added
+- **`architecture-spec.md`** — canonical Modular System Architecture
+  Specification. The authoritative document. All modular features
+  (`/core-modules`, `/app-as-module`, `/integrate`, `/module`, Rule 29) MUST
+  conform to this spec.
+- **Microkernel (Core–Module) pattern** — terminology formalized throughout
+- **Two new roles** in the integration model (5 total):
+  - **Bridge / Middleware** — system that mediates between 2+ independent Cores
+    (translation, state sync, event brokering). Example: a Payroll Calculator
+    between HR and Attendance.
+  - **Dependent** — Module-of that requires specific sibling modules on the
+    same Core. Example: Overtime Approval requires both HR-Employees AND
+    Attendance. Core enforces sibling requirements before `enable()`.
+- **New lifecycle operation:** `upgrade()` with rollback support (complements
+  existing install/uninstall/enable/disable/healthCheck).
+- **Symmetric lifecycle guarantee** — install and uninstall MUST be inverse
+  operations. Tested over 10 cycles in CI for Complex projects.
+- **Graceful degradation declaration** in the manifest — `degradation.whenMissing`
+  describes behavior when each optional sibling is absent.
+- **Version range declaration** — `compatibility.coreVersion: ">=2.0.0 <4.0.0"`
+  semver ranges for minimum/maximum Core version.
+- **Fractal composability** — same Core-Module pattern applies recursively from
+  plugin-in-app to federation-of-enterprise-systems.
+
+#### Upgraded
+- **`modular-architecture.md`** — rewritten as practical implementation guide
+  for the canonical spec. Complete `module.manifest.json` schema with all
+  integration points (routes, events, UI slots, schema extensions, scheduled
+  jobs, API endpoints). Lifecycle state machine. Bridge pattern. Dependent
+  pattern. Graceful degradation implementation. Manifest-first workflow.
+- **Rule 29: Modular by Default** — expanded to enforce all 6 design principles
+  from the spec (loose coupling, explicit contracts, graceful degradation,
+  symmetric lifecycle, fractal composability, manifest-first development).
+- **`/integrate` command** — new sub-commands for Bridge (`/integrate bridge`)
+  and Dependent (`/integrate dependent ... --requires`) scenarios. 6 integration
+  scenarios documented: Module-of, Reverse, Bidirectional, Bridge, Dependent,
+  Fractal Federation.
+
+#### New Enforcement
+- **JSON Schema validation** on every `module.manifest.json` in CI
+- **Symmetric-uninstall test** — `install → uninstall` 10 cycles, zero residue
+- **Version-compatibility test** — module boots against min and max declared Core versions
+- **Graceful-degradation test** — module boots with each optional dependency removed
+- **Contract tests** — declared events/APIs/UI-slots match implementation
+- **Manifest-first enforcement** — code cannot use Core features not listed in `permissions.consumes`
+
+#### Credit
+
+The canonical `architecture-spec.md` was authored by the plugin user as a
+formal specification. The plugin was upgraded to conform to it exactly.
+
 ## [1.8.0] - 2026-04-16
 
 ### Added — Modular Architecture + Functional Management

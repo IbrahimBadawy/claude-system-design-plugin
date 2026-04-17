@@ -3,11 +3,40 @@
 The most comprehensive system design plugin for Claude Code.
 Design, evaluate, plan, and build production-grade distributed systems — from quick MVPs to multi-tenant SaaS.
 
-**140+ files | 55 commands | 30 rules | 14 skills | 24 knowledge files**
+**141+ files | 55 commands | 30 rules | 14 skills | 25 knowledge files**
 
 ---
 
-## What's New in v1.8.0 (April 2026) — Modular + Fully Manageable
+## What's New in v1.8.1 (April 2026) — Formalized Architecture Spec
+
+The modular architecture is now governed by a formal specification
+(`architecture-spec.md`). Every modular feature conforms to it.
+
+### Five Integration Roles (was 3)
+
+| Role | Description |
+|------|-------------|
+| **Core** | Hosts other systems/modules |
+| **Module-of** | Plugs into another Core |
+| **Standalone** | Runs independently |
+| **Bridge** *(new)* | Mediates 2+ independent Cores (translation, sync, event broker) |
+| **Dependent** *(new)* | Module-of that requires specific sibling modules on the same Core |
+
+### New Lifecycle Guarantees
+
+- **Symmetric lifecycle** — install/uninstall MUST be inverse operations. CI enforces zero residue over 10 cycles.
+- **Upgrade with rollback** — formal `upgrade()` hook with rollback support
+- **Graceful degradation** — missing optional siblings don't break the system; declared per-dependency in the manifest
+- **Manifest-first development** — manifest authored before code; enforced in CI
+
+### Architecture Spec as Source of Truth
+
+`architecture-spec.md` is now canonical. `modular-architecture.md` is the
+practical guide. Rule 29 enforces all 6 design principles from the spec.
+
+---
+
+## v1.8.0 — Modular + Fully Manageable
 
 Two big additions that make apps feel finished instead of "just backend code":
 

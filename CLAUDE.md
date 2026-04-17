@@ -221,9 +221,10 @@ Built-in global knowledge (always available):
 - `microcopy.md` — Nielsen Norman + Mailchimp + Polaris + GOV.UK + ban list + voice/tone framework
 - `i18n-rtl.md` — CSS logical properties + ICU MessageFormat + Intl API + icon mirroring + Arabic fonts
 
-### Modular Architecture & Functional Management (v1.8.0)
+### Modular Architecture & Functional Management (v1.8.x)
+- `architecture-spec.md` — **Canonical** Microkernel specification (source of truth): 5 roles, manifest schema, symmetric lifecycle, design principles
+- `modular-architecture.md` — Practical implementation guide: manifest authoring, lifecycle state machine, 5 integration mechanisms, Bridge + Dependent patterns, fractal composability
 - `functional-taxonomy.md` — 5-category classification (Features/Tools/Tasks/Services/Flows) + admin UI patterns
-- `modular-architecture.md` — Core + Modules + Ports/Adapters + ACL + lifecycle + module catalog
 
 ---
 
