@@ -3,11 +3,36 @@
 The most comprehensive system design plugin for Claude Code.
 Design, evaluate, plan, and build production-grade distributed systems — from quick MVPs to multi-tenant SaaS.
 
-**119+ files | 47 commands | 25 rules | 14 skills | 4 templates | 16 design references | 8 books**
+**134+ files | 51 commands | 28 rules | 14 skills | 22 knowledge files | 8 books + 40 modern sources**
 
 ---
 
-## What's New in v1.6.0 (April 2026)
+## What's New in v1.7.0 (April 2026) — Deep Knowledge Drop
+
+Grounded in research across 40+ authoritative sources (Laws of UX, Don Norman, Refactoring UI,
+Atomic Design, Stephen Few, Cole Nussbaumer, Tufte, Testing Trophy, FSD, OpenAPI 3.1,
+OWASP 2025, OpenTelemetry, WAI-ARIA APG, WebAIM, Nielsen Norman, and more).
+
+### 12 New Authoritative Knowledge Files
+- **UX:** `ux-laws.md`, `design-systems.md`, `data-viz.md`, `microinteractions.md`
+- **Frontend:** `frontend-architecture.md`, `modern-testing.md`, `performance-budget.md`, `state-and-data.md`
+- **Backend:** `api-design-modern.md`, `observability-modern.md`, `security-modern.md`, `resilience-patterns.md`
+- **Polish:** `accessibility-deep.md`, `microcopy.md`, `i18n-rtl.md`
+
+### 4 New Commands
+- **`/design-system`** — design tokens + atomic design + dark mode + base on shadcn/Carbon/Material
+- **`/copy-audit`** — ban lorem ipsum, "click here", "Error 500"; verb+object buttons; voice/tone framework
+- **`/a11y-audit`** — WCAG 2.2 AA + WAI-ARIA APG + keyboard + APCA contrast + auto-fix
+- **`/i18n`** — setup + RTL + CSS logical properties + ICU plurals + Arabic font stacks
+
+### 3 New Rules
+- **Rule 26: Design System First** — tokens before UI code; no hex in components
+- **Rule 27: Copy Quality** — no lorem ipsum; verb+object buttons; inclusive language
+- **Rule 28: Data Viz Honesty** — bar charts start at 0; no chartjunk; charts accessible
+
+---
+
+## What Landed in v1.6.0 (previous release)
 
 The "complete app" release. No more happy-path skeletons.
 
@@ -460,8 +485,11 @@ After EVERY command, suggests 2-4 relevant next commands.
 | 21 | Complexity-Aware — scale effort to project size |
 | 22 | Skill-Level-Aware — adapt question depth to user skill |
 | 23 | Milestone Validation — validate + install + ask + wait after every milestone |
-| 24 | **UX Completeness** — every page has 5 states + feedback + keyboard + a11y (NEW) |
-| 25 | **RBAC by Default** — any app with users gets roles × permissions × audit (NEW) |
+| 24 | UX Completeness — every page has 5 states + feedback + keyboard + a11y |
+| 25 | RBAC by Default — any app with users gets roles × permissions × audit |
+| 26 | **Design System First** — tokens before UI code, no hex, atomic design (NEW) |
+| 27 | **Copy Quality** — no lorem ipsum, verb+object buttons, inclusive language (NEW) |
+| 28 | **Data Viz Honesty** — no chartjunk, no truncated axes, accessible charts (NEW) |
 
 ---
 

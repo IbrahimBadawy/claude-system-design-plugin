@@ -4,6 +4,74 @@ All notable changes to this project will be documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.0] - 2026-04-16
+
+### Added — 12 new authoritative knowledge files, 4 commands, 3 rules
+
+Based on deep web research across 40+ authoritative sources (Laws of UX, Don Norman,
+Steve Krug, Refactoring UI, Brad Frost's Atomic Design, W3C Design Tokens, Stephen Few,
+Cole Nussbaumer Knaflic, Edward Tufte, Kent C. Dodds Testing Trophy, Feature-Sliced Design,
+Bulletproof React, Zalando/Microsoft/Google API Guidelines, OpenTelemetry, OWASP 2025,
+NIST Zero Trust, WAI-ARIA APG, WebAIM Million 2025, Nielsen Norman UX writing, GOV.UK,
+Material Motion, Apple HIG, and more).
+
+#### New Knowledge Files (global, `.claude/knowledge/`)
+
+**UX & Design**
+- `ux-laws.md` — 15 Laws of UX + Norman + Krug + Refactoring UI + 30 auto-enforce patterns
+- `design-systems.md` — Atomic Design + W3C tokens + shadcn HSL + Material/Carbon/Fluent comparison + starter token set
+- `data-viz.md` — Few, Knaflic, Tufte principles + chart selection matrix + modern dashboard patterns
+- `microinteractions.md` — Motion principles + skeletons + optimistic UI + Cmd-K + 30-item polish checklist
+
+**Frontend Architecture**
+- `frontend-architecture.md` — Feature-Sliced Design + Bulletproof React + Next.js RSC rules + monorepo decision
+- `modern-testing.md` — Testing Trophy + MSW + Playwright + jest-axe + contract testing
+- `performance-budget.md` — LCP/INP/CLS targets + Server Components + PPR + fonts + resource hints
+- `state-and-data.md` — Server vs client state + TanStack Query v5 + Zustand + forms + URL state (nuqs)
+
+**Backend**
+- `api-design-modern.md` — REST baseline + OpenAPI 3.1 + idempotency + RFC 9457 + REST/GraphQL/tRPC/gRPC matrix
+- `observability-modern.md` — OpenTelemetry + USE/RED/Golden Signals + SLO/SLI + tracing + structured logs
+- `security-modern.md` — OWASP Top 10 + ASVS + Cheat Sheets + security headers + supply chain + Zero Trust
+- `resilience-patterns.md` — Circuit breaker + retry with jitter + bulkhead + health checks + saga (Temporal)
+
+**Accessibility, UX Writing, i18n**
+- `accessibility-deep.md` — WCAG 2.2 AA+ + WAI-ARIA APG + keyboard contract + APCA + WebAIM big-6 fixes
+- `microcopy.md` — NN/g + Mailchimp + Polaris + GOV.UK + ban list + voice/tone framework + inclusive language
+- `i18n-rtl.md` — CSS logical properties + ICU MessageFormat + Intl API + icon mirroring + Arabic font stacks
+
+#### New Commands
+- **`/design-system`** — generate/audit design tokens (8 categories), atomic design hierarchy, dark mode, base on shadcn/Carbon/Material/Polaris/Fluent
+- **`/copy-audit`** — scan UI strings for lorem ipsum, "click here", "Error 500", blame language, idioms. Generate copy by type (error, empty-state, button, confirm, toast). Voice & tone framework
+- **`/a11y-audit`** — WCAG 2.2 AA + WAI-ARIA APG compliance + keyboard contract + color contrast + screen reader guidance. Auto-fix safe issues
+- **`/i18n`** — setup/add locale/audit hardcoded strings/RTL check/extract keys/font stack recommendation
+
+#### New Rules
+- **Rule 26: Design System First** — tokens before UI code. No hex in components, no arbitrary spacing, atomic design enforced, 3-tier token model (primitive/semantic/component)
+- **Rule 27: Copy Quality** — no lorem ipsum, no "Click here", no raw error codes. Verb+object buttons. Errors answer what/why/what-now. Inclusive language. Sentence case
+- **Rule 28: Data Viz Honesty** — bar charts start at 0, no 3D/chartjunk, chart type matches data, max 7 categorical colors, charts accessible (title+caption+alt text+data-table toggle)
+
+### Research Sources (40+ authoritative references codified)
+
+Laws of UX, Don Norman *The Design of Everyday Things*, Steve Krug *Don't Make Me Think*,
+Refactoring UI (Wathan+Schoger), Brad Frost *Atomic Design*, W3C Design Tokens, Style
+Dictionary, Material 3, Apple HIG, Fluent 2, IBM Carbon, Shopify Polaris, Ant Design,
+Stephen Few, Cole Nussbaumer Knaflic, Edward Tufte, Kent C. Dodds Testing Trophy,
+Feature-Sliced Design, Bulletproof React, Next.js App Router, Astro Islands, Turborepo,
+Testing Library, Mock Service Worker, Playwright, jest-axe, Pact, web.dev Core Web Vitals,
+TanStack Query v5, Zustand, nuqs, Zalando API Guidelines, Microsoft REST Guidelines,
+Google API Design Guide, OpenAPI 3.1, Stripe idempotency, RFC 9457, OpenTelemetry, USE
+method, RED method, Google SRE golden signals + SLO, OWASP Top 10 2021, OWASP ASVS,
+OWASP Cheat Sheets, NIST SP 800-207 Zero Trust, SLSA, Resilience4j, Netflix Chaos
+Engineering, Temporal Sagas, WAI-ARIA Authoring Practices, WebAIM Million 2025, WCAG 2.2,
+APCA, Microsoft Inclusive Design, W3C COGA, Nielsen Norman UX writing, Mailchimp Style
+Guide, Shopify Polaris Content, GOV.UK Content Design, 18F Inclusive Language, MDN CSS
+Logical Properties, ICU MessageFormat, Material Motion, Apple HIG Motion.
+
+### Totals
+
+**134+ files · 51 commands · 28 rules · 14 skills · 22 knowledge files**
+
 ## [1.6.0] - 2026-04-16
 
 ### Added — UX, Pages, RBAC (the "complete app" release)

@@ -190,11 +190,36 @@ Two scopes, checked in this order:
 Use `/knowledge build <topic> --global` or `--project` to pick. Defaults: ASK the user.
 
 Built-in global knowledge (always available):
+
+### Foundation (original)
 - `patterns.md` — 16 system design patterns
 - `technology-guide.md` — 2026 stack choices
 - `distributed-systems.md` — CAP, consistency, consensus
 - `clean-architecture-guide.md` — SOLID, GoF, refactoring
 - `recommended-tools.md` — companion plugins
+
+### UX & Design (v1.7.0)
+- `ux-laws.md` — 15 Laws of UX + Norman + Krug + Refactoring UI (30 auto-enforce patterns)
+- `design-systems.md` — Atomic Design + W3C tokens + shadcn + Material/Carbon/Fluent comparison + starter token set
+- `data-viz.md` — Stephen Few + Knaflic + Tufte + chart selection matrix + dashboard patterns
+- `microinteractions.md` — Motion principles + skeletons + optimistic UI + Cmd-K palette + 30-item polish checklist
+
+### Frontend (v1.7.0)
+- `frontend-architecture.md` — Feature-Sliced Design + Bulletproof React + Next.js RSC rules + monorepo decision
+- `modern-testing.md` — Testing Trophy + MSW + Playwright + jest-axe + contract testing
+- `performance-budget.md` — LCP/INP/CLS targets + Server Components + PPR + fonts + resource hints
+- `state-and-data.md` — Server vs client state + TanStack Query v5 + Zustand + forms + URL state
+
+### Backend (v1.7.0)
+- `api-design-modern.md` — REST baseline + OpenAPI 3.1 + idempotency + RFC 9457 errors + REST vs GraphQL vs tRPC vs gRPC
+- `observability-modern.md` — OpenTelemetry + USE/RED/Golden Signals + SLO + tracing + structured logs
+- `security-modern.md` — OWASP Top 10 + ASVS + Cheat Sheets + security headers + supply chain + Zero Trust
+- `resilience-patterns.md` — Circuit breaker + retry with jitter + bulkhead + health checks + saga (Temporal)
+
+### Accessibility, UX Writing & i18n (v1.7.0)
+- `accessibility-deep.md` — WCAG 2.2 AA+ + WAI-ARIA APG + keyboard contract + screen reader + APCA
+- `microcopy.md` — Nielsen Norman + Mailchimp + Polaris + GOV.UK + ban list + voice/tone framework
+- `i18n-rtl.md` — CSS logical properties + ICU MessageFormat + Intl API + icon mirroring + Arabic fonts
 
 ---
 
@@ -262,6 +287,10 @@ Use `/command-name` to invoke any command:
 - `/rbac audit` - Verify every endpoint is permission-guarded
 - `/ux-kit` - UX patterns & quality gate (empty/loading/error/success, keyboard, a11y)
 - `/ux-kit audit` - Find UX gaps in existing code
+- `/design-system` - Design tokens + atomic design hierarchy + dark mode + auditing
+- `/copy-audit` - UX writing quality gate (ban lorem ipsum, "click here", "Error 500", etc.)
+- `/a11y-audit` - Accessibility audit (WCAG 2.2 AA+, WAI-ARIA APG, keyboard, contrast)
+- `/i18n` - Internationalization + RTL setup, CSS logical properties, ICU plurals, Intl API
 - `/knowledge build <topic> [--global|--project]` - Build domain knowledge at chosen scope
 - `/knowledge import <file>` - Import PDF/URL into knowledge base
 - `/knowledge list [--global|--project]` - Show all knowledge bases
@@ -334,6 +363,9 @@ All rules in `.claude/rules/` are automatically enforced:
 - `23-milestone-validation.md` - After every milestone: validate, install, ask for missing info, then wait
 - `24-ux-completeness.md` - Every page has all 5 states + feedback + keyboard + a11y. "It works" is not done.
 - `25-rbac-by-default.md` - Any app with users gets full RBAC + audit log + admin UI — not `is_admin` boolean
+- `26-design-system-first.md` - Tokens before UI code. No hex in components, no arbitrary spacing, atomic design enforced
+- `27-copy-quality.md` - No lorem ipsum, no "Click here", no "Error 500", verb+object buttons, inclusive language
+- `28-data-viz-honesty.md` - Bar charts start at 0, no chartjunk, chart type matches data shape, charts accessible
 
 ## Estimation Cheat Sheet
 
