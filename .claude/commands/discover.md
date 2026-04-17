@@ -167,46 +167,92 @@ What multi-step processes span multiple actors/steps?
 Saved to `discovery/FUNCTIONAL-INVENTORY.md` which feeds both `/plan` and
 `/core-modules` (services often = module boundaries).
 
-## /discover permissions (NEW — mandatory when permissions are non-trivial)
+## /discover permissions (mandatory when permissions are non-trivial)
 
-**MUST be run** during discovery for any system with organizational, academic,
-financial, or personnel data. Based on `architecture-spec.md §8.6`. Without
-answers, `/implement` refuses to scaffold permission-sensitive modules.
+**MUST be run** during discovery for any system with organizational,
+regulated, financial, or personnel data. Based on `architecture-spec.md §8.6`.
+Without answers, `/implement` refuses to scaffold permission-sensitive modules.
 
-Asks the 10 mandatory questions:
+The permission model is **N-dimensional where N is determined by the domain**.
+3 dimensions are universal (Organizational, Functional, Action); additional
+ones are domain-specific.
+
+### The 11 questions (Q0 sets N, Q1-10 fill in)
 
 ```
-1. What's your organizational hierarchy? (levels, depth, shape)
-   Examples: SIS (University→College→Dept→Program→Cohort),
-             Hospital (Group→Hospital→Dept→Ward→Shift)
+Q0 (sets N): What dimensions of scoping apply to this domain?
+   Universal (always included):
+     - Organizational (hierarchical)
+     - Functional (hierarchical)
+     - Action (extensible enum)
+   Domain-specific (tick all that apply):
+     [ ] Academic year         (education)
+     [ ] Fiscal year / period  (finance / ERP)
+     [ ] Semester / term       (education)
+     [ ] Shift                 (hospital / factory / retail)
+     [ ] Region                (multinational)
+     [ ] Store / branch        (retail)
+     [ ] Tenant                (multi-tenant SaaS)
+     [ ] Plant / line          (factory)
+     [ ] Project / matter      (consulting / legal)
+     [ ] Phase / campaign      (marketing / projects)
+     [ ] Legal entity          (regulated enterprise)
+     [ ] Resource owner        (CRM "own records")
+     [ ] Product category      (e-commerce)
+     [ ] Other: __________
+   Final N = ___
 
-2. Are permissions time-scoped?
-   (academic years / fiscal years / semesters / campaigns / none)
+Q1: Organizational hierarchy shape (level names, depth)
+    Examples:
+      SIS:      University → College → Department → Program → Cohort
+      Hospital: Group → Hospital → Department → Ward
+      Retail:   HQ → Region → Country → City → Store
+      Factory:  Company → Plant → Line → Cell
+      Simple:   Org → Team
 
-3. What's the functional hierarchy (main app → sub-app → feature) to secure?
+Q2: For each domain-specific dimension from Q0, define:
+    - type (hierarchical / temporal_range / enum_set / reference)
+    - values / shape / unit
 
-4. What action types beyond the standard six (view/insert/edit/close/open/delete)?
-   (approve / reject / export / import / print / publish / submit / ...)
+Q3: Functional hierarchy (main app → sub-app → feature)
 
-5. What initial profiles should ship?
-   (Super Admin, Dean, Department Head, Faculty, Student, Guest, ...)
+Q4: Action types beyond standard 6 (approve/reject/export/import/print/
+    publish/submit/archive/impersonate/...)
 
-6. What are the default scopes + actions per profile?
-   (asked per profile)
+Q5: Initial profiles to ship (tailored to domain)
 
-7. Group-based or individual overrides expected?
+Q6: Default scopes + actions per profile (across ALL declared dimensions)
 
-8. Are there guests or visitors? How should they be monitored?
+Q7: Group / individual overrides expected?
 
-9. Day-1 permission reports required?
-   (4 standard: who-can / what-can-user-do / profiles-with / recent-changes)
+Q8: Guests / visitors?
 
-10. Audit + compliance requirements?
-    (retention, GDPR/HIPAA/FERPA/SOX/PCI, right-to-be-forgotten, residency)
+Q9: Day-1 permission reports required?
+    Standard 4: who-can / what-can-user-do / profiles-with / recent-changes
+
+Q10: Audit + compliance requirements
+     (retention, GDPR/HIPAA/FERPA/SOX/PCI, right-to-be-forgotten, residency)
 ```
 
-Delegates to `/rbac discover` for interactive flow. Output saved to
-`projects/<project>/design/PERMISSIONS.md`.
+### Domain presets (shortcut for Q0)
+
+Run `/discover permissions --domain <kind>` to pre-fill Q0 with typical
+dimensions per domain — then customize:
+
+- `saas-simple` → N=3 (just the universal 3)
+- `crm` → N=4 (+ Resource-owner)
+- `hospital` → N=4 (+ Shift)
+- `retail` → N=5 (+ Region + Store)
+- `sis` → N=5 (+ Academic-year + Semester)
+- `factory` → N=5 (+ Plant + Line + Shift)
+- `ecommerce` → N=5 (+ Region + Product-category)
+- `projects` → N=5 (+ Project + Phase)
+- `erp` → N=6 (+ Tenant + Fiscal-period + Legal-entity)
+- `multi-tenant-saas` → N=5 (+ Tenant + Region)
+
+Delegates to `/rbac discover` for the interactive flow. Output saved to
+`projects/<project>/design/PERMISSIONS.md` with the declared dimensions +
+all Q1-10 answers.
 
 ## /discover shared (NEW)
 

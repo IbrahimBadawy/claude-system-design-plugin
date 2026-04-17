@@ -225,7 +225,7 @@ Built-in global knowledge (always available):
 - `architecture-spec.md` — **Canonical** Microkernel specification (source of truth): 5 roles, manifest schema, symmetric lifecycle, design principles, §7 shared components, §8 5-dim permissions
 - `modular-architecture.md` — Practical guide for spec §1-6: manifest authoring, lifecycle state machine, 5 integration mechanisms, Bridge + Dependent patterns, fractal composability
 - `shared-components.md` — Practical guide for spec §7: 3-layer ownership (core/domain/module), promotion workflow, catalog, contract requirements
-- `permissions-model.md` — Practical guide for spec §8: 5-dimensional permission model, profiles, evaluation algorithm, admin UI, 4 canonical reports
+- `permissions-model.md` — Practical guide for spec §8: **N-dimensional** (domain-specific) permission model. 3 universal dimensions (Org/Functional/Action) + domain-specific additions declared during discovery. Profiles, evaluation algorithm, admin UI, 4 canonical reports
 - `functional-taxonomy.md` — 5-category classification (Features/Tools/Tasks/Services/Flows) + admin UI patterns
 
 ---

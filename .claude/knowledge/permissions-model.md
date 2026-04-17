@@ -1,459 +1,596 @@
 # Permissions Model — Practical Implementation Guide
 
-> Practical companion to `architecture-spec.md` §8. Read the spec first; this
-> file shows the data model, evaluation algorithm, admin UI, and reports.
+> Practical companion to `architecture-spec.md §8`. Read the spec first; this
+> file shows the data model, evaluation algorithm, admin UI, and reports —
+> **all generalized for an N-dimensional permission model where N is
+> determined by the domain**.
 
-## The 5-Dimensional Permission
+## The N-Dimensional Permission (not fixed)
 
-Every permission is the **intersection of 5 dimensions**. All five MUST
-align for access to be granted.
+Every permission is the **intersection of N dimensions**, where **N is
+determined by the domain, not fixed**. All declared dimensions MUST align
+for access to be granted.
 
-```mermaid
-%% 5-dimensional permission evaluation
-graph TB
-    Req[Access Request]
-    Req --> D1{Dim 1:<br/>Org Scope}
-    Req --> D2{Dim 2:<br/>Academic Year}
-    Req --> D3{Dim 3:<br/>Semester}
-    Req --> D4{Dim 4:<br/>Functional Scope}
-    Req --> D5{Dim 5:<br/>Action Type}
+### 3 universal dimensions (always present)
 
-    D1 & D2 & D3 & D4 & D5 --> AND{All 5 align?}
-    AND -->|yes| Grant[✓ Granted]
-    AND -->|no| Deny[✗ Denied]
-```
+1. **Organizational scope** — hierarchical (varies by domain shape)
+2. **Functional scope** — app hierarchy (main → sub → feature)
+3. **Action type** — view/insert/edit/... + custom per module
+
+### Domain-specific dimensions (declared per system)
+
+Examples of how N varies:
+
+| Domain | Declared dimensions | N |
+|--------|--------------------|---|
+| Simple SaaS | Org, Functional, Action | 3 |
+| CRM | Org, Functional, Action, Resource-owner | 4 |
+| Hospital | Org, Shift, Functional, Action | 4 |
+| Factory | Plant, Line, Shift, Functional, Action | 5 |
+| SIS | Org, Academic-year, Semester, Functional, Action | 5 |
+| Multi-tenant SaaS | Tenant, Region, Org, Functional, Action | 5 |
+| Regulated enterprise | Tenant, Region, Legal-entity, Fiscal-period, Org, Functional, Action | 7 |
+
+The plugin's job is to generate the right schema + evaluator for **whatever
+N the domain declares**.
 
 ---
 
-## Data Model
+## Declaring the Dimensions (per project)
+
+`design/PERMISSIONS.md` declares the dimensions for THIS project:
+
+```yaml
+# projects/<project>/design/PERMISSIONS.md (front-matter block)
+permissions:
+  dimensions:
+    - name: organizational
+      type: hierarchical
+      required: true
+      # shape declared below
+      shape: [University, College, Department, Program, Cohort]
+
+    - name: academic_year          # domain-specific (SIS)
+      type: temporal_range
+      required: false              # can a grant say "all years"? yes → false
+      unit: year
+
+    - name: semester               # domain-specific (SIS)
+      type: enum_set
+      required: false
+      values: [first, second, summer]
+
+    - name: functional
+      type: hierarchical
+      required: true
+
+    - name: action
+      type: enum_extensible
+      required: true
+      core_values: [view, insert, edit, close, open, delete]
+      # modules extend via manifest
+
+  defaultDeny: true          # unmatched context denies (§8.4)
+  denyWinsOverGrants: true   # §8.4 guarantee
+```
+
+For a **hospital** instead, you'd declare 4 dimensions (no academic_year or
+semester; add `shift`). For a **simple SaaS**, just the 3 universal ones.
+
+---
+
+## Flexible DB Schema
+
+The schema adapts to the declared dimensions. This avoids hardcoding
+`academic_years` or `semesters` tables into every app.
+
+### Core tables (always present)
 
 ```sql
--- Dimension 1: Organizational hierarchy (domain-specific shape)
+-- Users & tenants (from Core)
+-- org_nodes: the "organizational" dimension (always declared)
 CREATE TABLE org_nodes (
   id           UUID PRIMARY KEY,
   parent_id    UUID REFERENCES org_nodes(id),
-  level        TEXT NOT NULL,    -- 'university' | 'college' | 'system' | 'program' | 'cohort'
+  level_name   TEXT NOT NULL,   -- declared shape, e.g., 'university', 'college', ...
   name         TEXT NOT NULL,
-  path         LTREE NOT NULL,   -- hierarchical path for fast subtree queries
-  tenant_id    UUID NOT NULL,
-  created_at   TIMESTAMPTZ DEFAULT NOW()
+  path         LTREE NOT NULL,
+  tenant_id    UUID NOT NULL
 );
 CREATE INDEX ON org_nodes USING GIST (path);
 
--- Dimension 2 & 3: Temporal scopes
+-- apps: the "functional" dimension (always declared)
+CREATE TABLE apps (
+  id UUID PRIMARY KEY,
+  parent_id UUID REFERENCES apps(id),
+  kind TEXT,   -- 'main-app' | 'sub-app' | 'feature'
+  name TEXT, module_id TEXT,
+  path LTREE
+);
+
+-- action_types: the "action" dimension (always declared, module-extensible)
+CREATE TABLE action_types (
+  code TEXT PRIMARY KEY,
+  display_name TEXT,
+  defined_by TEXT   -- 'core' | module_id
+);
+```
+
+### Dimension registry (the N bit — flexible)
+
+```sql
+-- Registry of dimensions for THIS system
+CREATE TABLE dimensions (
+  name         TEXT PRIMARY KEY,      -- 'organizational', 'academic_year', 'shift', ...
+  kind         TEXT NOT NULL,         -- 'hierarchical' | 'temporal_range' | 'enum_set' | 'reference'
+  backing_table TEXT,                 -- optional: table that stores values (e.g., 'academic_years')
+  config       JSONB,                 -- type-specific config (shape, units, enum values)
+  required     BOOLEAN DEFAULT true
+);
+
+-- Seed-time: insert one row per declared dimension
+-- SIS example would insert: organizational, academic_year, semester, functional, action
+-- Simple SaaS would insert only: organizational, functional, action
+```
+
+### Dimension-specific tables (optional, one per domain-specific dimension)
+
+Each domain-specific dimension may have its own backing table. Example
+for SIS (`academic_year` + `semester`):
+
+```sql
 CREATE TABLE academic_years (
   id UUID PRIMARY KEY, label TEXT UNIQUE, starts DATE, ends DATE,
   tenant_id UUID NOT NULL
 );
+
 CREATE TABLE semesters (
   id UUID PRIMARY KEY, year_id UUID REFERENCES academic_years(id),
-  label TEXT, kind TEXT,  -- 'first' | 'second' | 'summer' | ...
+  label TEXT, kind TEXT,
   starts DATE, ends DATE
 );
+```
 
--- Dimension 4: Functional hierarchy
-CREATE TABLE apps (
-  id UUID PRIMARY KEY, parent_id UUID REFERENCES apps(id),
-  kind TEXT,  -- 'main-app' | 'sub-app' | 'feature'
-  name TEXT, module_id TEXT,  -- which module owns this
-  path LTREE
+For a **hospital** (`shift`), you'd have:
+```sql
+CREATE TABLE shifts (
+  code TEXT PRIMARY KEY, display_name TEXT,
+  starts_at TIME, ends_at TIME
 );
+```
 
--- Dimension 5: Actions (module-extensible)
-CREATE TABLE action_types (
-  code TEXT PRIMARY KEY,  -- 'view' | 'insert' | 'edit' | 'close' | 'open' | 'delete' | 'approve' | ...
-  display_name TEXT,
-  defined_by TEXT  -- 'core' | module_id
-);
+For a **factory** (`plant`, `line`):
+```sql
+CREATE TABLE plants (id UUID PRIMARY KEY, name TEXT, tenant_id UUID);
+CREATE TABLE lines  (id UUID PRIMARY KEY, plant_id UUID, name TEXT);
+```
 
--- Profiles (primary admin abstraction)
+For a **simple SaaS** (only the 3 universal dimensions), no additional
+tables are needed.
+
+### Profiles + grants (dimension-agnostic)
+
+Grants use a flexible JSONB column to store per-dimension constraints. This
+keeps the schema stable as dimensions vary across domains.
+
+```sql
 CREATE TABLE profiles (
   id           UUID PRIMARY KEY,
   name         TEXT NOT NULL,
   description  TEXT,
   version      INT NOT NULL DEFAULT 1,
-  status       TEXT NOT NULL,  -- 'draft' | 'active' | 'archived'
+  status       TEXT NOT NULL,   -- 'draft' | 'active' | 'archived'
   tenant_id    UUID NOT NULL,
-  created_by   UUID, updated_by UUID,
-  created_at   TIMESTAMPTZ DEFAULT NOW()
+  created_by UUID, updated_by UUID,
+  created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Profile grants: bundle of (scope, years, semesters, app, action)
 CREATE TABLE profile_grants (
   id            UUID PRIMARY KEY,
   profile_id    UUID REFERENCES profiles(id),
 
-  -- Dim 1: org — can be NULL = all, or a specific node
-  org_scope_id  UUID REFERENCES org_nodes(id),
-  org_includes_descendants BOOLEAN DEFAULT true,
+  -- Dimension constraints stored as JSONB keyed by dimension name
+  -- Shape depends on dimension.kind; validated by application layer
+  scope         JSONB NOT NULL,
+  -- Examples:
+  --   SIS:        {"organizational": {...}, "academic_year": {...}, "semester": {...}, "functional": {...}}
+  --   hospital:   {"organizational": {...}, "shift": {...}, "functional": {...}}
+  --   simple:     {"organizational": {...}, "functional": {...}}
 
-  -- Dim 2: academic year range — NULL/NULL means all years
-  year_from     DATE, year_to DATE,
-
-  -- Dim 3: semester range
-  semester_kinds TEXT[],  -- ['first', 'second', 'summer'] or NULL = all
-
-  -- Dim 4: functional — NULL = all, or a specific node
-  app_scope_id  UUID REFERENCES apps(id),
-  app_includes_descendants BOOLEAN DEFAULT true,
-
-  -- Dim 5: action
   action_code   TEXT NOT NULL REFERENCES action_types(code),
-
-  -- grant or deny
-  effect        TEXT NOT NULL  -- 'grant' | 'deny'
+  effect        TEXT NOT NULL CHECK (effect IN ('grant', 'deny'))
 );
 
--- Assignment modes (§8.4, increasing specificity)
-CREATE TABLE user_profiles (
-  user_id UUID, profile_id UUID,
-  assigned_at TIMESTAMPTZ, assigned_by UUID,
-  PRIMARY KEY (user_id, profile_id)
-);
-CREATE TABLE groups (
-  id UUID PRIMARY KEY, name TEXT, tenant_id UUID
-);
-CREATE TABLE group_members (
-  group_id UUID, user_id UUID, PRIMARY KEY (group_id, user_id)
-);
-CREATE TABLE group_profiles (
-  group_id UUID, profile_id UUID, PRIMARY KEY (group_id, profile_id)
-);
+-- Example scope values per dimension kind:
+-- hierarchical:    { "nodeId": "uuid", "includesDescendants": true }
+--                  or { "all": true }
+-- temporal_range:  { "from": "2025-09-01", "to": "2026-08-31" }
+--                  or { "mode": "current" } or { "all": true }
+-- enum_set:        { "values": ["first", "second"] } or { "all": true }
+-- reference:       { "ids": ["uuid1", "uuid2"] } or { "all": true }
+```
 
--- User-specific overrides (most specific, denial wins)
+This stays the same whether the domain has 3 or 7 dimensions — only the keys
+inside `scope` differ.
+
+### Assignment + overrides (unchanged by N)
+
+```sql
+CREATE TABLE user_profiles (user_id UUID, profile_id UUID, PRIMARY KEY (user_id, profile_id));
+CREATE TABLE groups (id UUID PRIMARY KEY, name TEXT, tenant_id UUID);
+CREATE TABLE group_members (group_id UUID, user_id UUID, PRIMARY KEY (group_id, user_id));
+CREATE TABLE group_profiles (group_id UUID, profile_id UUID, PRIMARY KEY (group_id, profile_id));
+
 CREATE TABLE user_overrides (
-  id UUID PRIMARY KEY, user_id UUID,
-  org_scope_id UUID, year_from DATE, year_to DATE,
-  semester_kinds TEXT[], app_scope_id UUID,
-  action_code TEXT, effect TEXT,
-  reason TEXT, expires_at TIMESTAMPTZ
+  id UUID PRIMARY KEY,
+  user_id UUID,
+  scope JSONB NOT NULL,     -- same flexible shape as profile_grants.scope
+  action_code TEXT,
+  effect TEXT,
+  reason TEXT,
+  expires_at TIMESTAMPTZ
 );
 
--- Audit trail (§8.5)
 CREATE TABLE permission_audit (
-  id           UUID PRIMARY KEY,
-  actor_id     UUID,            -- who made the change
-  event_type   TEXT,            -- 'profile.created' | 'user.granted-profile' | 'access.decision' | ...
+  id UUID PRIMARY KEY,
+  actor_id UUID,
+  event_type TEXT,
   subject_type TEXT, subject_id UUID,
-  before_snap  JSONB, after_snap JSONB,
-  ip_address   INET, user_agent TEXT,
-  reason       TEXT,
-  timestamp    TIMESTAMPTZ DEFAULT NOW()
+  before_snap JSONB, after_snap JSONB,
+  ip_address INET, user_agent TEXT,
+  reason TEXT,
+  timestamp TIMESTAMPTZ DEFAULT NOW()
 );
 ```
 
 ---
 
-## Evaluation Algorithm (Deterministic)
+## Evaluator (dimension-agnostic)
+
+The canonical evaluator receives **whatever context keys the domain
+declares** and validates each against the grant's scope:
 
 ```typescript
-// canonical evaluator — MUST be used by middleware + UI `<Can>` checks
+// core/rbac/evaluator.ts — one evaluator, any N
 export async function canUser(
   userId: UserId,
   action: ActionCode,
-  ctx: {
-    orgNodeId: string;
-    year: AcademicYear;
-    semester: Semester;
-    appNodeId: string;
-  }
+  context: Record<string, unknown>  // keys determined by declared dimensions
 ): Promise<PermissionDecision> {
-  // 1. Collect all applicable grants from 3 layers
-  const profiles = await getUserProfiles(userId);       // via user_profiles + group_profiles
-  const groupOverrides = await getUserGroupGrants(userId);
+  // 1. Validate context has all required dimensions
+  const dims = await getDeclaredDimensions();
+  for (const dim of dims.filter(d => d.required)) {
+    if (context[dim.name] === undefined) {
+      throw new Error(`Missing required dimension: ${dim.name}`);
+    }
+  }
+
+  // 2. Collect grants from 3 layers
+  const profiles = await getUserProfiles(userId);
+  const groupGrants = await getUserGroupGrants(userId);
   const userOverrides = await getUserOverrides(userId);
 
-  const allGrants = [
+  const applicableGrants = [
     ...profiles.flatMap(p => p.grants),
-    ...groupOverrides,
+    ...groupGrants,
     ...userOverrides,
-  ].filter(g => applies(g, action, ctx));
+  ].filter(g => matchesAllDimensions(g, action, context, dims));
 
-  // 2. Deny wins: if ANY applicable grant is a denial, deny
-  const denials = allGrants.filter(g => g.effect === 'deny');
-  if (denials.length > 0) {
-    return {
-      allowed: false,
-      reason: 'explicit-deny',
-      source: mostSpecificSource(denials),
-    };
-  }
+  // 3. Deny wins
+  const denials = applicableGrants.filter(g => g.effect === 'deny');
+  if (denials.length > 0) return { allowed: false, reason: 'explicit-deny', source: mostSpecific(denials) };
 
-  // 3. Grant if at least one applicable grant exists
-  const grants = allGrants.filter(g => g.effect === 'grant');
-  if (grants.length > 0) {
-    return {
-      allowed: true,
-      source: mostSpecificSource(grants),  // for traceability
-      reasonChain: explain(grants, ctx),   // for "why" reports
-    };
-  }
+  // 4. Grant if any applicable grant exists
+  const grants = applicableGrants.filter(g => g.effect === 'grant');
+  if (grants.length > 0) return {
+    allowed: true,
+    source: mostSpecific(grants),
+    reasonChain: explain(grants, context),
+  };
 
-  // 4. Default deny
+  // 5. Default deny
   return { allowed: false, reason: 'no-grant' };
 }
 
-function applies(
-  g: Grant,
-  action: ActionCode,
-  ctx: Context
+function matchesAllDimensions(
+  grant: Grant, action: ActionCode,
+  context: Record<string, unknown>,
+  dims: Dimension[]
 ): boolean {
-  if (g.action_code !== action) return false;
-  if (!orgMatches(g, ctx.orgNodeId)) return false;
-  if (!yearMatches(g, ctx.year)) return false;
-  if (!semesterMatches(g, ctx.semester)) return false;
-  if (!appMatches(g, ctx.appNodeId)) return false;
+  if (grant.action_code !== action) return false;
+  for (const dim of dims) {
+    if (!matchesDimension(grant.scope[dim.name], context[dim.name], dim.kind)) {
+      return false;
+    }
+  }
   return true;
+}
+
+function matchesDimension(
+  scopeSpec: unknown, contextValue: unknown, kind: DimKind
+): boolean {
+  if (scopeSpec === undefined || (scopeSpec as any).all) return true;
+  switch (kind) {
+    case 'hierarchical':    return isAncestorOrSelf(scopeSpec, contextValue);
+    case 'temporal_range':  return isInRange(scopeSpec, contextValue);
+    case 'enum_set':        return (scopeSpec as any).values.includes(contextValue);
+    case 'reference':       return (scopeSpec as any).ids.includes(contextValue);
+  }
 }
 ```
 
 ### Key invariants
 
-1. **Denial always wins** — a `deny` at any layer beats any number of `grant`s
-2. **Default deny** — no applicable grant = denied
-3. **Profile-based is broadest**, individual user override is most specific
-4. **Every decision is traceable** — `reasonChain` explains where each bit of access came from (for the "why" report)
+1. **Denial always wins** — at any layer
+2. **Default deny** — unmatched context = denied
+3. **All declared dimensions must match** — missing required dim → error
+4. **Profile-based is broadest**, user override is most specific
+5. **Every decision is traceable** via `reasonChain`
+6. **Evaluator stays the same** regardless of N — driven by dimensions registry
 
 ---
 
-## Admin UI (required — §8.5)
+## Starter Profiles (per domain)
 
-### Page: User management
-- List + search + filter (active, locked, profile)
-- Create / edit / deactivate / reactivate / delete
-- Reset password, force password change on next login
-- Lock / unlock account (with reason)
-- MFA enrollment / reset
-- Session + device list + force-logout
-- Password policy display + enforcement
-- Invite flow
+`/rbac --domain <kind>` ships tuned defaults per domain. The dimensions
+match the declared shape for that domain.
 
-### Page: Profile management
-- List profiles (with version, status, user count)
-- Clone existing profile
-- Visual editor: 5-dimensional grant builder
-  - Tab 1: Org scope (tree picker, "includes descendants" toggle)
-  - Tab 2: Academic year range + "all years"
-  - Tab 3: Semester picker
-  - Tab 4: Functional scope (tree picker)
-  - Tab 5: Action type picker
-  - Effect: grant / deny
-- Version history + rollback
-- Archive + delete
-- Preview: "Users who would gain/lose access if we ship v3"
-
-### Page: Assignment management
-- Filter by user or by profile
-- Assign / revoke profile to user
-- Assign / revoke group membership
-- Assign / revoke group profiles
-- Add user override (grant or deny)
-- Show effective permissions for selected user (computed live)
-
-### Page: Visitor / Guest management (if applicable)
-- Active visitor sessions
-- Rate-limit configuration per visitor type
-- Audit of visitor actions
-- Block IPs / ranges
-- Convert visitor → user
-
-### Page: Permission reports (specialized reporting module)
-Four canonical reports (from §8.5):
-
-1. **"Who can X?"** — given (action, org, year, semester, app) → list users + their sources
-2. **"What can user Z do?"** — given a user → tree of allowed actions with source chain
-3. **"Which profiles grant X?"** — given (action, scope) → profiles that confer it
-4. **"Recent permission changes"** — audit filter with date range, actor, subject
-
-### Page: Audit log
-- Searchable, filterable, exportable
-- Every grant / revoke / override / effective-access-decision
-- Retention configurable per tenant (min 1 year)
-
----
-
-## Shipping Default Profiles
-
-Every system ships with starter profiles tailored to its domain. Example for
-an SIS (Student Information System):
+### SIS example (5 dimensions)
 
 ```jsonc
 {
   "profiles": [
     {
-      "name": "Super Admin",
-      "grants": [
-        { "org": "*", "year": "*", "semester": "*", "app": "*", "action": "*", "effect": "grant" }
-      ]
-    },
-    {
-      "name": "University Admin",
-      "grants": [
-        { "org": "<university-id>", "year": "*", "semester": "*", "app": "*", "action": "*", "effect": "grant" }
-      ]
-    },
-    {
       "name": "Dean",
       "grants": [
-        { "org": "<college-id>", "year": "current", "semester": "*", "app": "academic.*", "action": "view", "effect": "grant" },
-        { "org": "<college-id>", "year": "current", "semester": "current", "app": "grades", "action": "approve", "effect": "grant" }
-      ]
-    },
-    {
-      "name": "Department Head",
-      "grants": [
-        { "org": "<dept-id>", "year": "current", "semester": "current", "app": "academic.*", "action": ["view","edit"], "effect": "grant" }
-      ]
-    },
-    {
-      "name": "Faculty",
-      "grants": [
-        { "org": "<own-courses>", "year": "current", "semester": "current", "app": "grades", "action": ["view","insert","edit"], "effect": "grant" }
-      ]
-    },
-    {
-      "name": "Student Affairs Officer",
-      "grants": [
-        { "org": "<campus>", "year": "*", "semester": "*", "app": "student-affairs.*", "action": ["view","insert","edit"], "effect": "grant" }
-      ]
-    },
-    {
-      "name": "Student",
-      "grants": [
-        { "org": "<own-program>", "year": "current", "semester": "current", "app": "student-portal.*", "action": "view", "effect": "grant" }
-      ]
-    },
-    {
-      "name": "Guest",
-      "grants": [
-        { "org": "*", "year": null, "semester": null, "app": "public.*", "action": "view", "effect": "grant" }
+        {
+          "scope": {
+            "organizational":  { "nodeId": "<college-id>", "includesDescendants": true },
+            "academic_year":   { "mode": "current" },
+            "semester":        { "values": ["first", "second", "summer"] },
+            "functional":      { "nodeId": "<academic-app>", "includesDescendants": true }
+          },
+          "action_code": "view", "effect": "grant"
+        },
+        {
+          "scope": { "organizational": {...}, "academic_year": {"mode":"current"}, "semester": {"all":true}, "functional": {...} },
+          "action_code": "approve", "effect": "grant"
+        }
       ]
     }
   ]
 }
 ```
 
-`/rbac --domain sis` generates this default set; domains differ (hospital, factory, retail).
+### Hospital example (4 dimensions — no academic_year/semester; add shift)
+
+```jsonc
+{
+  "profiles": [
+    {
+      "name": "Night-shift Nurse",
+      "grants": [
+        {
+          "scope": {
+            "organizational": { "nodeId": "<ward-id>", "includesDescendants": true },
+            "shift":          { "values": ["night"] },
+            "functional":     { "nodeId": "<patient-care-app>", "includesDescendants": true }
+          },
+          "action_code": "view", "effect": "grant"
+        }
+      ]
+    }
+  ]
+}
+```
+
+### Simple SaaS example (3 dimensions — the minimum)
+
+```jsonc
+{
+  "profiles": [
+    {
+      "name": "Admin",
+      "grants": [
+        {
+          "scope": {
+            "organizational": { "all": true },
+            "functional":     { "all": true }
+          },
+          "action_code": "*", "effect": "grant"
+        }
+      ]
+    },
+    {
+      "name": "Member",
+      "grants": [
+        {
+          "scope": {
+            "organizational": { "all": true },
+            "functional":     { "nodeId": "<main-app>", "includesDescendants": true }
+          },
+          "action_code": "view", "effect": "grant"
+        }
+      ]
+    }
+  ]
+}
+```
+
+### Factory example (5 dimensions: plant + line + shift + functional + action)
+
+```jsonc
+{
+  "profiles": [
+    {
+      "name": "Line Supervisor (Plant A, Line 3)",
+      "grants": [
+        {
+          "scope": {
+            "organizational": { "nodeId": "<plant-A-id>", "includesDescendants": true },
+            "plant":          { "ids": ["<plant-A-id>"] },
+            "line":           { "ids": ["<line-3-id>"] },
+            "shift":          { "values": ["day", "evening"] },
+            "functional":     { "nodeId": "<ops-app>", "includesDescendants": true }
+          },
+          "action_code": "view", "effect": "grant"
+        },
+        { /* same scope, edit + override */ }
+      ]
+    }
+  ]
+}
+```
 
 ---
 
-## Permission Declaration in Module Manifests
+## Admin UI — dimension-adaptive
 
-Modules declare permissions they **provide** and **consume** in their manifest:
+The profile editor UI adapts to the declared dimensions:
+
+- For SIS: 5 tabs (Org, Academic Year, Semester, Functional, Action)
+- For Hospital: 4 tabs (Org, Shift, Functional, Action)
+- For Simple SaaS: 3 tabs (Org, Functional, Action)
+- For Factory: 5 tabs (Plant, Line, Shift, Functional, Action)
+
+Each tab's picker matches the dimension's `kind`:
+- **hierarchical** → tree picker with "includes descendants" toggle
+- **temporal_range** → date range picker with "all" / "current" shortcuts
+- **enum_set** → multi-select checkboxes
+- **reference** → autocomplete multi-picker
+
+The admin UI **is generated from the dimensions registry**, not hand-coded
+per domain.
+
+---
+
+## Declaring additional Action Types per Module (§8.2.3)
+
+Unchanged from before — modules extend the action dimension via manifest:
 
 ```jsonc
 {
   "id": "grades",
   "permissions": {
-    "provides": [
-      "grades:view", "grades:insert", "grades:edit", "grades:close",
-      "grades:delete", "grades:approve", "grades:export"
-    ],
+    "provides": ["grades:view", "grades:edit", "grades:approve", "grades:export"],
     "actionTypes": {
       "approve": { "displayName": "Approve final grades" },
       "export":  { "displayName": "Export to transcript system" }
-    },
-    "consumes": [
-      "users:view:*",
-      "courses:view:scope"
-    ]
+    }
   }
 }
 ```
 
-The Core registers these at module install, so the profile editor shows them.
+---
+
+## Discovery-phase Questions (from §8.6, N-dimensional form)
+
+The `/discover permissions` sub-command asks these mandatory questions, with
+**Q0 added** to establish the dimensions up-front:
+
+```
+Q0 (NEW): What dimensions of scoping apply to this domain?
+    Start from the 3 universal ones:
+      - Organizational (always — hierarchical tree)
+      - Functional (always — app hierarchy)
+      - Action (always)
+    Add any domain-specific dimensions:
+      [ ] Academic year / fiscal year (temporal range)
+      [ ] Semester / period (enum set)
+      [ ] Shift (enum set)
+      [ ] Region / country (hierarchical)
+      [ ] Tenant (reference — for multi-tenant SaaS)
+      [ ] Store / branch (reference)
+      [ ] Project / matter (reference)
+      [ ] Plant / line (hierarchical)
+      [ ] Campaign / phase (temporal range)
+      [ ] Other: _______
+    Final N = 3 + (count of domain-specific)
+
+Q1: What shape does your organizational hierarchy take?
+    (levels, names, depth)
+
+Q2: For each domain-specific dimension declared in Q0, define:
+    - name, type (hierarchical / temporal / enum / reference)
+    - values / shape / unit
+
+Q3: Functional hierarchy (main app → sub-app → feature)?
+
+Q4: Action types beyond standard 6 (approve, export, submit, ...)?
+
+Q5: Initial profiles to ship (tuned to the domain)?
+
+Q6: Default scopes + actions per profile, across ALL declared dimensions?
+
+Q7: Group / individual overrides expected?
+
+Q8: Guests / visitors handling?
+
+Q9: Day-1 permission reports required?
+
+Q10: Audit + compliance requirements?
+```
+
+Answers saved to `projects/<project>/design/PERMISSIONS.md`. The plugin
+generates schema, seeds, middleware, and admin UI from the declared
+dimensions — **never hardcoded to a specific N**.
 
 ---
 
-## Middleware Integration (backend)
+## Middleware & Frontend (dimension-agnostic)
 
+Backend (NestJS):
 ```typescript
-// NestJS example — decorator + guard
 @Permissions('grades:edit')
 @Post('grades/:id')
 async updateGrade(
   @Param('id') id: string,
   @CurrentUser() user: User,
-  @OrgScope() org: OrgNode,
-  @AcademicContext() acad: { year, semester },
-  @Body() body: UpdateGradeDto
+  @PermissionContext() ctx: Record<string, unknown>  // keys match declared dims
 ) {
-  // PermissionsGuard already called canUser(user, 'grades:edit', { org, year, semester, app })
-  // If not allowed → 403 with reason + appeal link
+  // PermissionsGuard called canUser(user, 'grades:edit', ctx)
   return this.service.update(id, body);
 }
 ```
 
-```python
-# FastAPI example
-@router.post("/grades/{id}")
-async def update_grade(
-    id: UUID,
-    body: UpdateGradeBody,
-    user: User = Depends(require_permission("grades:edit")),
-    acad: AcadContext = Depends(extract_acad_context),
-):
-    ...
-```
-
----
-
-## Frontend Integration
-
+Frontend:
 ```tsx
-// React example — <Can> component
 <Can
   action="grades:edit"
-  org={collegeId}
-  year={currentYear}
-  semester={currentSemester}
-  app="grades.finalize"
+  context={{
+    organizational: collegeId,
+    academic_year: currentYear,
+    semester: currentSemester,
+    functional: 'grades.finalize'
+  }}
   fallback={<AccessDeniedBanner />}
 >
   <GradesEditForm />
 </Can>
-
-// Hook
-const { allowed, reasonChain } = usePermission('grades:edit', ctx);
 ```
+
+The `context` keys depend on what the project declared. A hospital app
+would pass `{ organizational, shift, functional }`. A simple SaaS would pass
+`{ organizational, functional }`.
 
 ---
 
 ## Testing Requirements
 
-- **Decision-table tests** — tabulate profile × user × context → expected result
+- **Dimensions-registry tests** — evaluator rejects unknown dimensions, requires required ones
+- **Decision-table tests** — tabulate profile × user × context → expected result (per domain)
 - **Denial-wins tests** — explicit deny beats grant at every layer
-- **Scope boundary tests** — grant at parent org covers children; scoped grant does NOT cover siblings
-- **Profile versioning tests** — rollback a profile; users restored to prior permissions
-- **Audit tests** — every change writes an audit row; access decisions logged
-- **Performance tests** — evaluator < 1ms for cached profile; < 10ms cold
-
----
-
-## Discovery Phase Questions (from §8.6)
-
-The `/discover permissions` sub-command asks these ten mandatory questions:
-
-1. Organizational hierarchy shape + depth
-2. Time-scoping (annual, fiscal, semester, campaign, ...)
-3. Functional hierarchy (main → sub → feature)
-4. Action types beyond View/Insert/Edit/Close/Open/Delete
-5. Initial profiles to ship (with proposed defaults)
-6. Default scopes + actions per profile
-7. Group-based vs user-specific overrides expected
-8. Guest / visitor handling
-9. Day-1 permission reports required
-10. Audit + compliance requirements
-
-Answers saved to `projects/<project>/design/PERMISSIONS.md`.
-Without answers → `/implement` refuses to scaffold permission-sensitive modules.
+- **Scope boundary tests** — grant at parent covers children; scoped grant doesn't cover siblings
+- **Shape tests** — hierarchical range contains descendants; temporal range contains sub-ranges; enum set matches values only
+- **Profile versioning tests** — rollback restores prior permissions
+- **Audit tests** — every change + every access decision logged
+- **Performance tests** — evaluator < 1ms cached; < 10ms cold
 
 ---
 
 ## See Also
 
-- `architecture-spec.md` §8 — canonical specification
-- `/rbac` command — 5-dimensional RBAC designer + admin UI scaffolder
-- `/discover permissions` — mandatory discovery-phase questions
-- Rule 25 (RBAC by Default) — enforcement
-- `audit-log.md` — audit trail implementation (integrated with this model)
+- `architecture-spec.md §8` — canonical specification (now dimension-flexible)
+- `/rbac` command — dimension-aware designer
+- `/discover permissions` — first asks "what dimensions apply?"
+- Rule 25 — enforces declared-dimensions approach

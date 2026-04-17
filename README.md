@@ -7,7 +7,45 @@ Design, evaluate, plan, and build production-grade distributed systems — from 
 
 ---
 
-## What's New in v1.9.0 — Shared Components (§7) + 5-Dim Permissions (§8)
+## What's New in v1.9.1 — Multi-Dimensional Permissions (correction)
+
+v1.9.0 hardcoded "5-Dimensional" everywhere based on the SIS example. This
+was wrong — different domains need different dimension counts. v1.9.1 fixes
+this to be **domain-specific N** where N is determined during discovery.
+
+### 3 universal dimensions + N-3 domain-specific
+
+| Dimension | Universal? | Notes |
+|-----------|-----------|-------|
+| Organizational | ✓ always | Hierarchical tree (shape varies) |
+| Functional | ✓ always | App hierarchy |
+| Action | ✓ always | Extensible enum |
+| Academic year | Domain (SIS) | Temporal range |
+| Semester | Domain (SIS) | Enum set |
+| Shift | Domain (hospital/factory) | Enum set |
+| Region | Domain (multinational) | Hierarchical |
+| Tenant | Domain (multi-tenant SaaS) | Reference |
+| Plant / Line | Domain (factory) | Hierarchical |
+| Project / Phase | Domain (consulting) | Reference / Temporal |
+| Fiscal period | Domain (finance/ERP) | Temporal |
+| Legal entity | Domain (regulated) | Reference |
+| Resource owner | Domain (CRM) | Reference |
+
+### N by domain
+
+| Domain | N |
+|--------|---|
+| Simple SaaS | 3 |
+| CRM / Hospital / E-commerce | 4 |
+| SIS / Retail / Factory / Multi-tenant SaaS / Projects | 5 |
+| ERP | 6 |
+| Regulated enterprise | 7+ |
+
+Q0 in `/discover permissions` sets N before any other questions. The
+plugin generates schema, evaluator, and admin UI for **whatever N the
+domain declares**.
+
+## v1.9.0 — Shared Components (§7) + Multi-Dim Permissions (§8)
 
 The canonical architecture spec now includes two new major sections (§7 & §8)
 authored by the plugin user. Everything in the plugin conforms.
@@ -28,30 +66,19 @@ the appropriate ownership layer:
   logic in shared code
 - Promotion as deliberate versioned refactor (never an ad-hoc copy)
 
-### §8 — 5-Dimensional Permission Model
-
-`/rbac` overhauled from simple `resource:action:scope` to the full
-**5-dimensional model** the spec mandates.
-
-A user is authorized only if ALL 5 dimensions align:
-
-1. **Organizational scope** — hierarchical (University → College → Dept → Program → Cohort)
-2. **Academic year** — temporal annual
-3. **Semester** — temporal sub-annual
-4. **Functional scope** — app hierarchy (Main App → Sub-App → Feature)
-5. **Action type** — View/Insert/Edit/Close/Open/Delete + custom per module
+### §8 — Multi-Dimensional Permissions (domain-specific N)
 
 **Profiles are the primary admin abstraction** — versioned, cloneable.
 **Assignment modes**: profile-based / group-based / user-specific (denials win).
 **4 canonical reports required**: who-can / what-can-user-do / profiles-with / recent-changes.
 
-**Discovery-phase requirement:** `/discover permissions` asks 10 mandatory
-questions (from spec §8.6). `/implement` refuses to scaffold permission-
-sensitive modules without answers.
+**Discovery-phase requirement:** `/discover permissions` asks Q0 (dimension
+setup) + Q1-10. `/implement` refuses to scaffold permission-sensitive
+modules without answers.
 
 ### New Knowledge Files
 - `shared-components.md` — 3-layer ownership, promotion, catalog, contracts
-- `permissions-model.md` — 5-dim DB schema, evaluator, admin UI, reports
+- `permissions-model.md` — **N-dimensional** (flexible) DB schema, evaluator, admin UI, reports
 
 ---
 

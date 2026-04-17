@@ -4,6 +4,72 @@ All notable changes to this project will be documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.1] - 2026-04-17
+
+### Correction — Permission model is Multi-Dimensional (domain-specific N), not fixed at 5
+
+**User clarified:** the 5 dimensions described in the earlier spec were the
+SIS example specifically. Other domains need 3, 4, 5, 6, or 7+ dimensions.
+The plugin was incorrectly hardcoding "5-Dimensional" everywhere. This
+release fixes that.
+
+### What changed conceptually
+
+- **3 dimensions are universal** (present in every system): Organizational,
+  Functional, Action.
+- **Additional dimensions are domain-specific** and declared during
+  `/discover permissions`:
+
+| Domain | Extra dims | N |
+|--------|-----------|---|
+| Simple SaaS | (none) | 3 |
+| CRM | Resource-owner | 4 |
+| Hospital | Shift | 4 |
+| E-commerce | Region | 4 |
+| SIS | Academic-year, Semester | 5 |
+| Retail | Region, Store | 5 |
+| Factory | Plant, Line, Shift | 5 |
+| Multi-tenant SaaS | Tenant, Region | 5 |
+| Regulated enterprise | Tenant, Region, Legal-entity, Fiscal-period | 7 |
+
+### Updated
+
+- **`architecture-spec.md` §8.2** — retitled from "The Five Dimensions" to
+  "The Dimensions of a Permission (Domain-Specific N)". 3 universal + N-3
+  domain-specific. Keeps SIS as one example of many. Clarifies how N is
+  determined.
+- **`architecture-spec.md` §8.6** — added Q0: "What dimensions of scoping
+  apply to this domain?" — sets N before the other questions.
+- **`permissions-model.md`** — fully rewritten for N-dimensional:
+  - DB schema is flexible: `dimensions` registry table records the
+    project's N, per-dimension backing tables only for declared dimensions,
+    `profile_grants.scope` as JSONB keyed by dimension name
+  - Evaluator is dimension-agnostic: `canUser(user, action, context)`
+    where `context` is `Record<string, unknown>` keyed by declared dims
+  - Examples for SIS (5), Hospital (4), Simple SaaS (3), Factory (5)
+- **`/rbac` command** — renamed "5-Dimensional" → "Multi-Dimensional",
+  generalized throughout. New `/rbac dimensions` subcommand to view/edit
+  declared dimensions. `--domain <kind>` presets pre-fill Q0 for common
+  shapes (saas-simple=3, crm=4, hospital=4, sis=5, factory=5, erp=6).
+- **`/discover permissions`** — Q0 added (sets N); Q1-10 adapted to work
+  with any declared dimensions. Domain presets shortcut available.
+- **Rule 25** — renamed "5-Dimensional" → "Multi-Dimensional (Domain-Specific N)".
+  Enforces: (a) 3 universal dims always present, (b) additional dims
+  declared in discovery, (c) evaluator driven by dimensions registry (not
+  hardcoded), (d) profile editor UI adapts to declared dims.
+
+### Why this matters
+
+- A rigid N=5 forces the wrong shape onto simple SaaS (too much ceremony)
+  and regulated enterprise (too few dims)
+- Plugin now generates the right data model + evaluator + admin UI for
+  **any N** the domain declares
+- Same evaluator code runs for 3 or 7 dimensions
+
+### Totals unchanged
+
+**147+ files · 57 commands · 31 rules · 14 skills · 27 knowledge files**
+
 ## [1.9.0] - 2026-04-17
 
 ### Extended Architecture Spec — Shared Components (§7) + 5-Dim Permissions (§8)

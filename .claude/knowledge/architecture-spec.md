@@ -223,36 +223,59 @@ The permission system MUST be:
 - **Auditable** — every grant, revocation, and access decision is logged
   and reportable.
 
-### 8.2 The Five Dimensions of a Permission
+### 8.2 The Dimensions of a Permission (Domain-Specific N)
 
-Every permission in the system is defined by the intersection of five
-dimensions. A user is authorized to perform an action **only if all five
-dimensions align**.
+Every permission in the system is defined by the intersection of **N
+dimensions**, where **N is determined by the domain**, not fixed. A user is
+authorized to perform an action **only if all declared dimensions align**.
 
-#### 1. Organizational scope (hierarchical)
+**Three dimensions are universal** and present in every system:
 
-A nested hierarchy representing the institutional structure. For an SIS this
-is typically:
+1. **Organizational scope** (hierarchical)
+2. **Functional scope** (application hierarchy)
+3. **Action type**
 
-> University → College → System → Program / Department → Academic Group (Year / Cohort)
+**Additional dimensions are domain-specific** and declared up-front during
+discovery. Examples:
 
-Each system instantiates its own hierarchy; the Core provides the mechanism,
-the domain provides the shape. A permission may be granted at any level of
-the hierarchy and implicitly covers all descendants, or explicitly
-restricted to a specific node.
+| Domain | Typical dimensions | N |
+|--------|-------------------|---|
+| Simple SaaS / internal tool | Org + Functional + Action | 3 |
+| CRM / helpdesk | Org + Functional + Action + Resource-owner | 4 |
+| E-commerce back-office | Org + Region + Functional + Action | 4 |
+| Hospital / clinical | Org + Shift + Functional + Action | 4 |
+| Factory / manufacturing | Plant + Line + Shift + Functional + Action | 5 |
+| **SIS (education — the earlier example)** | **Org + Academic-year + Semester + Functional + Action** | **5** |
+| Retail chain | Org + Region + Store + Functional + Action | 5 |
+| Projects / consulting | Org + Project + Phase + Functional + Action | 5 |
+| Multi-tenant SaaS with regions + product lines | Tenant + Region + Product-line + Org + Functional + Action | 6 |
+| Large regulated enterprise | Tenant + Region + Legal-entity + Fiscal-period + Org + Functional + Action | 7+ |
 
-#### 2. Academic year (temporal — annual)
+The specific dimensions that apply to any given system are determined in
+discovery and declared in `design/PERMISSIONS.md`. The plugin generates the
+data model, evaluator, and admin UI **from that declaration** — never hardcoded.
 
-Permissions may apply to a specific academic year (e.g., 2025/2026), a range
-of years, or all years. Historical years are typically read-only for most
-roles.
+> **Note on the earlier SIS example.** The 5 dimensions presented in earlier
+> drafts (Org + Academic-year + Semester + Functional + Action) were the
+> SIS-specific instance. They are one valid configuration among many, not a
+> prescription. Other domains need fewer or more dimensions.
 
-#### 3. Semester (temporal — sub-annual)
+#### The 3 Universal Dimensions
 
-Within an academic year, permissions may be scoped to a specific term
-(First, Second, Summer, …), a range of terms, or all terms.
+##### 1. Organizational scope (hierarchical)
 
-#### 4. Functional scope (application hierarchy)
+A nested hierarchy representing the institutional structure. The Core
+provides the mechanism; the domain provides the shape. Examples:
+
+- **SIS**: University → College → Department → Program → Cohort
+- **Hospital**: Group → Hospital → Department → Ward
+- **Retail**: HQ → Region → Country → City → Store
+- **Factory**: Company → Plant → Line → Cell
+
+A permission may be granted at any level and implicitly covers all
+descendants, or explicitly restricted to a specific node.
+
+##### 2. Functional scope (application hierarchy)
 
 The hierarchy of features the permission applies to:
 
@@ -261,23 +284,54 @@ The hierarchy of features the permission applies to:
 A permission may target a whole main application, a single sub-application,
 or an individual feature within a sub-application.
 
-#### 5. Action type
+##### 3. Action type
 
 The operation permitted on the targeted scope:
 
 > View · Insert · Edit · Close · Open · Delete
 
-Additional action types (Approve, Export, Print, Submit, …) MAY be defined
-per module and MUST be declared in that module's manifest.
+Additional action types (Approve, Reject, Export, Print, Submit, Publish,
+Impersonate, …) MAY be defined per module and MUST be declared in that
+module's manifest.
+
+#### Domain-Specific Dimensions
+
+Systems declare additional dimensions they need. Each declared dimension has:
+
+- A **name** (e.g., `academic_year`, `shift`, `region`)
+- A **type** (hierarchical / temporal-range / enum-set / reference)
+- **Cardinality semantics** in grants (single value / range / all)
+
+Common examples:
+
+| Dimension | Type | Seen in |
+|-----------|------|---------|
+| Academic year | Temporal range | SIS |
+| Semester / Term | Enum set | SIS |
+| Fiscal year / period | Temporal range | ERP, finance |
+| Shift | Enum set | Hospital, factory, retail |
+| Region | Hierarchical | Multinational orgs |
+| Store / Branch | Reference | Retail |
+| Tenant | Reference | Multi-tenant SaaS |
+| Plant / Line | Hierarchical | Factory |
+| Project | Reference | Consulting, agency |
+| Phase / Campaign | Temporal range | Marketing, projects |
+| Legal entity | Reference | Regulated enterprise |
+| Product category | Hierarchical | E-commerce |
+| Matter / Case | Reference | Legal, insurance |
+
+A system MAY have as few as **3** dimensions (minimal) or as many as the
+domain requires (**7+**). The plugin's job is to make **any N work**, not to
+enforce a specific number.
 
 ### 8.3 Profiles
 
-A **Profile** is a named, reusable bundle of permissions across the five
-dimensions. Profiles are the primary administrative abstraction —
-administrators assign profiles, not individual permissions.
+A **Profile** is a named, reusable bundle of permissions across the declared
+dimensions of the system. Profiles are the primary administrative abstraction
+— administrators assign profiles, not individual permissions.
 
-- A profile defines a default set of grants across organizational scopes,
-  academic years, semesters, functional scopes, and actions.
+- A profile defines a default set of grants across every declared dimension
+  of the system (whatever N the domain requires).
 - Each dimension in a profile can be set to a specific value, a range, or
   "all."
 - A profile can be assigned to a single user, a group of users, or applied
@@ -332,17 +386,26 @@ involves any non-trivial permissions, the assistant MUST — during the
 discovery phase, before implementation begins — explicitly ask the user
 about the permissions model. Specifically, the assistant should clarify:
 
+0. **What dimensions of scoping apply to this domain?** Start from the 3
+   universal ones (organizational, functional, action) and add any
+   domain-specific dimensions required (academic year + semester for SIS,
+   shift for hospital, fiscal period + region for ERP, plant + line for
+   factory, tenant + region for multi-tenant SaaS, etc.). The number N is
+   domain-specific and determined here, not assumed.
 1. **What organizational hierarchy applies** to this system, and how deep
    does it go?
-2. Are permissions **time-scoped** (academic years, fiscal years, semesters,
-   campaigns, …)?
+2. For each **additional dimension** declared in Q0, what's its type
+   (hierarchical / temporal-range / enum-set / reference) and cardinality?
 3. What is the **functional hierarchy** (main apps → sub-apps → features) to
    be secured?
 4. What **action types** are needed beyond the standard View / Insert / Edit
    / Close / Open / Delete?
-5. What **initial profiles** should ship with the system (e.g., Super Admin,
-   Dean, Department Head, Faculty, Student Affairs Officer, Student, Guest)?
-6. What are the **default scopes and actions** for each profile?
+5. What **initial profiles** should ship with the system (tailored to the
+   domain — e.g., for SIS: Super Admin, Dean, Department Head, Faculty,
+   Student; for hospital: System Admin, Chief, Doctor, Nurse, Patient;
+   for factory: Plant Admin, Supervisor, Operator; …)?
+6. What are the **default scopes and actions** for each profile, across
+   every declared dimension?
 7. Are there **group-based or individual overrides** expected?
 8. Are there **guests or visitors**, and how should they be monitored?
 9. What **permission reports** are required on day one?

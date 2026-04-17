@@ -1,38 +1,56 @@
-# /rbac - 5-Dimensional Permissions & Access Control
+# /rbac - Multi-Dimensional Permissions & Access Control
 
 Design a production-grade permission system following `architecture-spec.md §8`
-and `permissions-model.md`. Not a simple `is_admin` boolean — a full **5-dimensional
-model** with Profiles, assignment modes, specialized reports, and mandatory
-discovery-phase questions.
+and `permissions-model.md`. Not a simple `is_admin` boolean — a full
+**multi-dimensional model** where **N is determined by the domain**, with
+Profiles as the primary admin abstraction.
 
-## The 5 Dimensions
+## The Model — N Dimensions (domain-specific)
 
-Every permission is the intersection of 5 dimensions. **All 5 must align** for access.
+Every permission is the intersection of **N dimensions**. N is determined
+by the project, not hardcoded.
 
-| # | Dimension | Example values |
-|---|-----------|---------------|
-| 1 | **Organizational scope** (hierarchical) | University → College → Department → Program → Cohort |
-| 2 | **Academic year** (annual) | Specific year, range, or all |
-| 3 | **Semester** (sub-annual) | First, Second, Summer, range, or all |
-| 4 | **Functional scope** (app hierarchy) | Main App → Sub-App → Feature |
-| 5 | **Action type** | View · Insert · Edit · Close · Open · Delete (+ custom per module) |
+### 3 universal dimensions (always present)
+
+1. **Organizational scope** — hierarchical tree (domain-specific shape)
+2. **Functional scope** — app hierarchy (Main App → Sub-App → Feature)
+3. **Action type** — View / Insert / Edit / Close / Open / Delete (+ module-custom)
+
+### Domain-specific dimensions (declared in discovery)
+
+Examples of how N varies by domain:
+
+| Domain | Typical dimensions | N |
+|--------|-------------------|---|
+| Simple SaaS | Org + Functional + Action | 3 |
+| CRM / helpdesk | Org + Functional + Action + Resource-owner | 4 |
+| Hospital | Org + Shift + Functional + Action | 4 |
+| Retail chain | Org + Region + Store + Functional + Action | 5 |
+| SIS (education) | Org + Academic-year + Semester + Functional + Action | 5 |
+| Factory | Plant + Line + Shift + Functional + Action | 5 |
+| Multi-tenant SaaS w/ regions | Tenant + Region + Org + Functional + Action | 5 |
+| Regulated enterprise | Tenant + Region + Legal-entity + Fiscal-period + Org + Functional + Action | 7+ |
+
+**Your project's N is set during discovery** and recorded in
+`design/PERMISSIONS.md`. The plugin generates schema, evaluator, and admin UI
+from that declaration — not hardcoded to 5 or any other number.
 
 ## Usage
 
 ```
-/rbac                              # Interactive design: asks the §8.6 mandatory questions
-/rbac --domain <domain>            # Domain-specific default profiles (sis, hospital, erp, retail)
-/rbac discover                     # Run mandatory discovery-phase questions (§8.6)
+/rbac                              # Interactive design: asks dimensions first, then §8.6 questions
+/rbac --domain <domain>            # Domain preset (sis, hospital, erp, retail, factory, saas-simple)
+/rbac discover                     # Run the mandatory discovery questions (Q0 + 1-10)
+/rbac dimensions                   # View / edit the declared dimensions for this project
 /rbac generate                     # Generate schema + seeds + middleware + admin UI + reports
 /rbac profiles                     # Manage profiles (list / create / clone / version / archive)
-/rbac roles                        # Legacy alias — profiles are the new primary abstraction
 /rbac permissions                  # Declare action types per module
 /rbac assign <user> <profile>      # Assign profile (or group or override)
-/rbac who-can <action> <scope>     # Report: who can do X in Y? (§8.5 report 1)
-/rbac what-can <user>              # Report: what can user Z do? with source chain (report 2)
-/rbac profiles-with <action>       # Report: which profiles grant X? (report 3)
-/rbac changes --last 30d           # Report: recent permission changes (report 4)
-/rbac audit                        # Verify every endpoint is 5-dim guarded
+/rbac who-can <action> <scope>     # Report 1: who can do X in scope Y?
+/rbac what-can <user>              # Report 2: what can user Z do? with source chain
+/rbac profiles-with <action>       # Report 3: which profiles grant X?
+/rbac changes --last 30d           # Report 4: recent permission changes
+/rbac audit                        # Verify every endpoint matches declared dimensions
 /rbac test                         # Run decision-table tests
 ```
 
@@ -42,387 +60,283 @@ When a project has non-trivial permissions, `/rbac discover` MUST ask these
 before any implementation:
 
 ```
+Question 0 (NEW — dimension setup):
+  What dimensions of scoping apply to this domain?
+
+  Universal dimensions (automatically included):
+    ✓ Organizational (hierarchical)
+    ✓ Functional (hierarchical — main app → sub-app → feature)
+    ✓ Action (extensible enum)
+
+  Domain-specific dimensions — tick all that apply:
+    [ ] Academic year            (temporal range — for education)
+    [ ] Fiscal year / period     (temporal range — for finance/ERP)
+    [ ] Semester / term          (enum set — for education)
+    [ ] Shift                    (enum set — for hospital/factory/retail)
+    [ ] Region / country         (hierarchical — multinational orgs)
+    [ ] Store / branch           (reference — retail)
+    [ ] Tenant                   (reference — multi-tenant SaaS)
+    [ ] Plant / line             (hierarchical — factory)
+    [ ] Project / matter         (reference — consulting/legal)
+    [ ] Phase / campaign         (temporal range — marketing)
+    [ ] Legal entity             (reference — regulated enterprise)
+    [ ] Resource owner           (reference — CRM "own records")
+    [ ] Product category         (hierarchical — e-commerce)
+    [ ] Custom: ____________________
+
+  Final N dimensions: ___
+
 Question 1: Organizational hierarchy
-  What's the shape of your org hierarchy? How many levels?
+  For the Organizational dimension, what's the shape?
+  (level names from root to leaf)
   Examples:
-    SIS: University → College → Department → Program → Cohort
-    Hospital: Group → Hospital → Department → Ward → Shift
-    Retail: HQ → Region → Country → City → Store → Aisle
-    Factory: Company → Plant → Line → Cell → Machine
-  Enter level names (root → leaf):
+    SIS:         University → College → Department → Program → Cohort
+    Hospital:    Group → Hospital → Department → Ward
+    Retail:      HQ → Region → Country → City → Store
+    Factory:     Company → Plant → Line → Cell
+    Simple SaaS: Org → Team (or just Org)
 
-Question 2: Time scoping
-  Are permissions time-scoped?
-    [ ] Academic years (for education)
-    [ ] Fiscal years (for finance)
-    [ ] Semesters/terms
-    [ ] Campaigns / seasons
-    [ ] None — permissions are timeless
-  Time shapes:
+Question 2: For each domain-specific dimension declared in Q0:
+  - Type (hierarchical / temporal_range / enum_set / reference)
+  - Values or shape or unit
+  Example (SIS academic_year):
+    Type: temporal_range
+    Unit: year
+    Values: 2020/2021, 2021/2022, 2022/2023, 2023/2024, 2024/2025, 2025/2026, ...
 
-Question 3: Functional hierarchy (apps → sub-apps → features)
-  What's the app tree to secure?
-  Example:
-    Academic
-      ├── Enrollment
-      ├── Grades
-      │   ├── Enter Grades
-      │   ├── Publish Grades
-      │   └── Reopen Grades
-      └── Transcripts
-    Student Affairs
-      ├── Attendance
-      └── Conduct
-  Paste your app tree:
+Question 3: Functional hierarchy (main app → sub-app → feature)?
+  Paste your app tree.
 
-Question 4: Action types beyond standard 6
-  Standard: view / insert / edit / close / open / delete
-  Additional (tick all that apply):
-    [ ] Approve   [ ] Reject    [ ] Export   [ ] Import
-    [ ] Print     [ ] Publish   [ ] Unpublish [ ] Submit
-    [ ] Assign    [ ] Impersonate [ ] Lock   [ ] Unlock
-    [ ] Other: ___
+Question 4: Action types beyond standard 6?
+  (approve / reject / export / import / print / publish / submit / archive / ...)
 
-Question 5: Initial profiles to ship
-  List profiles needed from day 1 (with short description each):
-  Suggestions (pick + modify):
-    - Super Admin
-    - Tenant Admin (per-university / per-hospital / per-company)
-    - Mid Admin (Dean / Department Head / Manager)
-    - Operator (Faculty / Doctor / Staff)
-    - Support (Student Affairs / Registry / Helpdesk)
-    - End User (Student / Patient / Customer)
-    - Guest / Visitor
+Question 5: Initial profiles to ship?
+  (tailored to your domain — Super Admin, Dean, Faculty, Student for SIS;
+  System Admin, Chief, Doctor, Nurse for hospital; etc.)
 
-Question 6: Default scopes + actions per profile
-  For each profile above, which (dim1, dim2, dim3, dim4, dim5) defaults?
-  I'll ask per profile ...
+Question 6: Default scopes + actions per profile?
+  For each profile, grant values across EVERY declared dimension.
 
-Question 7: Group + individual overrides
-  Do you need:
-    [ ] Group-based grants (e.g., "all department chairs in Engineering")
-    [ ] Individual user overrides (deny access even if profile grants it)
-    [ ] Temporary overrides (expires after date)
+Question 7: Group + individual overrides expected?
 
-Question 8: Guests / Visitors
-  Does the system accept unauthenticated visitors?
-    [ ] Yes — public pages only
-    [ ] Yes — authenticated visitors (parents, prospective students)
-    [ ] No
-  If yes: rate limits? Allowed actions? Audit?
+Question 8: Guests / visitors?
 
-Question 9: Day-1 permission reports required
-  Standard 4 reports:
-    [✓] Who can do X in scope Y?
-    [✓] What can user Z do (with source chain)?
+Question 9: Day-1 permission reports required?
+  Standard 4:
+    [✓] Who can do X?
+    [✓] What can user Z do?
     [✓] Which profiles grant action X?
-    [✓] Recent permission changes (last N days)
-  Additional reports needed?
+    [✓] Recent permission changes
+  Additional:
 
-Question 10: Audit + compliance requirements
-  Retention of audit logs: ___ years
+Question 10: Audit + compliance requirements?
+  Retention: ___ years
   Regulations: [ ] GDPR [ ] HIPAA [ ] FERPA [ ] SOX [ ] PCI [ ] Other
-  Right to be forgotten: [ ] yes [ ] no
-  Data residency constraints: ___
 ```
 
 **Answers saved to `projects/<project>/design/PERMISSIONS.md`.**
 
-**Without answers** → `/implement` refuses to scaffold permission-sensitive
-modules.
+**Without answers** → `/implement` refuses to scaffold permission-sensitive modules.
 
----
+## Domain Presets (shortcut)
+
+`/rbac --domain <kind> discover` pre-fills Q0 with typical dimensions:
+
+| Domain | Pre-filled dimensions |
+|--------|----------------------|
+| `saas-simple` | Org + Functional + Action (N=3) |
+| `crm` | Org + Functional + Action + Resource-owner (N=4) |
+| `sis` | Org + Academic-year + Semester + Functional + Action (N=5) |
+| `hospital` | Org + Shift + Functional + Action (N=4) |
+| `retail` | Org + Region + Store + Functional + Action (N=5) |
+| `factory` | Plant + Line + Shift + Functional + Action (N=5) |
+| `ecommerce` | Org + Region + Product-category + Functional + Action (N=5) |
+| `projects` | Org + Project + Phase + Functional + Action (N=5) |
+| `erp` | Tenant + Fiscal-period + Legal-entity + Org + Functional + Action (N=6) |
+| `multi-tenant-saas` | Tenant + Region + Org + Functional + Action (N=5) |
+
+Users can still customize after the preset — add/remove dimensions freely.
 
 ## Profiles — the Primary Abstraction
 
-A **Profile** is a named, reusable bundle of permissions across the 5
-dimensions. **Administrators assign profiles, not individual permissions.**
+A **Profile** is a named, reusable bundle of grants across **whatever
+dimensions the project declared**. Profiles are the primary admin
+abstraction — administrators assign profiles, not individual permissions.
 
-- Each dimension: specific value, range, or "all"
+- Each dimension in a profile: specific value, range, or "all"
 - Multiple profiles per user → union (minus explicit denials)
 - Versioned: rollback supported
-- Can be tenant-specific or universal
+- Tenant-specific or universal
 
-### Example — Dean profile for SIS
+### Example grant shapes (shape depends on dimension kind)
 
 ```jsonc
+// SIS profile grant (5 dimensions)
 {
-  "name": "Dean",
-  "description": "Full authority within the college for the current academic year",
-  "version": 1,
-  "grants": [
-    {
-      "orgScope": "{collegeId}",
-      "includesDescendants": true,
-      "yearFrom": "current",
-      "yearTo": "current",
-      "semesters": ["first", "second", "summer"],
-      "appScope": "academic.*",
-      "actions": ["view", "approve"],
-      "effect": "grant"
-    },
-    {
-      "orgScope": "{collegeId}",
-      "yearFrom": "current", "yearTo": "current",
-      "semesters": ["first", "second", "summer"],
-      "appScope": "grades.finalize",
-      "actions": ["approve"],
-      "effect": "grant"
-    },
-    {
-      "orgScope": "{collegeId}",
-      "yearFrom": "historical",
-      "appScope": "*",
-      "actions": ["view"],
-      "effect": "grant"
-    }
-  ]
+  "scope": {
+    "organizational":  { "nodeId": "<college-engineering>", "includesDescendants": true },
+    "academic_year":   { "from": "2025-09", "to": "2026-08" },
+    "semester":        { "values": ["first", "second"] },
+    "functional":      { "nodeId": "<academic-app>", "includesDescendants": true }
+  },
+  "action_code": "approve",
+  "effect": "grant"
+}
+
+// Hospital profile grant (4 dimensions)
+{
+  "scope": {
+    "organizational": { "nodeId": "<icu-ward>", "includesDescendants": true },
+    "shift":          { "values": ["night"] },
+    "functional":     { "nodeId": "<patient-care>", "includesDescendants": true }
+  },
+  "action_code": "edit",
+  "effect": "grant"
+}
+
+// Simple SaaS profile grant (3 dimensions)
+{
+  "scope": {
+    "organizational": { "all": true },
+    "functional":     { "nodeId": "<main-app>", "includesDescendants": true }
+  },
+  "action_code": "view",
+  "effect": "grant"
 }
 ```
 
----
+The shape of `scope` adapts to what dimensions this project declared.
 
-## Assignment Modes (§8.4)
+## Assignment Modes (unchanged by N)
 
-| Mode | When | Specificity |
-|------|------|-------------|
-| **Profile-based** | User receives a profile; permissions derive | Broadest |
-| **Group-based override** | Extra grant/deny for group members | Middle |
-| **User-specific override** | Grant/deny for one user, overrides profile + group | Most specific |
+| Mode | Specificity |
+|------|-------------|
+| **Profile-based** | Broadest |
+| **Group-based override** | Middle |
+| **User-specific override** | Most specific |
 
-**Denials always win over grants.** Deterministic evaluation; see
-`permissions-model.md` for the algorithm.
+**Denials always win.** Deterministic evaluation:
 
 ```bash
-/rbac assign user:dana@acme.com profile:Dean                  # profile-based
-/rbac assign group:engineering-chairs profile:Department-Head  # group-based
+/rbac assign user:dana@acme.com profile:Dean
+/rbac assign group:engineering-chairs profile:Department-Head
 /rbac override user:dana@acme.com --action grades:delete --effect deny --reason "on-leave"
 ```
-
----
 
 ## Generated Artifacts
 
 ### `design/PERMISSIONS.md`
-Complete answers to §8.6 questions + derived permission model.
+Complete answers to Q0-10 + derived permission model + declared dimensions.
 
-### Database schema (from `permissions-model.md`)
-- `org_nodes` (hierarchy with LTREE)
-- `academic_years`, `semesters`
-- `apps` (functional hierarchy)
-- `action_types` (core + module-extensible)
-- `profiles`, `profile_grants`
+### Database schema (from `permissions-model.md`, adapted to declared dims)
+- `dimensions` registry (records what THIS project uses)
+- `org_nodes` (always — the Organizational dimension)
+- `apps` (always — the Functional dimension)
+- `action_types` (always — core + module-extensible)
+- **Per-declared-dimension tables** (e.g., `academic_years`, `semesters`,
+  `shifts`, `plants`, `lines` — only for dims this project actually declared)
+- `profiles`, `profile_grants` (with JSONB scope shaped to declared dims)
 - `user_profiles`, `groups`, `group_members`, `group_profiles`
 - `user_overrides`
 - `permission_audit`
 
 ### Seeds
-- Action types: view, insert, edit, close, open, delete (+ module extras)
-- Starter profiles (from Question 5 + 6)
-- Your domain hierarchy (from Question 1)
+- Action types (core + module extras)
+- Starter profiles matching the domain
+- Declared dimensions registered
 
-### Backend middleware
+### Backend middleware (dimension-agnostic)
+
 ```typescript
 @Permissions('grades:edit')
 @Post('grades/:id')
 async updateGrade(
   @CurrentUser() user: User,
-  @OrgScope() org: OrgNode,          // from URL param or header
-  @AcademicContext() acad: AcadContext
-) { ... }
+  @PermissionContext() ctx: Record<string, unknown>
+) {
+  // PermissionsGuard already called canUser(user, 'grades:edit', ctx)
+  return this.service.update(id, body);
+}
 ```
 
-```python
-@router.post("/grades/{id}")
-async def update_grade(
-  user: User = Depends(require_permission("grades:edit")),
-  acad: AcadContext = Depends(extract_acad_context),
-  org: OrgNode = Depends(extract_org_scope),
-): ...
-```
+The `@PermissionContext()` decorator extracts the declared dimension values
+from request/headers/params. Helpers per dimension kind.
 
-### Frontend integration
+### Frontend `<Can>` (dimension-agnostic)
+
 ```tsx
 <Can
   action="grades:edit"
-  org={collegeId}
-  year={currentYear}
-  semester={currentSemester}
-  app="grades.finalize"
+  context={{
+    organizational: collegeId,
+    academic_year: currentYear,       // only if academic_year is declared
+    semester: currentSemester,        // only if semester is declared
+    functional: 'grades.finalize'
+  }}
   fallback={<AccessDeniedBanner />}
 >
   <GradesEditForm />
 </Can>
-
-const { allowed, reasonChain } = usePermission('grades:edit', ctx);
 ```
 
-### Admin UI (§8.5 required)
+### Admin UI (adaptive to declared dims)
 
-- **User management** — full CRUD, reset password, MFA, sessions, lock/unlock
-- **Profile management** — create, clone, version, archive
-  - Visual 5-dimensional grant builder (tabs for each dimension)
-  - "Preview: who gains/loses access if this ships"
-- **Assignment management** — profile + group + user override
-  - Live "effective permissions" preview for selected user
-- **Visitor / guest management** (if applicable)
-- **Permission reports** — the 4 canonical reports (see below)
-- **Audit log** — searchable, filterable, exportable
+Profile editor generates one tab per declared dimension, with picker UI
+matching the dimension's kind (tree / range / enum / reference).
 
-### The 4 Canonical Reports (§8.5)
+## The 4 Canonical Reports (§8.5, dimension-aware)
 
-Generated as first-class admin pages:
+All 4 reports work regardless of N — they query the `profile_grants`
+scope JSONB.
 
-#### 1. "Who can do X?"
 ```
-/rbac who-can grades:edit --college "Engineering" --year 2025/2026 --semester first
-```
-```
-Users who can edit grades in College Engineering for 2025/2026-first:
-  12 users total
-
-By source:
-  Profile: Dean of Engineering    → Dana K. (direct)
-  Profile: Dept Head              → Ahmed M., Sara O., ... (9 users)
-  Group: grading-committee        → Lina F., Omar Z.
-  User override (grant)           → Rami Y.
-
-User override (deny):
-  None
-```
-
-#### 2. "What can user Z do?"
-```
+/rbac who-can grades:edit --college Engineering --year 2025/2026 --semester first
 /rbac what-can dana@acme.com
+/rbac profiles-with action:grades:delete --scope "Engineering"
+/rbac changes --last 30d
 ```
-```
-Dana K. (user:abc123)
-
-Effective permissions tree:
-  Academic                             (from Profile: Dean of Engineering)
-    ├── Grades                         (view, approve)
-    │   └── Finalize                   (approve)
-    ├── Enrollment                     (view)
-    └── Transcripts                    (view)
-  Administration                       (from Profile: Dean of Engineering)
-    ├── Faculty Mgmt                   (view, edit, approve)
-    └── Reports                        (view, export)
-
-Denials:
-  Billing.financial-aid.edit           (from Group: on-leave)
-
-Historical (view-only, year < 2025/2026):
-  All academic features               (from Profile: Dean of Engineering)
-```
-
-#### 3. "Which profiles grant X?"
-```
-/rbac profiles-with action:grades:delete scope:"College Engineering"
-```
-```
-Profiles that confer grades:delete in College Engineering:
-
-  Profile: Super Admin          (global; 3 users)
-  Profile: University Admin     (university scope; 5 users)
-  Profile: Data-Admin Override  (college scope; 2 users)
-
-Group overrides: none
-Individual overrides: 1 user (with reason: audit-cleanup project)
-```
-
-#### 4. Recent changes
-```
-/rbac changes --last 30d --actor-type admin
-```
-```
-Permission changes in the last 30 days (admin actors only):
-
-2026-04-14 09:12 | Sara O. | GRANTED  | Profile "Dept Head" to Ahmed M. | reason: promoted
-2026-04-12 14:33 | Sara O. | DENIED   | user-override grades:delete to Lina F. | reason: on leave
-2026-04-08 10:05 | Admin   | CREATED  | Profile "Data Admin Override" v1 | reason: new compliance role
-... (43 total)
-
-Export: CSV | PDF | JSON
-```
-
----
 
 ## `/rbac audit`
 
-Scans codebase for permission violations:
+Scans codebase for permission violations, validating against **declared dimensions**:
 
 ```markdown
-## 5-Dim RBAC Audit
+## Multi-Dim RBAC Audit
+
+Declared dimensions (5): organizational, academic_year, semester, functional, action
 
 Endpoints scanned: 127
-Permission-guarded: 122 ✓
-Unguarded (intentional public): 3 (/login, /register, /forgot) ✓
+Guarded: 122 ✓
+Unguarded (intentional public): 3 ✓
 Unguarded (MISSING guard): 2 ✗
 
-1. POST /api/v1/grades/bulk-delete
-   → add `@Permissions('grades:delete')` + dimension context extraction
-2. GET /api/v1/reports/financial
-   → unguarded; should require `reports:financial:view`
-
-Endpoints using wrong dimension count: 4
-  These use 3-dim permissions but should use 5-dim:
-  - grades:edit → should include (org, year, semester, app-node)
-
-Destructive actions without audit: 1
-  POST /users/:id/delete → add audit log write
+Endpoints with missing dimension in context: 4
+  POST /api/v1/grades/finalize — missing `semester` in context extraction
 
 Profile coverage:
   Super Admin:   covers 94% of actions
-  Dean:          covers 62% of actions — gaps: [billing, hr-admin]
-  Faculty:       covers 8% of actions ✓ (expected)
-  Student:       covers 3% of actions ✓ (expected)
+  Dean:          covers 62% — gaps: [billing, hr-admin]
+  Faculty:       covers 8% ✓ (expected for role)
 
-Dead permissions (declared but never checked): 4
-  - `reports:print:own` (no endpoint requires it)
-  - ... 3 more
+Declared dimensions never used in any grant: 0 ✓ (good)
+Dimensions missing from evaluator: 0 ✓
 
-Action types defined but not used: 2
-  - "submit" (declared by module `forms`)
-  - "archive" (declared by module `shared`)
-
-Recommendation: fix 2 missing guards + 4 dimension mismatches + 1 audit gap
-before shipping.
+Fix 2 missing guards + 4 context extraction gaps before shipping.
 ```
-
----
-
-## Domain-Specific Starter Profiles
-
-`/rbac --domain <domain>` ships tuned defaults per domain:
-
-- **sis** (education) — Super Admin, University Admin, Dean, Dept Head, Faculty, Student Affairs, Student, Guest
-- **hospital** — System Admin, Hospital Admin, Chief, Department Head, Doctor, Nurse, Front Desk, Patient, Guest
-- **erp** — System Admin, Company Admin, CFO, Finance Manager, Accountant, Warehouse Supervisor, Worker, Auditor
-- **retail** — System Admin, Regional Manager, Store Manager, Shift Lead, Associate, Customer
-- **factory** — Plant Admin, Line Supervisor, Operator, Quality Inspector, Maintenance
-
-Each ships with sensible scope defaults (Dim 1) and action sets (Dim 5).
-
----
 
 ## Testing
 
-`/rbac test` runs decision-table tests:
+`/rbac test` runs decision-table tests against declared dimensions:
 
 ```
-## Decision Table Tests
+## Decision Table Tests (5 declared dimensions)
 
 For profile "Dean":
   ✓ can view grades in own college, current year, any semester
-  ✓ can approve grades in own college, current year, current/prior semester
-  ✗ can edit grades in different college  [correctly denied]
-  ✓ can view grades in historical year
-  ✗ can approve grades in historical year [correctly denied]
-
-For user "Dana" (Dean + group:grading-committee + override:deny-grades-delete):
-  ✓ can edit grades in Engineering (via Dean profile)
-  ✗ cannot delete grades (explicit user-level deny wins over group grant)
-  ✓ group grant applies for approve:own-college
+  ✓ can approve grades in own college, current year, current semester
+  ✗ can edit grades in different college            [correctly denied]
+  ✓ can view grades in historical year              [correctly granted]
+  ✗ can approve grades in historical year           [correctly denied]
 
 Denial-wins test:
   12 test cases checking user/group deny beats profile grant: all ✓
@@ -430,43 +344,45 @@ Denial-wins test:
 Scope boundary tests:
   Grant at college → covers departments: ✓
   Grant at college → does NOT cover sibling college: ✓
-  Grant at college with includesDescendants=false → only college-level: ✓
 
-All tests passed (47/47)
+Dimension-matching tests:
+  Temporal range overlap: ✓
+  Enum set membership: ✓
+  Hierarchical ancestor match: ✓
+
+All tests passed (62/62)
 ```
-
----
 
 ## Integration with Other Commands
 
-- `/discover permissions` — runs the 10 mandatory §8.6 questions
-- `/core-modules` — module manifests declare `permissions.provides` + `.consumes`
-- `/pages` — admin UI pages derived from this command
+- `/discover permissions` — runs Q0-10; project's N is set here
+- `/core-modules` — modules declare permissions.provides + consumes in manifest
+- `/pages` — admin UI pages include Dimensions editor
 - `/implement` — refuses to scaffold permission-sensitive modules until
-  `design/PERMISSIONS.md` exists
-- `/security` — includes RBAC audit in the security review
-
----
+  `PERMISSIONS.md` exists with declared dimensions
+- `/security` — RBAC audit included in security review
 
 ## Examples
 
 ```
-/rbac discover                                 # Start the 10 mandatory questions
-/rbac --domain sis generate                    # Full generate with SIS defaults
+/rbac discover                                 # Start Q0-10; declare dimensions first
+/rbac --domain sis discover                    # Pre-fill with SIS dimensions (N=5)
+/rbac --domain hospital discover               # Pre-fill with Hospital dimensions (N=4)
+/rbac --domain saas-simple discover            # Pre-fill with Simple SaaS (N=3)
+/rbac dimensions                               # View declared dimensions
+/rbac generate                                 # Build everything based on declared dims
 /rbac profiles                                 # Manage profiles
 /rbac assign dana@acme.com Dean                # Assign profile
 /rbac who-can grades:edit --college Engineering --year 2025/2026
 /rbac what-can dana@acme.com
-/rbac profiles-with grades:delete
-/rbac changes --last 30d
-/rbac audit                                    # Verify coverage
+/rbac audit                                    # Verify endpoint-to-dims alignment
 /rbac test                                     # Decision-table tests
 ```
 
 ---
 
 **What's next?**
-- `/pages` — generate admin UI pages for user mgmt, profile mgmt, reports
-- `/shared-components` — ensure the admin UI uses shared components
-- `/implement --rbac` — build the 5-dim permission system in code
+- `/pages` — generate admin UI pages (profile editor adapts to declared dims)
+- `/shared-components` — ensure admin UI uses shared components
+- `/implement --rbac` — build the multi-dim permission system
 - `/security` — broader security review
